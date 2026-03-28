@@ -47,9 +47,9 @@ export default async function CategoryPage({ params }: PageProps) {
   const allSets = await getAllSets();
   const allCategories = await getCategories();
 
-  // Filter sets by quiz_mode matching the category
+  // Filter sets by category matching the category name
   const categorySets = allSets.filter(
-    (set) => set.quiz_mode && set.quiz_mode.toLowerCase() === decodedName.toLowerCase()
+    (set) => set.category && set.category.toLowerCase() === decodedName.toLowerCase()
   );
 
   const categoryInfo = allCategories.find(
