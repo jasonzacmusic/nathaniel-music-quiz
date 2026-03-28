@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { getCategories } from "@/lib/queries";
-import type { Category } from "@/lib/queries";
 import { Zap, ChevronDown } from "lucide-react";
+
+interface Category {
+  category: string;
+  count: number;
+}
 
 export default function ChallengePage() {
   const router = useRouter();
@@ -19,10 +22,12 @@ export default function ChallengePage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getCategories();
+        const res = await fetch('/api/categories');
+        const json = await res.json();
+        const data: Category[] = json.data || [];
         setCategories(data);
         // Default: select all categories
-        setSelectedCategories(data.map((c) => c.category));
+        setSelectedCategories(data.map((c: Category) => c.category));
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       } finally {
