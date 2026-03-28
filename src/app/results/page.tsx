@@ -172,7 +172,7 @@ export default function ResultsPage() {
                   className="text-center"
                 >
                   <div
-                    className="text-5xl md:text-6xl font-display font-800 tabular-nums leading-none"
+                    className="text-5xl md:text-6xl font-display font-700 tabular-nums leading-none"
                     style={{ color: tData.color }}
                   >
                     {displayPercentage}%

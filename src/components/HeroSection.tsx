@@ -145,7 +145,7 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
             Hear More.
           </span>
           <span
-            className="block text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-800"
+            className="block text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-700"
             style={{
               background: "linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 30%, #06b6d4 70%, #a5f3fc 100%)",
               WebkitBackgroundClip: "text",

@@ -79,7 +79,7 @@ export default function ChallengePage() {
             <Zap className="w-3 h-3 text-violet-400" />
             <span className="text-[10px] text-violet-400 font-medium uppercase tracking-[0.14em]">Custom Challenge</span>
           </div>
-          <h1 className="font-display font-800 text-4xl md:text-6xl leading-tight mb-4">
+          <h1 className="font-display font-700 text-4xl md:text-6xl leading-tight mb-4">
             <span className="text-white">Build Your</span>
             <br />
             <span style={{

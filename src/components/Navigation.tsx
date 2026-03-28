@@ -26,8 +26,9 @@ export default function Navigation() {
   ];
 
   const isActive = (href: string) => {
+    if (href.startsWith("/#")) return false;
     if (href === "/") return pathname === "/";
-    return pathname.startsWith(href.replace("/#", "/"));
+    return pathname.startsWith(href);
   };
 
   return (
