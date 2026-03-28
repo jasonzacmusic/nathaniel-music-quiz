@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveLead } from '@/lib/queries';
 import { isValidEmail } from '@/lib/utils';
+import { appendToSheet } from '@/lib/google-sheets';
 
 export const runtime = 'edge';
 
@@ -54,6 +55,18 @@ export async function POST(request: NextRequest) {
       instrument: instrument ? instrument.trim() : undefined,
       message: message ? message.trim() : undefined,
     });
+
+    // Also append to Google Sheets (non-blocking, don't fail the request if this errors)
+    const leadId = crypto.randomUUID();
+    appendToSheet('Quiz', [
+      new Date().toISOString(),
+      name.trim(),
+      email.trim(),
+      phone ? phone.trim() : '',
+      instrument ? instrument.trim() : '',
+      message ? message.trim() : '',
+      leadId,
+    ]).catch((err) => console.error('Sheet append failed:', err));
 
     return NextResponse.json({
       success: true,

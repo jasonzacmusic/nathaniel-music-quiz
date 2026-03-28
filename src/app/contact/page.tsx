@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import ContactForm from './ContactForm';
 import { Mail, Music, Heart } from 'lucide-react';
+import { LINKS } from '@/config/links';
 
 export const metadata: Metadata = {
   title: 'Contact - Nathaniel School of Music',
@@ -50,7 +51,7 @@ export default function ContactPage() {
               </div>
               <p className="text-slate-300 text-sm mb-4">Chat with us on WhatsApp for quick responses</p>
               <a
-                href="https://wa.me/917760456847"
+                href={LINKS.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition"
@@ -69,7 +70,7 @@ export default function ContactPage() {
               </div>
               <p className="text-slate-300 text-sm mb-4">Reach out to us via email</p>
               <a
-                href="mailto:music@nathanielschool.com"
+                href={`mailto:${LINKS.email}`}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition"
               >
                 Send Email
@@ -86,7 +87,7 @@ export default function ContactPage() {
               </div>
               <p className="text-slate-300 text-sm mb-4">Visit our main website for more info</p>
               <a
-                href="https://nathanielschool.com"
+                href={LINKS.website}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition"
@@ -113,7 +114,7 @@ export default function ContactPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
-              href="https://www.patreon.com/nathanielschool"
+              href={LINKS.patreon}
               target="_blank"
               rel="noopener noreferrer"
               className="p-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold transition text-center"
@@ -121,7 +122,7 @@ export default function ContactPage() {
               Support on Patreon
             </a>
             <a
-              href="https://www.paypal.com/donate?hosted_button_id=NATHANIELSCHOOL"
+              href={LINKS.paypal}
               target="_blank"
               rel="noopener noreferrer"
               className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold transition text-center"

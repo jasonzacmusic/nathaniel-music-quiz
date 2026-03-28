@@ -51,7 +51,6 @@ export default function VideoPlayer({
           onError={handleError}
           className="w-full h-full object-contain"
           style={{ maxHeight: "60vh" }}
-          crossOrigin="anonymous"
           preload="auto"
         />
       ) : (
