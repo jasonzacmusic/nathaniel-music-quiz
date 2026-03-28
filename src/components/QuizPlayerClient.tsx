@@ -9,7 +9,7 @@ import { useQuiz } from "@/hooks/useQuiz";
 import { useOverlay } from "@/hooks/useOverlay";
 import { formatTime } from "@/lib/utils";
 import VideoPlayer from "./VideoPlayer";
-import QuestionOverlay from "./QuestionOverlay";
+import AnswerButton from "./AnswerButton";
 import ScoreDisplay from "./ScoreDisplay";
 import YouTubeCard from "./YouTubeCard";
 import Confetti from "./Confetti";
@@ -37,8 +37,8 @@ function WaveformProgress({ progress }: { progress: number }) {
             style={{
               height: `${8 + h * 14}px`,
               background: filled
-                ? `linear-gradient(to top, #7C3AED, #06B6D4)`
-                : "rgba(255,255,255,0.08)",
+                ? "linear-gradient(to top, #7C3AED, #06B6D4)"
+                : "rgba(255,255,255,0.07)",
             }}
             animate={filled ? { scaleY: [1, 1.15, 1] } : {}}
             transition={{ duration: 0.8, delay: i * 0.02, repeat: filled ? Infinity : 0, ease: "easeInOut" }}
@@ -49,10 +49,7 @@ function WaveformProgress({ progress }: { progress: number }) {
   );
 }
 
-export default function QuizPlayerClient({
-  questions,
-  setId,
-}: QuizPlayerClientProps) {
+export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientProps) {
   const router = useRouter();
   const {
     currentQuestion,
@@ -68,7 +65,7 @@ export default function QuizPlayerClient({
     nextQuestion,
   } = useQuiz({ questions });
 
-  const { height, blur } = useOverlay(setId);
+  const { height: _height, blur: _blur } = useOverlay(setId); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [showYouTube, setShowYouTube] = useState(false);
   const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [flashState, setFlashState] = useState<"none" | "correct" | "wrong">("none");
@@ -95,7 +92,8 @@ export default function QuizPlayerClient({
     }
   }, [currentIndex, answered]);
 
-  const handleExit = () => router.push("/");
+  const isLastQuestion = currentIndex === totalQuestions - 1;
+  const progress = (currentIndex + (answered ? 1 : 0)) / totalQuestions;
 
   const handleNextQuestion = () => {
     if (isLastQuestion && answered) {
@@ -105,6 +103,16 @@ export default function QuizPlayerClient({
     } else {
       nextQuestion();
     }
+  };
+
+  // Determine the visual state of each answer button
+  const getAnswerState = (answer: string): "default" | "correct" | "wrong" | "reveal" => {
+    if (!answered || !currentQuestion) return "default";
+    if (answer === currentQuestion.correct_answer) {
+      return selectedAnswer === answer ? "correct" : "reveal";
+    }
+    if (answer === selectedAnswer) return "wrong";
+    return "default";
   };
 
   if (!currentQuestion) {
@@ -121,14 +129,11 @@ export default function QuizPlayerClient({
     );
   }
 
-  const isLastQuestion = currentIndex === totalQuestions - 1;
-  const progress = (currentIndex + (answered ? 1 : 0)) / totalQuestions;
-
   return (
     <div className="min-h-screen bg-[#080D1A] flex flex-col">
       <Confetti trigger={triggerConfetti} />
 
-      {/* Flash overlay */}
+      {/* Correct / Wrong flash */}
       <AnimatePresence>
         {flashState !== "none" && (
           <motion.div
@@ -136,7 +141,7 @@ export default function QuizPlayerClient({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.12 }}
             style={{
               background: flashState === "correct"
                 ? "radial-gradient(ellipse at center, rgba(16,185,129,0.18) 0%, transparent 70%)"
@@ -146,20 +151,20 @@ export default function QuizPlayerClient({
         )}
       </AnimatePresence>
 
-      {/* Waveform progress bar */}
+      {/* Waveform progress */}
       <div className="px-4 md:px-8 pt-5 pb-0">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           <WaveformProgress progress={progress} />
         </div>
       </div>
 
-      {/* Header Bar */}
+      {/* Header */}
       <div className="px-4 md:px-8 py-3 border-b border-white/[0.05]">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
           <motion.button
             whileHover={{ x: -2 }}
             whileTap={{ scale: 0.92 }}
-            onClick={handleExit}
+            onClick={() => router.push("/")}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-white/[0.05] transition-colors group"
             aria-label="Exit quiz"
           >
@@ -167,78 +172,74 @@ export default function QuizPlayerClient({
             <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors hidden sm:block">Exit</span>
           </motion.button>
 
-          <div className="flex flex-col items-center">
-            <p className="text-xs text-slate-500 font-medium">
+          <div className="flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-slate-600" />
+            <span className="text-xs font-medium tabular-nums text-slate-500">{formatTime(timeElapsed)}</span>
+            <span className="text-xs text-slate-600 ml-2">
               <span className="text-white font-display font-600">{currentIndex + 1}</span>
               <span className="text-slate-600"> / {totalQuestions}</span>
-            </p>
+            </span>
           </div>
 
           <ScoreDisplay correct={score} total={totalQuestions} streak={streak} />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 md:py-10">
-        <div className="w-full max-w-3xl">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col items-center px-4 py-6 md:py-8">
+        <div className="w-full max-w-2xl flex flex-col gap-5">
 
-          {/* Timer */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center justify-center gap-1.5 mb-5 text-slate-500"
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium tabular-nums">{formatTime(timeElapsed)}</span>
-          </motion.div>
-
-          {/* Video + Question Overlay */}
+          {/* ── VIDEO (full, clean) ── */}
           <motion.div
             key={`video-${currentIndex}`}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="relative w-full max-w-2xl mx-auto mb-6"
+            transition={{ duration: 0.35 }}
+            className="rounded-2xl overflow-hidden border border-white/[0.07] shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
           >
-            <div className="rounded-2xl overflow-hidden shadow-[0_8px_60px_rgba(0,0,0,0.6)] border border-white/[0.06]">
-              <VideoPlayer
-                videoUrl={currentQuestion.video_url}
-                className=""
-              />
-              <QuestionOverlay
-                question={currentQuestion.question_text}
-                answers={currentQuestion.answers}
-                onAnswer={handleAnswer}
-                answered={answered}
-                correctAnswer={currentQuestion.correct_answer}
-                overlaySettings={{ height, blur }}
-              />
+            <VideoPlayer videoUrl={currentQuestion.video_url} />
+          </motion.div>
+
+          {/* ── QUESTION + ANSWERS ── */}
+          <motion.div
+            key={`question-${currentIndex}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
+            className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5"
+          >
+            {/* Question text */}
+            <h2 className="font-display font-700 text-lg md:text-xl text-white leading-snug mb-5">
+              {currentQuestion.question_text}
+            </h2>
+
+            {/* Answer buttons */}
+            <div className="space-y-2.5">
+              {currentQuestion.answers.map((answer, index) => (
+                <AnswerButton
+                  key={`${answer}-${index}`}
+                  text={answer}
+                  onClick={() => handleAnswer(answer)}
+                  state={getAnswerState(answer)}
+                  index={index}
+                  disabled={answered}
+                />
+              ))}
             </div>
           </motion.div>
 
-          {/* Unmute hint */}
-          {!answered && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              className="text-center text-[11px] text-slate-600 mb-5 tracking-wide"
-            >
-              🔊 Unmute to hear the answer options
-            </motion.p>
-          )}
-
-          {/* Post-answer section */}
+          {/* ── POST-ANSWER SECTION ── */}
           <AnimatePresence mode="wait">
             {answered && (
               <motion.div
-                key={`answer-${currentIndex}`}
-                initial={{ opacity: 0, y: 16 }}
+                key={`result-${currentIndex}`}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={{ duration: 0.35 }}
-                className="space-y-4"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3"
               >
-                {/* YouTube Card */}
+                {/* YouTube lesson card */}
                 {showYouTube && currentQuestion.youtube_url && (
                   <YouTubeCard
                     title={currentQuestion.youtube_title}
@@ -246,19 +247,14 @@ export default function QuizPlayerClient({
                   />
                 )}
 
-                {/* Answer reveal */}
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className={`rounded-xl p-4 border flex items-start gap-3 ${
-                    isCorrect
-                      ? "bg-emerald-500/[0.07] border-emerald-500/20"
-                      : "bg-rose-500/[0.07] border-rose-500/20"
-                  }`}
-                >
-                  <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-sm ${
-                    isCorrect ? "bg-emerald-500/20" : "bg-rose-500/20"
+                {/* Answer reveal banner */}
+                <div className={`rounded-xl p-4 border flex items-start gap-3 ${
+                  isCorrect
+                    ? "bg-emerald-500/[0.07] border-emerald-500/20"
+                    : "bg-rose-500/[0.07] border-rose-500/20"
+                }`}>
+                  <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold ${
+                    isCorrect ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
                   }`}>
                     {isCorrect ? "✓" : "✗"}
                   </div>
@@ -266,7 +262,7 @@ export default function QuizPlayerClient({
                     <p className="text-[11px] text-slate-500 mb-0.5 uppercase tracking-wider font-medium">
                       {isCorrect ? "Correct!" : "The answer was"}
                     </p>
-                    <p className="text-sm font-display font-700 text-warm-amber">
+                    <p className="text-sm font-display font-700 text-amber-400">
                       {currentQuestion.correct_answer}
                     </p>
                     {!isCorrect && selectedAnswer && selectedAnswer !== currentQuestion.correct_answer && (
@@ -275,13 +271,27 @@ export default function QuizPlayerClient({
                       </p>
                     )}
                   </div>
-                </motion.div>
+                </div>
+
+                {/* Mini stats row */}
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: "Streak", value: streak > 0 ? `${streak} 🔥` : "—", color: "text-amber-400" },
+                    {
+                      label: "Accuracy",
+                      value: `${totalQuestions > 0 ? Math.round(((score) / (currentIndex + 1)) * 100) : 0}%`,
+                      color: "text-violet-400",
+                    },
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06] text-center">
+                      <p className="text-[10px] text-slate-600 mb-1 uppercase tracking-wider font-medium">{stat.label}</p>
+                      <p className={`text-base font-display font-700 ${stat.color}`}>{stat.value}</p>
+                    </div>
+                  ))}
+                </div>
 
                 {/* Next button */}
                 <motion.button
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleNextQuestion}
@@ -307,24 +317,6 @@ export default function QuizPlayerClient({
                     </>
                   )}
                 </motion.button>
-
-                {/* Mini stats */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.45 }}
-                  className="grid grid-cols-2 gap-3"
-                >
-                  {[
-                    { label: "Streak", value: streak > 0 ? `${streak} 🔥` : "—", color: "text-amber-400" },
-                    { label: "Accuracy", value: `${totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0}%`, color: "text-violet-400" },
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06] text-center">
-                      <p className="text-[10px] text-slate-600 mb-1 uppercase tracking-wider font-medium">{stat.label}</p>
-                      <p className={`text-base font-display font-700 ${stat.color}`}>{stat.value}</p>
-                    </div>
-                  ))}
-                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>

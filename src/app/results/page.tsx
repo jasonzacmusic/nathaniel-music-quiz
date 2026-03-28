@@ -26,13 +26,13 @@ const tierData = (percentage: number) => {
 };
 
 const tierCopy = (percentage: number): string => {
-  if (percentage === 100) return "Your ears don't miss a thing. That's rare.";
-  if (percentage >= 90) return "You've been listening closely. It shows.";
-  if (percentage >= 80) return "Solid ears, solid instincts. Nearly there.";
-  if (percentage >= 70) return "You know more than you think. Keep listening.";
-  if (percentage >= 60) return "Good foundation. The patterns are clicking.";
-  if (percentage >= 40) return "Every session trains your ear a little more.";
-  return "The first attempt is always the hardest. Come back.";
+  if (percentage === 100) return "Perfect across chord degrees, time signatures, and modes. Your ears are operating at a professional level.";
+  if (percentage >= 90) return "Nearly flawless. You're catching extensions, borrowed chords, and odd meters that most musicians miss entirely.";
+  if (percentage >= 80) return "Chord progressions, slash chords, complex rhythms — you're hearing the theory in the music. That's the whole game.";
+  if (percentage >= 70) return "Solid across the fundamentals. The rarer modes and jazz extensions are the next frontier.";
+  if (percentage >= 60) return "The chord progressions are clicking. Keep pushing on rhythm and modes — they'll land.";
+  if (percentage >= 40) return "Every listen builds pattern recognition. The secondary dominants and time signatures will start to feel obvious.";
+  return "These questions are hard — Mixolydian ♭6, 19/8, secondary dominants. That's by design. Come back tomorrow.";
 };
 
 export default function ResultsPage() {
@@ -228,6 +228,33 @@ export default function ResultsPage() {
                 <p className={`text-lg font-display font-700 ${stat.color} tabular-nums`}>{stat.value}</p>
               </div>
             ))}
+          </motion.div>
+
+          {/* Share results */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.72, duration: 0.5 }}
+            className="flex justify-center gap-2 mb-2"
+          >
+            <a
+              href={`https://twitter.com/intent/tweet?text=I+scored+${percentage}%25+on+the+Nathaniel+Music+Quiz+%F0%9F%8E%B5+Can+you+beat+me%3F&url=https://quiz.nathanielschool.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white hover:border-white/20 text-xs font-medium transition-all"
+            >
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              Share Score
+            </a>
+            <a
+              href={`https://wa.me/?text=I+scored+${percentage}%25+on+the+Nathaniel+Music+Quiz+%F0%9F%8E%B5+Try+it+here%3A+https://quiz.nathanielschool.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-slate-400 hover:text-green-400 hover:border-green-500/20 text-xs font-medium transition-all"
+            >
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </a>
           </motion.div>
 
           {/* Actions */}

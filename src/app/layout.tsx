@@ -19,27 +19,49 @@ const inter = Inter({
   display: "swap",
 });
 
+const siteUrl = "https://quiz.nathanielschool.com";
+const siteTitle = "Nathaniel Music Quiz — Advanced Ear Training";
+const siteDescription =
+  "Can you identify Mixolydian ♭6 by ear? Count 19/8? Spot a secondary dominant? 330+ questions across chord progressions, modes, odd time signatures, and intervals — pulled from real teaching videos. Free.";
+
 export const metadata: Metadata = {
-  title: "Nathaniel Music Quiz — Train Your Ear",
-  description:
-    "Real ear training quizzes built from YouTube music lessons. Master chords, intervals, rhythm, and more with Nathaniel School of Music.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: siteTitle,
+    template: "%s | Nathaniel Music Quiz",
+  },
+  description: siteDescription,
   keywords: [
-    "music quiz",
-    "ear training",
-    "music theory",
-    "music education",
-    "interactive learning",
-    "chord recognition",
+    "ear training", "music theory quiz", "modes by ear", "chord progressions",
+    "odd time signatures", "secondary dominants", "jazz extensions", "interval training",
+    "Nathaniel School of Music", "music education", "Dorian Mixolydian", "bass piano lessons",
   ],
-  authors: [{ name: "Jason Zachariah", url: "https://nathanielschool.com" }],
+  authors: [{ name: "Nathaniel School of Music", url: "https://nathanielschool.com" }],
+  creator: "Nathaniel School of Music",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://quiz.nathanielschool.com",
+    url: siteUrl,
     siteName: "Nathaniel Music Quiz",
-    title: "Nathaniel Music Quiz — Train Your Ear",
-    description:
-      "Real ear training quizzes built from actual YouTube lessons. Hear more. Play better.",
+    title: siteTitle,
+    description: "Advanced ear training: modes, chord degrees, odd time signatures, jazz extensions — all from real teaching videos. Free.",
+    images: [{ url: `${siteUrl}/og-image.png`, width: 1200, height: 630, alt: siteTitle }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: "Modes, chord degrees, odd meters, jazz extensions — tested by ear. Free.",
+    images: [`${siteUrl}/og-image.png`],
+    creator: "@nathanielschool",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
+  },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.ico",
   },
 };
 

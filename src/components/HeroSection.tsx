@@ -10,9 +10,11 @@ interface HeroStats {
   categories: number;
 }
 
-const WAVEFORM_HEIGHTS = [30, 55, 45, 80, 35, 70, 50, 90, 40, 65, 75, 45, 85, 55, 40, 70, 35, 60, 80, 50,
+const WAVEFORM_HEIGHTS = [
+  30, 55, 45, 80, 35, 70, 50, 90, 40, 65, 75, 45, 85, 55, 40, 70, 35, 60, 80, 50,
   55, 40, 75, 60, 30, 85, 50, 40, 70, 55, 45, 80, 60, 35, 75, 50, 90, 40, 65, 55,
-  45, 70, 35, 80, 50, 60, 40, 75, 55, 45, 80, 35, 70, 50, 90, 40, 65, 55, 45, 70, 35, 80, 50, 60];
+  45, 70, 35, 80, 50, 60, 40, 75, 55, 45, 80, 35, 70, 50, 90, 40, 65, 55, 45, 70, 35, 80, 50, 60,
+];
 
 function WaveformVisualizer() {
   return (
@@ -25,8 +27,8 @@ function WaveformVisualizer() {
             className="flex-1 max-w-[6px] rounded-t-full"
             style={{
               height: `${h}%`,
-              background: `linear-gradient(to top, rgba(124,58,237,0.5), rgba(6,182,212,0.35))`,
-              opacity: 0.4 + (h / 100) * 0.45,
+              background: `linear-gradient(to top, rgba(124,58,237,0.55), rgba(6,182,212,0.35))`,
+              opacity: 0.35 + (h / 100) * 0.5,
               animation: `waveBar 1.4s ease-in-out ${delay}s infinite`,
               transformOrigin: "bottom",
             }}
@@ -44,17 +46,8 @@ function FloatingNote({ char, x, y, delay, size }: { char: string; x: string; y:
       className="absolute pointer-events-none select-none"
       style={{ left: x, top: y, fontSize: size }}
       initial={{ opacity: 0, y: 0 }}
-      animate={{
-        opacity: [0, 0.15, 0.25, 0.1, 0],
-        y: [-10, -40, -70, -90],
-      }}
-      transition={{
-        duration: 6,
-        delay,
-        repeat: Infinity,
-        repeatDelay: 3,
-        ease: "easeOut",
-      }}
+      animate={{ opacity: [0, 0.18, 0.28, 0.1, 0], y: [-10, -40, -70, -90] }}
+      transition={{ duration: 6, delay, repeat: Infinity, repeatDelay: 3, ease: "easeOut" }}
     >
       {char}
     </motion.div>
@@ -62,11 +55,11 @@ function FloatingNote({ char, x, y, delay, size }: { char: string; x: string; y:
 }
 
 const NOTES = [
-  { char: "♩", x: "8%", y: "60%", delay: 0, size: 18 },
+  { char: "♩", x: "8%",  y: "60%", delay: 0,   size: 18 },
   { char: "♪", x: "15%", y: "45%", delay: 1.5, size: 14 },
   { char: "♫", x: "85%", y: "55%", delay: 0.8, size: 20 },
   { char: "♬", x: "92%", y: "40%", delay: 2.2, size: 16 },
-  { char: "♩", x: "5%", y: "30%", delay: 3.5, size: 12 },
+  { char: "♩", x: "5%",  y: "30%", delay: 3.5, size: 12 },
   { char: "♪", x: "95%", y: "70%", delay: 2.8, size: 15 },
 ];
 
@@ -93,39 +86,35 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#080D1A]">
 
-      {/* Deep layered background */}
+      {/* Layered background glows */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(109,40,217,0.28),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(109,40,217,0.3),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(6,182,212,0.10),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_15%_75%,rgba(124,58,237,0.08),transparent)]" />
       </div>
-
-      {/* Noise texture */}
       <div className="absolute inset-0 noise-overlay" />
 
-      {/* Top accent line */}
+      {/* Top shimmer line */}
       <motion.div
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/60 to-transparent"
         animate={{ opacity: [0.4, 1, 0.4] }}
         transition={{ duration: 4, repeat: Infinity }}
       />
 
-      {/* Floating musical notes */}
-      {NOTES.map((note, i) => (
-        <FloatingNote key={i} {...note} />
-      ))}
+      {/* Floating notes */}
+      {NOTES.map((note, i) => <FloatingNote key={i} {...note} />)}
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center pb-32 pt-24">
 
-        {/* Eyebrow badge */}
+        {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] backdrop-blur-sm mb-10"
         >
-          <span className="flex h-2 w-2">
+          <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
@@ -134,7 +123,7 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           </span>
         </motion.div>
 
-        {/* Main headline */}
+        {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -142,18 +131,18 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           className="font-display leading-[1.0] tracking-tight mb-8"
         >
           <span className="block text-white font-300 text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-2 opacity-90">
-            Hear More.
+            Hear It.
           </span>
           <span
             className="block text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-700"
             style={{
-              background: "linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 30%, #06b6d4 70%, #a5f3fc 100%)",
+              background: "linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 35%, #06b6d4 70%, #a5f3fc 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}
           >
-            Play Better.
+            Name It.
           </span>
         </motion.h1>
 
@@ -162,10 +151,11 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.28 }}
-          className="text-lg md:text-xl text-slate-400 max-w-lg mx-auto mb-12 leading-relaxed font-300"
+          className="text-lg md:text-xl text-slate-400 max-w-xl mx-auto mb-12 leading-relaxed font-300"
         >
-          Real ear training, real music. Every quiz is built from{" "}
-          <span className="text-slate-300 font-500">actual YouTube lessons</span> — watch, listen, then prove what you know.
+          Not &ldquo;major or minor.&rdquo; More like:{" "}
+          <span className="text-slate-300 font-500">Mixolydian ♭6 or Dorian? 7♭9 or plain dominant? 11/8 or 19/8?</span>{" "}
+          Watch the clip, trust your ear, pick the answer. Every question comes from a real teaching video.
         </motion.p>
 
         {/* Stats tape */}
@@ -178,10 +168,10 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           {[
             { value: displayStats.questions, suffix: "+", label: "Questions" },
             { value: displayStats.sets, suffix: "", label: "Quiz Sets" },
-            { value: displayStats.categories, suffix: "", label: "Categories" },
+            { value: displayStats.categories, suffix: "", label: "Topics" },
           ].map((stat, i) => (
             <div key={i} className="px-6 py-3.5 text-center min-w-[90px]">
-              <div className="text-2xl md:text-3xl font-display font-700 text-white">
+              <div className="text-2xl md:text-3xl font-display font-700 text-white tabular-nums">
                 {stat.value}
                 <span className="text-violet-400">{stat.suffix}</span>
               </div>
@@ -219,7 +209,7 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
               >
                 <path d="M8 5v14l11-7z" />
               </motion.svg>
-              Start Training Now
+              Start Training — It&apos;s Free
             </motion.button>
           </Link>
 
@@ -229,14 +219,29 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
             onClick={() => document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })}
             className="px-8 py-4 border border-white/15 text-white font-display font-600 text-base rounded-xl flex items-center gap-2.5 hover:bg-white/[0.05] hover:border-white/25 transition-all backdrop-blur-sm"
           >
-            Browse Categories
+            Browse Topics
             <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </motion.button>
         </motion.div>
 
-        {/* Now Playing widget */}
+        {/* Trust strip */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          className="mt-12 flex items-center justify-center gap-6 text-xs text-slate-600"
+        >
+          {["No sign-up needed", "100% free", "330+ questions across 6 topics"].map((item, i) => (
+            <span key={i} className="flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-violet-500/60" />
+              {item}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* "Now Playing" widget */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -255,7 +260,7 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           </div>
           <div>
             <div className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-0.5">Now Playing</div>
-            <div className="text-xs text-white font-display font-600">Ear Training Vol. 1</div>
+            <div className="text-xs text-white font-display font-600">Odd Time Signatures</div>
           </div>
           <div className="flex items-end gap-[2px] h-4 ml-1">
             {[1, 2, 3, 4].map((_, i) => (
@@ -264,12 +269,7 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
                 className="w-[3px] bg-violet-400 rounded-full"
                 style={{ height: "100%" }}
                 animate={{ scaleY: [0.2, 1, 0.4, 0.8, 0.2] }}
-                transition={{
-                  duration: 1,
-                  delay: i * 0.15,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+                transition={{ duration: 1, delay: i * 0.15, repeat: Infinity, ease: "easeInOut" }}
               />
             ))}
           </div>
@@ -281,19 +281,16 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           animate={{ y: [0, 8, 0], opacity: [0.4, 0.8, 0.4] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="w-5 h-8 rounded-full border border-white/20 flex justify-center pt-1.5">
-              <motion.div
-                className="w-1 h-1.5 rounded-full bg-white/50"
-                animate={{ y: [0, 10, 0], opacity: [1, 0.2, 1] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              />
-            </div>
+          <div className="w-5 h-8 rounded-full border border-white/20 flex justify-center pt-1.5">
+            <motion.div
+              className="w-1 h-1.5 rounded-full bg-white/50"
+              animate={{ y: [0, 10, 0], opacity: [1, 0.2, 1] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+            />
           </div>
         </motion.div>
       </div>
 
-      {/* Full-width waveform */}
       <WaveformVisualizer />
     </section>
   );
