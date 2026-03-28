@@ -11,6 +11,36 @@ interface AnswerButtonProps {
   disabled?: boolean;
 }
 
+const LABELS = ["A", "B", "C", "D", "E"];
+
+const stateStyles = {
+  default: {
+    container: "border-white/[0.10] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20",
+    label: "bg-white/[0.07] text-slate-400 group-hover:bg-white/[0.12] group-hover:text-white",
+    text: "text-slate-200",
+  },
+  selected: {
+    container: "border-violet-500/60 bg-violet-500/[0.12]",
+    label: "bg-violet-500/30 text-violet-200",
+    text: "text-violet-100",
+  },
+  correct: {
+    container: "border-emerald-400/70 bg-emerald-400/[0.12]",
+    label: "bg-emerald-400/30 text-emerald-200",
+    text: "text-emerald-100",
+  },
+  wrong: {
+    container: "border-rose-500/70 bg-rose-500/[0.10]",
+    label: "bg-rose-500/30 text-rose-200",
+    text: "text-rose-100",
+  },
+  reveal: {
+    container: "border-amber-400/70 bg-amber-400/[0.10]",
+    label: "bg-amber-400/30 text-amber-200",
+    text: "text-amber-100",
+  },
+};
+
 export default function AnswerButton({
   text,
   onClick,
@@ -18,82 +48,74 @@ export default function AnswerButton({
   index = 0,
   disabled = false,
 }: AnswerButtonProps) {
-  const getBackgroundStyle = () => {
-    switch (state) {
-      case "selected":
-        return "bg-electric-violet/30 border-electric-violet/80";
-      case "correct":
-        return "bg-warm-amber/90 border-warm-amber text-dark-bg";
-      case "wrong":
-        return "bg-rose/90 border-rose text-white";
-      case "reveal":
-        return "bg-warm-amber/80 border-warm-amber/80 text-dark-bg animate-pulse-glow";
-      default:
-        return "bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40";
-    }
-  };
+  const styles = stateStyles[state];
+  const label = LABELS[index] || String(index + 1);
 
-  const containerAnimation = state === "wrong" ? {
-    x: [-6, 6, -6, 0],
-    transition: { duration: 0.4, times: [0, 0.33, 0.66, 1] },
-  } : state === "correct" ? {
-    scale: [1, 1.02, 1],
-    transition: { duration: 0.3 },
+  const shakeAnimation = state === "wrong" ? {
+    x: [0, -8, 8, -5, 5, 0],
+    transition: { duration: 0.45, times: [0, 0.1, 0.3, 0.5, 0.7, 1] },
+  } : {};
+
+  const bounceAnimation = state === "correct" ? {
+    y: [0, -4, 0],
+    transition: { duration: 0.35 },
   } : {};
 
   return (
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0, ...containerAnimation }}
-      transition={{
-        duration: 0.4,
-        delay: index * 0.1,
-        ease: "easeOut",
+      initial={{ opacity: 0, x: -12 }}
+      animate={{
+        opacity: 1,
+        x: 0,
+        ...shakeAnimation,
+        ...bounceAnimation,
       }}
-      whileHover={state === "default" && !disabled ? { scale: 1.02 } : {}}
+      transition={{
+        opacity: { duration: 0.35, delay: index * 0.08, ease: "easeOut" },
+        x: { duration: 0.35, delay: index * 0.08, ease: "easeOut" },
+      }}
+      whileHover={state === "default" && !disabled ? { x: 4 } : {}}
       whileTap={state === "default" && !disabled ? { scale: 0.98 } : {}}
-      className={`relative w-full min-h-14 px-6 py-4 rounded-2xl border-2 font-medium text-base transition-all duration-200 flex items-center justify-between group ${getBackgroundStyle()} ${
-        disabled ? "cursor-not-allowed opacity-75" : "cursor-pointer"
+      className={`group relative w-full flex items-center gap-4 px-4 py-4 rounded-xl border-2 transition-all duration-200 ${styles.container} ${
+        disabled && state === "default" ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       }`}
     >
-      {/* Main Text */}
-      <span className="flex-1 text-left">{text}</span>
+      {/* Label badge */}
+      <span
+        className={`w-8 h-8 rounded-lg flex items-center justify-center font-display font-700 text-sm flex-shrink-0 transition-all duration-200 ${styles.label}`}
+      >
+        {state === "correct" ? (
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
+            <Check className="w-4 h-4" />
+          </motion.div>
+        ) : state === "wrong" ? (
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
+            <X className="w-4 h-4" />
+          </motion.div>
+        ) : state === "reveal" ? (
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <Check className="w-4 h-4" />
+          </motion.div>
+        ) : (
+          label
+        )}
+      </span>
 
-      {/* State Icons */}
-      {state === "correct" && (
-        <motion.div
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          <Check className="w-6 h-6" />
-        </motion.div>
-      )}
+      {/* Answer text */}
+      <span className={`flex-1 text-left font-medium text-sm leading-snug ${styles.text}`}>
+        {text}
+      </span>
 
-      {state === "wrong" && (
-        <motion.div
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          <X className="w-6 h-6" />
-        </motion.div>
-      )}
-
-      {state === "reveal" && (
-        <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <Check className="w-6 h-6" />
-        </motion.div>
-      )}
-
-      {/* Hover Glow for Default State */}
+      {/* Hover shimmer for default */}
       {state === "default" && !disabled && (
-        <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent transition-opacity duration-400" />
+        </div>
       )}
     </motion.button>
   );

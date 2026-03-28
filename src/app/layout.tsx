@@ -1,28 +1,45 @@
 import type { Metadata } from "next";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Footer from "@/components/Footer";
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Nathaniel Music Quiz",
+  title: "Nathaniel Music Quiz — Train Your Ear",
   description:
-    "Test your music theory knowledge with interactive quizzes from Nathaniel School of Music. Master music concepts through engaging, video-based learning.",
+    "Real ear training quizzes built from YouTube music lessons. Master chords, intervals, rhythm, and more with Nathaniel School of Music.",
   keywords: [
     "music quiz",
+    "ear training",
     "music theory",
     "music education",
     "interactive learning",
+    "chord recognition",
   ],
   authors: [{ name: "Jason Zachariah", url: "https://nathanielschool.com" }],
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://nathanielschool.com",
+    url: "https://quiz.nathanielschool.com",
     siteName: "Nathaniel Music Quiz",
-    title: "Nathaniel Music Quiz",
+    title: "Nathaniel Music Quiz — Train Your Ear",
     description:
-      "Test your music theory knowledge with interactive quizzes from Nathaniel School of Music.",
+      "Real ear training quizzes built from actual YouTube lessons. Hear more. Play better.",
   },
 };
 
@@ -32,17 +49,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable}`}>
       <body
-        className="font-body antialiased bg-dark-bg text-slate-100 flex flex-col min-h-screen"
+        className="font-body antialiased bg-[#080D1A] text-slate-100 flex flex-col min-h-screen"
       >
         <Navigation />
         <main className="flex-1">{children}</main>
