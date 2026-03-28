@@ -92,6 +92,7 @@ export default function AdminPage() {
       if (data.authenticated) {
         setAuthenticated(true);
         sessionStorage.setItem('admin_authenticated', 'true');
+        sessionStorage.setItem('admin_token', password);
         setPassword('');
         // Load dashboard data
         await loadDashboardData();
@@ -126,7 +127,10 @@ export default function AdminPage() {
   const loadLeads = async () => {
     setLoadingLeads(true);
     try {
-      const response = await fetch('/api/admin/leads');
+      const token = sessionStorage.getItem('admin_token') || '';
+      const response = await fetch('/api/admin/leads', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.ok) {
         const data = await response.json();
         setLeads(data.data || []);
@@ -193,6 +197,7 @@ export default function AdminPage() {
   const handleLogout = () => {
     setAuthenticated(false);
     sessionStorage.removeItem('admin_authenticated');
+    sessionStorage.removeItem('admin_token');
     setPassword('');
     setActiveTab('sets');
   };

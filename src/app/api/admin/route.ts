@@ -29,7 +29,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isAuthenticated = password === adminPassword;
+    // Constant-time comparison to prevent timing attacks
+    const encoder = new TextEncoder();
+    const passwordBytes = encoder.encode(password);
+    const adminPasswordBytes = encoder.encode(adminPassword);
+    const len = Math.max(passwordBytes.length, adminPasswordBytes.length);
+    const a = new Uint8Array(len);
+    const b = new Uint8Array(len);
+    a.set(passwordBytes);
+    b.set(adminPasswordBytes);
+    let diff = passwordBytes.length === adminPasswordBytes.length ? 0 : 1;
+    for (let i = 0; i < len; i++) diff |= a[i] ^ b[i];
+    const isAuthenticated = diff === 0;
 
     if (!isAuthenticated) {
       return NextResponse.json({

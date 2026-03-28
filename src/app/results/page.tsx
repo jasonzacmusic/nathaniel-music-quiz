@@ -47,6 +47,16 @@ export default function ResultsPage() {
     if (storedResults) {
       try {
         const parsed = JSON.parse(storedResults);
+        if (
+          typeof parsed.score !== 'number' ||
+          typeof parsed.total !== 'number' ||
+          typeof parsed.timeElapsed !== 'number' ||
+          typeof parsed.setId !== 'string' ||
+          parsed.total <= 0
+        ) {
+          router.push("/");
+          return;
+        }
         setResults(parsed);
         setIsLoading(false);
         if (parsed.score / parsed.total >= 0.6) {

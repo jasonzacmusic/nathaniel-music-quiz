@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
 
     // Get random questions
     if (random === 'true') {
-      const questionCount = Math.min(parseInt(count || '10'), 100);
+      const parsed = parseInt(count || '10');
+      const questionCount = isNaN(parsed) ? 10 : Math.min(parsed, 100);
       if (questionCount < 1) {
         return NextResponse.json(
           { success: false, error: 'Count must be at least 1' },
