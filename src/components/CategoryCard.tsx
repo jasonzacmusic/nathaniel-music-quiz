@@ -2,14 +2,13 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 
 interface CategoryCardProps {
   name: string;
   questionCount: number;
   icon: string;
   color: string;
-  href?: string;
+  href: string;
 }
 
 export default function CategoryCard({
@@ -17,73 +16,30 @@ export default function CategoryCard({
   questionCount,
   icon,
   color,
-  href = "#",
+  href,
 }: CategoryCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      whileHover={{ y: -8 }}
-      className="flex-shrink-0"
-    >
-      <Link href={href}>
-        <div
-          className={`relative w-64 md:w-80 h-40 rounded-2xl overflow-hidden cursor-pointer group bg-gradient-to-br ${color} shadow-lg hover:shadow-2xl transition-shadow duration-300`}
-        >
-          {/* Content Container */}
-          <div className="relative h-full p-6 md:p-8 flex flex-col justify-between">
-            {/* Icon and Title */}
-            <div>
-              <motion.div
-                className="text-5xl md:text-6xl mb-4 inline-block"
-                animate={{
-                  y: [0, -4, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                }}
-              >
-                {icon}
-              </motion.div>
-              <h3 className="font-display font-700 text-2xl md:text-3xl text-white mb-2 leading-tight">
-                {name}
-              </h3>
-              <p className="text-white/80 text-sm md:text-base font-medium">
-                {questionCount} questions
-              </p>
-            </div>
+    <Link href={href}>
+      <motion.div
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+        className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm p-5 hover:border-white/15 hover:bg-white/[0.04] transition-all duration-300 cursor-pointer h-full"
+      >
+        {/* Subtle gradient glow on hover */}
+        <div className={`absolute -top-12 -right-12 w-24 h-24 bg-gradient-to-br ${color} rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
 
-            {/* Call to Action */}
-            <motion.div
-              className="flex items-center gap-2 text-white font-medium"
-              initial={{ opacity: 0, x: -10 }}
-              whileHover={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <span>Start Quiz</span>
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.div>
+        <div className="relative flex items-start gap-4">
+          <span className="text-3xl shrink-0">{icon}</span>
+          <div className="min-w-0">
+            <h3 className="font-display font-600 text-base text-white truncate group-hover:text-white/90 transition-colors">
+              {name}
+            </h3>
+            <p className="text-sm text-slate-500 mt-0.5">
+              {questionCount} {questionCount === 1 ? "question" : "questions"}
+            </p>
           </div>
-
-          {/* Gradient Overlay on Hover */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-black/20 pointer-events-none"
-          />
-
-          {/* Shine Effect */}
-          <motion.div
-            initial={{ x: "-100%" }}
-            whileHover={{ x: "100%" }}
-            transition={{ duration: 0.6 }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
-          />
         </div>
-      </Link>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 }

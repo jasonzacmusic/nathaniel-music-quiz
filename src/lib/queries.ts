@@ -1,4 +1,5 @@
 import sql from './db';
+import { shuffleArray } from './utils';
 
 export interface QuizSet {
   set_id: string;
@@ -245,6 +246,35 @@ export async function getSetsByCategory(categoryName: string): Promise<QuizSet[]
     ORDER BY qs.created_at DESC
   `;
   return result as QuizSet[];
+}
+
+/**
+ * Get random questions from a specific category
+ */
+export async function getQuestionsByCategory(
+  categoryName: string,
+  count: number = 10
+): Promise<QuestionWithShuffledAnswers[]> {
+  const result = await sql`
+    SELECT
+      id, set_id, question_number, question_text,
+      correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+      youtube_title, youtube_url, video_url, category, patreon_url, created_at
+    FROM questions
+    WHERE category = ${categoryName}
+    ORDER BY RANDOM()
+    LIMIT ${count}
+  `;
+
+  return (result as unknown as Question[]).map((q) => ({
+    ...q,
+    answers: shuffleArray([
+      q.correct_answer,
+      q.wrong_answer_1,
+      q.wrong_answer_2,
+      q.wrong_answer_3,
+    ].filter(Boolean)),
+  }));
 }
 
 /**

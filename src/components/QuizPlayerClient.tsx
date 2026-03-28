@@ -139,7 +139,7 @@ export default function QuizPlayerClient({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-12">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-3xl">
           {/* Timer */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -156,7 +156,7 @@ export default function QuizPlayerClient({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
-            className="relative aspect-video w-full max-w-md mx-auto mb-8"
+            className="relative w-full max-w-2xl mx-auto mb-8"
           >
             <VideoPlayer
               videoUrl={currentQuestion.video_url}
