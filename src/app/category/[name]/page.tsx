@@ -1,4 +1,4 @@
-import { getAllSets, getCategories } from "@/lib/queries";
+import { getSetsByCategory, getCategories } from "@/lib/queries";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -44,13 +44,10 @@ export default async function CategoryPage({ params }: PageProps) {
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
 
-  const allSets = await getAllSets();
-  const allCategories = await getCategories();
-
-  // Filter sets by category matching the category name
-  const categorySets = allSets.filter(
-    (set) => set.category && set.category.toLowerCase() === decodedName.toLowerCase()
-  );
+  const [categorySets, allCategories] = await Promise.all([
+    getSetsByCategory(decodedName),
+    getCategories(),
+  ]);
 
   const categoryInfo = allCategories.find(
     (cat) => cat.category.toLowerCase() === decodedName.toLowerCase()

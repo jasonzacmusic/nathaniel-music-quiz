@@ -225,6 +225,29 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 /**
+ * Get quiz sets that contain questions in a given category
+ */
+export async function getSetsByCategory(categoryName: string): Promise<QuizSet[]> {
+  const result = await sql`
+    SELECT DISTINCT
+      qs.set_id,
+      qs.quiz_mode,
+      qs.original_title,
+      qs.num_questions,
+      qs.category,
+      qs.upload_date,
+      qs.status,
+      qs.apple_notes_title,
+      qs.created_at
+    FROM quiz_sets qs
+    INNER JOIN questions q ON q.set_id = qs.set_id
+    WHERE q.category = ${categoryName}
+    ORDER BY qs.created_at DESC
+  `;
+  return result as QuizSet[];
+}
+
+/**
  * Get questions for custom challenge
  * Accepts an array of categories and optional difficulty
  */
