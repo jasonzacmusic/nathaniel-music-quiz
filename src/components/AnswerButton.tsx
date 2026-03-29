@@ -15,27 +15,27 @@ const LABELS = ["A", "B", "C", "D", "E"];
 
 const stateStyles = {
   default: {
-    container: "border-white/[0.10] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20",
-    label: "bg-white/[0.07] text-slate-400 group-hover:bg-white/[0.12] group-hover:text-white",
-    text: "text-slate-200",
+    container: "border-white/15 bg-black/40 backdrop-blur-md hover:bg-white/10 hover:border-white/25",
+    label: "bg-white/10 text-white/60 group-hover:bg-white/15 group-hover:text-white",
+    text: "text-white/90",
   },
   selected: {
-    container: "border-violet-500/60 bg-violet-500/[0.12]",
+    container: "border-violet-500/60 bg-violet-500/20 backdrop-blur-md",
     label: "bg-violet-500/30 text-violet-200",
     text: "text-violet-100",
   },
   correct: {
-    container: "border-emerald-400/70 bg-emerald-400/[0.12]",
+    container: "border-emerald-400/70 bg-emerald-400/15 backdrop-blur-md",
     label: "bg-emerald-400/30 text-emerald-200",
     text: "text-emerald-100",
   },
   wrong: {
-    container: "border-rose-500/70 bg-rose-500/[0.10]",
+    container: "border-rose-500/70 bg-rose-500/15 backdrop-blur-md",
     label: "bg-rose-500/30 text-rose-200",
     text: "text-rose-100",
   },
   reveal: {
-    container: "border-amber-400/70 bg-amber-400/[0.10]",
+    container: "border-amber-400/70 bg-amber-400/15 backdrop-blur-md",
     label: "bg-amber-400/30 text-amber-200",
     text: "text-amber-100",
   },
@@ -73,18 +73,18 @@ export default function AnswerButton({
         ...bounceAnimation,
       }}
       transition={{
-        opacity: { duration: 0.35, delay: index * 0.08, ease: "easeOut" },
-        x: { duration: 0.35, delay: index * 0.08, ease: "easeOut" },
+        opacity: { duration: 0.3, delay: index * 0.06, ease: "easeOut" },
+        x: { duration: 0.3, delay: index * 0.06, ease: "easeOut" },
       }}
-      whileHover={state === "default" && !disabled ? { x: 4 } : {}}
+      whileHover={state === "default" && !disabled ? { x: 4, scale: 1.01 } : {}}
       whileTap={state === "default" && !disabled ? { scale: 0.98 } : {}}
-      className={`group relative w-full flex items-center gap-4 px-4 py-4 rounded-xl border-2 transition-all duration-200 ${styles.container} ${
-        disabled && state === "default" ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      className={`group relative w-full flex items-center gap-3 px-3 py-3 sm:px-4 sm:py-3.5 rounded-xl border transition-all duration-200 ${styles.container} ${
+        disabled && state === "default" ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
       }`}
     >
       {/* Label badge */}
       <span
-        className={`w-8 h-8 rounded-lg flex items-center justify-center font-display font-700 text-sm flex-shrink-0 transition-all duration-200 ${styles.label}`}
+        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-display font-700 text-xs sm:text-sm flex-shrink-0 transition-all duration-200 ${styles.label}`}
       >
         {state === "correct" ? (
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
@@ -110,13 +110,6 @@ export default function AnswerButton({
       <span className={`flex-1 text-left font-medium text-sm leading-snug ${styles.text}`}>
         {text}
       </span>
-
-      {/* Hover shimmer for default */}
-      {state === "default" && !disabled && (
-        <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent transition-opacity duration-400" />
-        </div>
-      )}
     </motion.button>
   );
 }

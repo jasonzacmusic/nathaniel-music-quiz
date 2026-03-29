@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Clock } from "lucide-react";
+import { ChevronLeft, Clock, ArrowRight, CheckCircle, Volume2, VolumeX } from "lucide-react";
 import { QuestionWithShuffledAnswers } from "@/lib/queries";
 import { useQuiz } from "@/hooks/useQuiz";
 import { useOverlay } from "@/hooks/useOverlay";
 import { formatTime } from "@/lib/utils";
 import VideoPlayer from "./VideoPlayer";
 import AnswerButton from "./AnswerButton";
-import ScoreDisplay from "./ScoreDisplay";
 import YouTubeCard from "./YouTubeCard";
 import Confetti from "./Confetti";
 
@@ -19,38 +18,9 @@ interface QuizPlayerClientProps {
   setId: string;
 }
 
-const WAVEFORM_DOTS = 20;
-
-function WaveformProgress({ progress }: { progress: number }) {
-  const filledCount = Math.round(progress * WAVEFORM_DOTS);
-  return (
-    <div className="flex items-center gap-[3px] w-full">
-      {Array.from({ length: WAVEFORM_DOTS }).map((_, i) => {
-        const filled = i < filledCount;
-        const heights = [0.5, 0.8, 0.4, 1, 0.6, 0.9, 0.45, 0.7, 0.55, 0.85,
-                        0.5, 0.75, 0.4, 0.95, 0.6, 0.8, 0.45, 1, 0.55, 0.7];
-        const h = heights[i % heights.length];
-        return (
-          <motion.div
-            key={i}
-            className="flex-1 rounded-full transition-colors duration-300"
-            style={{
-              height: `${8 + h * 14}px`,
-              background: filled
-                ? "linear-gradient(to top, #7C3AED, #06B6D4)"
-                : "rgba(255,255,255,0.07)",
-            }}
-            animate={filled ? { scaleY: [1, 1.15, 1] } : {}}
-            transition={{ duration: 0.8, delay: i * 0.02, repeat: filled ? Infinity : 0, ease: "easeInOut" }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientProps) {
   const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const {
     currentQuestion,
     currentIndex,
@@ -65,10 +35,17 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
     nextQuestion,
   } = useQuiz({ questions });
 
-  const { height: _height, blur: _blur } = useOverlay(setId); // eslint-disable-line @typescript-eslint/no-unused-vars
+  useOverlay(setId);
+  const [isMuted, setIsMuted] = useState(true);
   const [showYouTube, setShowYouTube] = useState(false);
   const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [flashState, setFlashState] = useState<"none" | "correct" | "wrong">("none");
+  const [showAnswers, setShowAnswers] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowAnswers(true), 400);
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
 
   useEffect(() => {
     if (answered) {
@@ -89,13 +66,16 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
     if (!answered) {
       setShowYouTube(false);
       setTriggerConfetti(false);
+      setShowAnswers(false);
     }
+    // Scroll back to top on new question
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentIndex, answered]);
 
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const progress = (currentIndex + (answered ? 1 : 0)) / totalQuestions;
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     if (isLastQuestion && answered) {
       const resultData = { score, total: totalQuestions, timeElapsed, setId };
       sessionStorage.setItem("quizResults", JSON.stringify(resultData));
@@ -103,9 +83,8 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
     } else {
       nextQuestion();
     }
-  };
+  }, [isLastQuestion, answered, score, totalQuestions, timeElapsed, setId, router, nextQuestion]);
 
-  // Determine the visual state of each answer button
   const getAnswerState = (answer: string): "default" | "correct" | "wrong" | "reveal" => {
     if (!answered || !currentQuestion) return "default";
     if (answer === currentQuestion.correct_answer) {
@@ -117,7 +96,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#080D1A]">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#080D1A]">
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-12 h-12">
             <div className="absolute inset-0 rounded-full border-2 border-violet-500/20" />
@@ -130,139 +109,213 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
   }
 
   return (
-    <div className="min-h-screen bg-[#080D1A] flex flex-col">
+    <div
+      ref={scrollRef}
+      className="h-[100dvh] overflow-y-auto bg-black"
+      style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+    >
       <Confetti trigger={triggerConfetti} />
 
-      {/* Correct / Wrong flash */}
+      {/* Flash overlay */}
       <AnimatePresence>
         {flashState !== "none" && (
           <motion.div
-            className="fixed inset-0 z-50 pointer-events-none"
+            className="fixed inset-0 z-[60] pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
             style={{
               background: flashState === "correct"
-                ? "radial-gradient(ellipse at center, rgba(16,185,129,0.18) 0%, transparent 70%)"
-                : "radial-gradient(ellipse at center, rgba(244,63,94,0.18) 0%, transparent 70%)",
+                ? "radial-gradient(ellipse at center 80%, rgba(16,185,129,0.25) 0%, transparent 70%)"
+                : "radial-gradient(ellipse at center 80%, rgba(244,63,94,0.25) 0%, transparent 70%)",
             }}
           />
         )}
       </AnimatePresence>
 
-      {/* Waveform progress */}
-      <div className="px-4 md:px-8 pt-5 pb-0">
-        <div className="max-w-2xl mx-auto">
-          <WaveformProgress progress={progress} />
+      {/* ═══ MAIN VIDEO SECTION — full viewport ═══ */}
+      <div className="relative w-full min-h-[100dvh]">
+        {/* Video fills entire viewport */}
+        <div className="sticky top-0 h-[100dvh] w-full">
+          <VideoPlayer
+            key={`video-${currentIndex}`}
+            videoUrl={currentQuestion.video_url}
+            isMuted={isMuted}
+          />
         </div>
-      </div>
 
-      {/* Header */}
-      <div className="px-4 md:px-8 py-3 border-b border-white/[0.05]">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <motion.button
-            whileHover={{ x: -2 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={() => router.push("/")}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-white/[0.05] transition-colors group"
-            aria-label="Exit quiz"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
-            <span className="text-xs text-slate-600 group-hover:text-slate-400 transition-colors hidden sm:block">Exit</span>
-          </motion.button>
+        {/* ─── All overlays sit on top of the sticky video ─── */}
+        <div className="absolute inset-0 flex flex-col pointer-events-none" style={{ minHeight: "100dvh" }}>
 
-          <div className="flex items-center gap-2">
-            <Clock className="w-3.5 h-3.5 text-slate-600" />
-            <span className="text-xs font-medium tabular-nums text-slate-500">{formatTime(timeElapsed)}</span>
-            <span className="text-xs text-slate-600 ml-2">
-              <span className="text-white font-display font-600">{currentIndex + 1}</span>
-              <span className="text-slate-600"> / {totalQuestions}</span>
-            </span>
+          {/* TOP BAR: progress + controls */}
+          <div className="pointer-events-auto relative z-30 flex-shrink-0">
+            {/* Progress bar */}
+            <div className="h-1 w-full bg-white/10">
+              <motion.div
+                className="h-full rounded-r-full"
+                style={{ background: "linear-gradient(90deg, #7C3AED, #06B6D4)" }}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress * 100}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between px-3 py-2 sm:px-5 sm:py-3">
+              {/* Back */}
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={() => router.push("/")}
+                className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 active:bg-black/60"
+                aria-label="Exit quiz"
+              >
+                <ChevronLeft className="w-5 h-5 text-white/70" />
+                <span className="text-xs text-white/50 hidden sm:block">Exit</span>
+              </motion.button>
+
+              {/* Question # + timer */}
+              <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10">
+                <span className="text-sm sm:text-base font-display font-700 text-white">
+                  {currentIndex + 1}
+                  <span className="text-white/40 font-normal"> / {totalQuestions}</span>
+                </span>
+                <div className="w-px h-4 bg-white/20" />
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-white/40" />
+                  <span className="text-xs sm:text-sm tabular-nums text-white/50">{formatTime(timeElapsed)}</span>
+                </div>
+              </div>
+
+              {/* Score */}
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10">
+                <span className="font-display font-700 text-base sm:text-lg text-amber-400">{score}</span>
+                <span className="text-white/30 text-sm">/</span>
+                <span className="text-white/40 text-sm">{currentIndex + (answered ? 1 : 0)}</span>
+                {streak >= 2 && (
+                  <motion.span
+                    key={`streak-${streak}`}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="ml-0.5 text-sm"
+                  >
+                    <span className="text-amber-400 font-display font-700">{streak}</span>
+                    <span className="ml-0.5">🔥</span>
+                  </motion.span>
+                )}
+              </div>
+            </div>
           </div>
 
-          <ScoreDisplay correct={score} total={totalQuestions} streak={streak} />
-        </div>
-      </div>
+          {/* SPACER — pushes content to bottom 1/3 */}
+          <div className="flex-1" />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center px-4 py-6 md:py-8">
-        <div className="w-full max-w-2xl flex flex-col gap-5">
+          {/* ─── BOTTOM THIRD: question + answers + mute ─── */}
+          <div className="pointer-events-auto relative z-20 flex-shrink-0">
+            {/* Gradient scrim — only covers the bottom third */}
+            <div
+              className="absolute inset-0 pointer-events-none -top-16"
+              style={{
+                background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.88) 60%, rgba(0,0,0,0.95) 100%)",
+              }}
+            />
 
-          {/* ── VIDEO (full, clean) ── */}
-          <motion.div
-            key={`video-${currentIndex}`}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="rounded-2xl overflow-hidden border border-white/[0.07] shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
-          >
-            <VideoPlayer videoUrl={currentQuestion.video_url} />
-          </motion.div>
+            <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-5 sm:px-5 sm:pb-6">
+              {/* Question text + mute button on same row */}
+              <div className="flex items-start gap-3 mb-3">
+                <AnimatePresence mode="wait">
+                  <motion.h2
+                    key={`q-${currentIndex}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex-1 font-display font-700 text-[15px] sm:text-lg md:text-xl text-white leading-snug"
+                  >
+                    {currentQuestion.question_text}
+                  </motion.h2>
+                </AnimatePresence>
 
-          {/* ── QUESTION + ANSWERS ── */}
-          <motion.div
-            key={`question-${currentIndex}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.08 }}
-            className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5"
-          >
-            {/* Question text */}
-            <h2 className="font-display font-700 text-lg md:text-xl text-white leading-snug mb-5">
-              {currentQuestion.question_text}
-            </h2>
+                {/* Mute toggle — beside the question, always accessible */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileTap={{ scale: 0.88 }}
+                  onClick={() => setIsMuted((m) => !m)}
+                  className={`flex-shrink-0 relative z-40 flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl border-2 transition-all duration-200 active:scale-90 ${
+                    isMuted
+                      ? "bg-white/15 border-white/25 text-white/70"
+                      : "bg-violet-500/30 border-violet-400/50 text-white"
+                  }`}
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? (
+                    <VolumeX className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ) : (
+                    <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                  )}
+                  {isMuted && (
+                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] text-white/50 whitespace-nowrap font-medium">
+                      tap
+                    </span>
+                  )}
+                </motion.button>
+              </div>
 
-            {/* Answer buttons */}
-            <div className="space-y-2.5">
-              {currentQuestion.answers.map((answer, index) => (
-                <AnswerButton
-                  key={`${answer}-${index}`}
-                  text={answer}
-                  onClick={() => handleAnswer(answer)}
-                  state={getAnswerState(answer)}
-                  index={index}
-                  disabled={answered}
-                />
-              ))}
-            </div>
-          </motion.div>
-
-          {/* ── POST-ANSWER SECTION ── */}
-          <AnimatePresence mode="wait">
-            {answered && (
-              <motion.div
-                key={`result-${currentIndex}`}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3"
-              >
-                {/* YouTube lesson card */}
-                {showYouTube && currentQuestion.youtube_url && (
-                  <YouTubeCard
-                    title={currentQuestion.youtube_title}
-                    url={currentQuestion.youtube_url}
-                  />
+              {/* Answer buttons */}
+              <AnimatePresence mode="wait">
+                {showAnswers && (
+                  <motion.div
+                    key={`answers-${currentIndex}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="space-y-2"
+                  >
+                    {currentQuestion.answers.map((answer, index) => (
+                      <AnswerButton
+                        key={`${answer}-${index}`}
+                        text={answer}
+                        onClick={() => handleAnswer(answer)}
+                        state={getAnswerState(answer)}
+                        index={index}
+                        disabled={answered}
+                      />
+                    ))}
+                  </motion.div>
                 )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
 
+        {/* ═══ BELOW-FOLD: post-answer content (scroll to see) ═══ */}
+        <AnimatePresence mode="wait">
+          {answered && (
+            <motion.div
+              key={`result-${currentIndex}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative z-10 bg-[#080D1A] px-4 py-5 sm:px-6 sm:py-6"
+            >
+              <div className="max-w-2xl mx-auto space-y-3">
                 {/* Answer reveal banner */}
                 <div className={`rounded-xl p-4 border flex items-start gap-3 ${
                   isCorrect
-                    ? "bg-emerald-500/[0.07] border-emerald-500/20"
-                    : "bg-rose-500/[0.07] border-rose-500/20"
+                    ? "bg-emerald-500/[0.08] border-emerald-500/25"
+                    : "bg-rose-500/[0.08] border-rose-500/25"
                 }`}>
                   <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold ${
                     isCorrect ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
                   }`}>
                     {isCorrect ? "✓" : "✗"}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[11px] text-slate-500 mb-0.5 uppercase tracking-wider font-medium">
                       {isCorrect ? "Correct!" : "The answer was"}
                     </p>
-                    <p className="text-sm font-display font-700 text-amber-400">
+                    <p className="text-sm font-display font-700 text-amber-400 break-words">
                       {currentQuestion.correct_answer}
                     </p>
                     {!isCorrect && selectedAnswer && selectedAnswer !== currentQuestion.correct_answer && (
@@ -273,29 +326,19 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                   </div>
                 </div>
 
-                {/* Mini stats row */}
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "Streak", value: streak > 0 ? `${streak} 🔥` : "—", color: "text-amber-400" },
-                    {
-                      label: "Accuracy",
-                      value: `${totalQuestions > 0 ? Math.round(((score) / (currentIndex + 1)) * 100) : 0}%`,
-                      color: "text-violet-400",
-                    },
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06] text-center">
-                      <p className="text-[10px] text-slate-600 mb-1 uppercase tracking-wider font-medium">{stat.label}</p>
-                      <p className={`text-base font-display font-700 ${stat.color}`}>{stat.value}</p>
-                    </div>
-                  ))}
-                </div>
+                {/* YouTube card */}
+                {showYouTube && currentQuestion.youtube_url && (
+                  <YouTubeCard
+                    title={currentQuestion.youtube_title}
+                    url={currentQuestion.youtube_url}
+                  />
+                )}
 
-                {/* Next button */}
+                {/* Next / Results button */}
                 <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={handleNextQuestion}
-                  className="w-full py-4 rounded-xl font-display font-700 text-base text-white flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-xl font-display font-700 text-base text-white flex items-center justify-center gap-2 active:opacity-90"
                   style={{
                     background: "linear-gradient(135deg, #7C3AED, #4C1D95, #06b6d4)",
                     boxShadow: "0 0 24px rgba(124,58,237,0.35)",
@@ -303,24 +346,20 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 >
                   {isLastQuestion ? (
                     <>
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <CheckCircle className="w-5 h-5" />
                       See My Results
                     </>
                   ) : (
                     <>
                       Next Question
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
+                      <ArrowRight className="w-5 h-5" />
                     </>
                   )}
                 </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

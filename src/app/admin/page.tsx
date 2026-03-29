@@ -591,6 +591,7 @@ export default function AdminPage() {
                         >
                           <VideoPlayer
                             videoUrl={getVideoUrl(overlaySetId, 1)}
+                            isMuted={true}
                             className="w-full"
                           />
                           {/* Overlay preview */}

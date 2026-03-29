@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -8,6 +8,11 @@ interface HeroStats {
   totalQuestions: number;
   totalSets: number;
   categories: number;
+}
+
+interface CategoryInfo {
+  name: string;
+  count: number;
 }
 
 const WAVEFORM_HEIGHTS = [
@@ -63,7 +68,100 @@ const NOTES = [
   { char: "♪", x: "95%", y: "70%", delay: 2.8, size: 15 },
 ];
 
-export default function HeroSection({ stats }: { stats: HeroStats }) {
+function CategoryRotator({ categories }: { categories: CategoryInfo[] }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (categories.length <= 1) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % categories.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [categories.length]);
+
+  if (categories.length === 0) return null;
+
+  const current = categories[index];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8, delay: 0.9 }}
+      className="hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-3 w-56"
+    >
+      {/* Heading */}
+      <div className="flex items-center gap-2 px-1">
+        <span className="flex h-1.5 w-1.5 relative">
+          <span className="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-cyan-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400" />
+        </span>
+        <span className="text-[10px] text-slate-500 uppercase tracking-[0.15em] font-medium">
+          Test your ears on
+        </span>
+      </div>
+
+      {/* Rotating category card */}
+      <Link
+        href={`/category/${encodeURIComponent(current.name)}`}
+        className="group block"
+      >
+        <div className="relative px-4 py-4 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm hover:border-violet-500/30 hover:bg-violet-500/[0.04] transition-all duration-300 overflow-hidden">
+          {/* Glow */}
+          <div className="absolute -top-6 -right-6 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl group-hover:bg-violet-500/20 transition-colors duration-500" />
+
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current.name}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="text-sm font-display font-700 text-white mb-1 leading-snug">
+                  {current.name}
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  {current.count} question{current.count !== 1 ? "s" : ""}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Mini equalizer bars */}
+          <div className="absolute right-3 bottom-3 flex items-end gap-[2px] h-4">
+            {[0, 1, 2, 3].map((i) => (
+              <motion.div
+                key={`${index}-${i}`}
+                className="w-[3px] rounded-full"
+                style={{ background: "linear-gradient(to top, #7C3AED, #06B6D4)" }}
+                animate={{ height: ["4px", "14px", "6px", "12px", "4px"] }}
+                transition={{ duration: 1.2, delay: i * 0.12, repeat: Infinity, ease: "easeInOut" }}
+              />
+            ))}
+          </div>
+        </div>
+      </Link>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-1.5 px-1">
+        {categories.slice(0, 6).map((_, i) => (
+          <div
+            key={i}
+            className={`w-1 h-1 rounded-full transition-all duration-300 ${
+              i === index % Math.min(categories.length, 6)
+                ? "bg-violet-400 w-3"
+                : "bg-white/15"
+            }`}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+export default function HeroSection({ stats, categories = [] }: { stats: HeroStats; categories?: CategoryInfo[] }) {
   const [displayStats, setDisplayStats] = useState({ questions: 0, categories: 0, sets: 0 });
 
   useEffect(() => {
@@ -233,7 +331,7 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           transition={{ duration: 1, delay: 1 }}
           className="mt-12 flex items-center justify-center gap-6 text-xs text-slate-600"
         >
-          {["No sign-up needed", "100% free", "330+ questions across 6 topics"].map((item, i) => (
+          {["No sign-up needed", "100% free", "325+ questions across 6 topics"].map((item, i) => (
             <span key={i} className="flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-violet-500/60" />
               {item}
@@ -241,39 +339,8 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           ))}
         </motion.div>
 
-        {/* "Now Playing" widget */}
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 items-center gap-3 px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm"
-        >
-          <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-cyan-500 rounded-full" />
-            <motion.div
-              className="absolute inset-1 bg-[#080D1A] rounded-full flex items-center justify-center"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="w-2 h-2 rounded-full bg-violet-400" />
-            </motion.div>
-          </div>
-          <div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-0.5">Now Playing</div>
-            <div className="text-xs text-white font-display font-600">Odd Time Signatures</div>
-          </div>
-          <div className="flex items-end gap-[2px] h-4 ml-1">
-            {[1, 2, 3, 4].map((_, i) => (
-              <motion.div
-                key={i}
-                className="w-[3px] bg-violet-400 rounded-full"
-                style={{ height: "100%" }}
-                animate={{ scaleY: [0.2, 1, 0.4, 0.8, 0.2] }}
-                transition={{ duration: 1, delay: i * 0.15, repeat: Infinity, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-        </motion.div>
+        {/* Category rotator — replaces the old "Now Playing" widget */}
+        <CategoryRotator categories={categories} />
 
         {/* Scroll cue */}
         <motion.div
