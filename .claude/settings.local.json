@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(node:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find /home/runner/workspace -type f \\\\\\(-name *.sql -o -name *seed* -o -name *migration* -o -name *schema* \\\\\\))",
+      "Bash(grep -l \"dotenv\\\\|\\\\.env\" next.config.* .env*)",
+      "Bash(ls .env*)",
+      "Bash(env)",
+      "Bash(curl -sI \"https://quiz-nathaniel-music.b-cdn.net/bass/bass-001-q001.mp4\")",
+      "Bash(cat /home/runner/workspace/.env*)",
+      "Bash(grep -r \"video_url\\\\|bunny\\\\|b-cdn\\\\|SET_ID\" /home/runner/workspace/src --include=*.ts --include=*.tsx)",
+      "WebFetch(domain:docs.google.com)",
+      "Bash(find /home/runner/workspace -name og-image* -o -name *social*)"
+    ]
+  }
+}

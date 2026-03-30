@@ -69,7 +69,6 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
     }
   }, [currentIndex, answered]);
 
-  // Scroll to bottom when post-answer content appears
   useEffect(() => {
     if (showPostAnswer && scrollRef.current) {
       setTimeout(() => {
@@ -104,13 +103,13 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-[#080D1A]">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#0a0a08]">
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-12 h-12">
-            <div className="absolute inset-0 rounded-full border-2 border-violet-500/20" />
-            <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-cyan-400 animate-spin" />
+            <div className="absolute inset-0 rounded-full border-2 border-amber-800/30" />
+            <div className="absolute inset-0 rounded-full border-2 border-t-amber-500 border-r-amber-600 animate-spin" />
           </div>
-          <p className="text-slate-500 text-sm">Loading your quiz...</p>
+          <p className="text-stone-500 text-sm">Loading your quiz...</p>
         </div>
       </div>
     );
@@ -118,7 +117,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
 
   return (
     <div className="h-[100dvh] w-full overflow-hidden bg-black relative">
-      {/* ═══ VIDEO LAYER — absolute, fills entire screen ═══ */}
+      {/* ═══ VIDEO — natural 1080p, aligned to top ═══ */}
       <div className="absolute inset-0 z-0">
         <VideoPlayer
           key={`video-${currentIndex}`}
@@ -141,27 +140,25 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             style={{
               background: flashState === "correct"
                 ? "radial-gradient(ellipse at center 80%, rgba(16,185,129,0.3) 0%, transparent 70%)"
-                : "radial-gradient(ellipse at center 80%, rgba(244,63,94,0.3) 0%, transparent 70%)",
+                : "radial-gradient(ellipse at center 80%, rgba(220,38,38,0.25) 0%, transparent 70%)",
             }}
           />
         )}
       </AnimatePresence>
 
-      {/* ═══ UI LAYER — scrollable overlay on top of video ═══ */}
+      {/* ═══ UI LAYER — overlaid on the bottom third of the video ═══ */}
       <div
         ref={scrollRef}
         className="absolute inset-0 z-10 overflow-y-auto"
         style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
       >
-        {/* Min-height wrapper ensures content can be pushed to bottom */}
         <div className="min-h-full flex flex-col">
 
-          {/* ─── TOP BAR: progress + controls ─── */}
+          {/* ─── TOP BAR ─── */}
           <div className="flex-shrink-0 pointer-events-auto">
             <div className="h-1 w-full bg-white/10">
               <motion.div
-                className="h-full rounded-r-full"
-                style={{ background: "linear-gradient(90deg, #7C3AED, #06B6D4)" }}
+                className="h-full rounded-r-full bg-amber-500"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress * 100}%` }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
@@ -200,20 +197,19 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                     key={`streak-${streak}`}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="ml-0.5 text-sm"
+                    className="ml-1 text-xs text-amber-400 font-display font-700"
                   >
-                    <span className="text-amber-400 font-display font-700">{streak}</span>
-                    <span className="ml-0.5">🔥</span>
+                    {streak}x
                   </motion.span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* SPACER — pushes bottom content down */}
+          {/* SPACER */}
           <div className="flex-1" />
 
-          {/* Mute button — floating on the right, above the bottom content */}
+          {/* Mute button */}
           <div className="flex-shrink-0 pointer-events-auto flex justify-end px-4 mb-3 sm:px-6">
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
@@ -223,7 +219,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
               className={`relative flex items-center justify-center w-12 h-12 rounded-full backdrop-blur-xl border-2 transition-all duration-200 active:scale-90 ${
                 isMuted
                   ? "bg-black/50 border-white/25 text-white/70"
-                  : "bg-violet-500/30 border-violet-400/50 text-white"
+                  : "bg-amber-600/30 border-amber-500/50 text-white"
               }`}
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
@@ -240,17 +236,8 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             </motion.button>
           </div>
 
-          {/* ─── BOTTOM SECTION: question + answers + post-answer ─── */}
+          {/* ─── BOTTOM THIRD: question + answers + links ─── */}
           <div className="flex-shrink-0 pointer-events-auto relative">
-            {/* Gradient scrim behind bottom content */}
-            <div
-              className="absolute inset-x-0 bottom-0 pointer-events-none"
-              style={{
-                top: "-80px",
-                background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 15%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.93) 70%, rgba(0,0,0,0.98) 100%)",
-              }}
-            />
-
             <div className="relative z-10 w-full max-w-2xl mx-auto px-4 pb-5 sm:px-6 sm:pb-7">
               {/* Question text */}
               <AnimatePresence mode="wait">
@@ -291,10 +278,9 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 )}
               </AnimatePresence>
 
-              {/* ═══ YouTube + Patreon — always visible ═══ */}
+              {/* YouTube + Patreon — always visible */}
               {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
                 <div className="mt-3 space-y-2">
-                  {/* YouTube card */}
                   {currentQuestion.youtube_url && (
                     <a
                       href={currentQuestion.youtube_url}
@@ -317,7 +303,6 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                     </a>
                   )}
 
-                  {/* Patreon card */}
                   {currentQuestion.patreon_url && (
                     <a
                       href={currentQuestion.patreon_url}
@@ -344,7 +329,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 </div>
               )}
 
-              {/* ═══ POST-ANSWER: result banner + Next button ═══ */}
+              {/* POST-ANSWER: result + Next */}
               <AnimatePresence>
                 {showPostAnswer && (
                   <motion.div
@@ -354,14 +339,13 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                     transition={{ duration: 0.3 }}
                     className="mt-3 space-y-2.5"
                   >
-                    {/* Correct / Wrong banner */}
                     <div className={`rounded-xl p-3 border flex items-center gap-3 backdrop-blur-md ${
                       isCorrect
                         ? "bg-emerald-500/15 border-emerald-500/30"
-                        : "bg-rose-500/15 border-rose-500/30"
+                        : "bg-red-500/15 border-red-500/30"
                     }`}>
                       <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold ${
-                        isCorrect ? "bg-emerald-500/25 text-emerald-400" : "bg-rose-500/25 text-rose-400"
+                        isCorrect ? "bg-emerald-500/25 text-emerald-400" : "bg-red-500/25 text-red-400"
                       }`}>
                         {isCorrect ? "✓" : "✗"}
                       </div>
@@ -374,20 +358,18 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                         </p>
                         {!isCorrect && selectedAnswer && selectedAnswer !== currentQuestion.correct_answer && (
                           <p className="text-[11px] text-white/40 mt-0.5">
-                            You picked: <span className="text-rose-400">{selectedAnswer}</span>
+                            You picked: <span className="text-red-400">{selectedAnswer}</span>
                           </p>
                         )}
                       </div>
                     </div>
 
-                    {/* Next / Results button */}
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={handleNextQuestion}
-                      className="w-full py-3.5 rounded-xl font-display font-700 text-base text-white flex items-center justify-center gap-2 active:opacity-90"
+                      className="w-full py-3.5 rounded-xl font-display font-700 text-base text-white flex items-center justify-center gap-2 active:opacity-90 bg-amber-700 hover:bg-amber-600 transition-colors"
                       style={{
-                        background: "linear-gradient(135deg, #7C3AED, #4C1D95, #06b6d4)",
-                        boxShadow: "0 0 24px rgba(124,58,237,0.35)",
+                        boxShadow: "0 0 20px rgba(180,83,9,0.3)",
                       }}
                     >
                       {isLastQuestion ? (

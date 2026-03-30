@@ -20,7 +20,7 @@ const inter = Inter({
 });
 
 const siteUrl = "https://quiz.nathanielschool.com";
-const siteTitle = "Sonic Studio by Nathaniel School of Music";
+const siteTitle = "Nathaniel School of Music — Ear Training Quiz";
 const siteDescription =
   "Advanced ear training built from real teaching videos. Identify modes, chord degrees, odd time signatures, and jazz extensions by ear. 330+ questions. Free.";
 
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteTitle,
-    template: "%s | Sonic Studio",
+    template: "%s | Nathaniel School of Music",
   },
   description: siteDescription,
   keywords: [
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Sonic Studio",
+    siteName: "Nathaniel School of Music",
     title: siteTitle,
     description: "Advanced ear training built from real teaching videos. Modes, chord degrees, odd meters, jazz extensions. Free.",
     images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: siteTitle }],
@@ -77,7 +77,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable}`}>
       <body
-        className="font-body antialiased bg-[#080D1A] text-slate-100 flex flex-col min-h-screen"
+        className="font-body antialiased bg-[#0a0a08] text-stone-100 flex flex-col min-h-screen"
       >
         <Navigation />
         <main className="flex-1">{children}</main>

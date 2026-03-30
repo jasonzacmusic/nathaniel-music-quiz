@@ -20,9 +20,9 @@ const stateStyles = {
     text: "text-white/90",
   },
   selected: {
-    container: "border-violet-500/60 bg-violet-500/20 backdrop-blur-md",
-    label: "bg-violet-500/30 text-violet-200",
-    text: "text-violet-100",
+    container: "border-amber-600/60 bg-amber-700/20 backdrop-blur-md",
+    label: "bg-amber-600/30 text-amber-200",
+    text: "text-amber-100",
   },
   correct: {
     container: "border-emerald-400/70 bg-emerald-400/15 backdrop-blur-md",
@@ -30,9 +30,9 @@ const stateStyles = {
     text: "text-emerald-100",
   },
   wrong: {
-    container: "border-rose-500/70 bg-rose-500/15 backdrop-blur-md",
-    label: "bg-rose-500/30 text-rose-200",
-    text: "text-rose-100",
+    container: "border-red-500/70 bg-red-500/15 backdrop-blur-md",
+    label: "bg-red-500/30 text-red-200",
+    text: "text-red-100",
   },
   reveal: {
     container: "border-amber-400/70 bg-amber-400/15 backdrop-blur-md",

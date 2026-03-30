@@ -39,11 +39,11 @@ export default function VideoPlayer({
 
   if (hasError) {
     return (
-      <div className={`relative w-full h-full flex items-center justify-center bg-[#080D1A] ${className}`}>
+      <div className={`relative w-full h-full flex items-center justify-center bg-[#0a0a08] ${className}`}>
         <div className="text-center p-6">
-          <AlertCircle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-          <p className="text-base text-slate-400 font-medium">Video unavailable</p>
-          <p className="text-sm text-slate-600 mt-1">Use the audio cues to answer</p>
+          <AlertCircle className="w-10 h-10 text-stone-600 mx-auto mb-3" />
+          <p className="text-base text-stone-400 font-medium">Video unavailable</p>
+          <p className="text-sm text-stone-600 mt-1">Use the audio cues to answer</p>
         </div>
         {children}
       </div>
@@ -63,7 +63,7 @@ export default function VideoPlayer({
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onError={() => setHasError(true)}
-        className="absolute inset-0 w-full h-full object-cover object-top"
+        className="absolute inset-0 w-full h-full object-contain object-top"
         preload="auto"
       />
 
@@ -74,11 +74,11 @@ export default function VideoPlayer({
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex items-center justify-center bg-[#080D1A] z-10"
+            className="absolute inset-0 flex items-center justify-center bg-[#0a0a08] z-10"
           >
             <div className="relative w-12 h-12">
-              <div className="absolute inset-0 rounded-full border-2 border-violet-500/20" />
-              <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-cyan-400 animate-spin" />
+              <div className="absolute inset-0 rounded-full border-2 border-amber-800/30" />
+              <div className="absolute inset-0 rounded-full border-2 border-t-amber-500 border-r-amber-600 animate-spin" />
             </div>
           </motion.div>
         )}

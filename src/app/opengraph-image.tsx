@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Sonic Studio by Nathaniel School of Music";
+export const alt = "Nathaniel School of Music — Ear Training Quiz";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -15,11 +15,11 @@ export default function OGImage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background: "linear-gradient(145deg, #080D1A 0%, #0F172A 40%, #162032 100%)",
+          background: "linear-gradient(145deg, #0a0a08 0%, #1c1917 40%, #1a1510 100%)",
           position: "relative",
         }}
       >
-        {/* Top glow */}
+        {/* Warm glow */}
         <div
           style={{
             position: "absolute",
@@ -29,20 +29,7 @@ export default function OGImage() {
             width: 800,
             height: 400,
             borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(124,58,237,0.3) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Bottom glow */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: -80,
-            right: 100,
-            width: 500,
-            height: 300,
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(6,182,212,0.15) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(180,83,9,0.25) 0%, transparent 70%)",
           }}
         />
 
@@ -61,7 +48,7 @@ export default function OGImage() {
                 width: 14,
                 height: bar.h,
                 borderRadius: 7,
-                backgroundColor: `rgba(255,255,255,${bar.o})`,
+                backgroundColor: `rgba(217,119,6,${bar.o})`,
               }}
             />
           ))}
@@ -70,22 +57,22 @@ export default function OGImage() {
         {/* Title */}
         <div
           style={{
-            fontSize: 72,
+            fontSize: 64,
             fontWeight: 700,
-            color: "white",
+            color: "#fcd34d",
             textAlign: "center",
             lineHeight: 1.1,
             marginBottom: 16,
           }}
         >
-          Sonic Studio
+          Nathaniel School of Music
         </div>
 
         {/* Subtitle */}
         <div
           style={{
             fontSize: 28,
-            color: "rgba(255,255,255,0.5)",
+            color: "rgba(214,211,209,0.6)",
             textAlign: "center",
             maxWidth: 700,
             lineHeight: 1.4,
@@ -100,16 +87,16 @@ export default function OGImage() {
             position: "absolute",
             bottom: 50,
             fontSize: 18,
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(214,211,209,0.35)",
             display: "flex",
             alignItems: "center",
             gap: 24,
           }}
         >
-          <span>Nathaniel School of Music</span>
-          <span style={{ color: "rgba(124,58,237,0.6)" }}>|</span>
+          <span>Ear Training Quiz</span>
+          <span style={{ color: "rgba(180,83,9,0.5)" }}>|</span>
           <span>330+ Questions</span>
-          <span style={{ color: "rgba(124,58,237,0.6)" }}>|</span>
+          <span style={{ color: "rgba(180,83,9,0.5)" }}>|</span>
           <span>Free</span>
         </div>
       </div>

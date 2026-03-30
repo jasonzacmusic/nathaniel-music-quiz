@@ -36,7 +36,7 @@ export default function Navigation() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-[#080D1A]/85 backdrop-blur-2xl border-b border-white/[0.06]"
+            ? "bg-[#0a0a08]/90 backdrop-blur-2xl border-b border-amber-900/20"
             : "bg-transparent"
         }`}
       >
@@ -46,7 +46,7 @@ export default function Navigation() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #7C3AED, #06B6D4)" }}>
+                style={{ background: "linear-gradient(135deg, #92400e, #b45309)" }}>
                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                   <rect x="1" y="11" width="3" height="6" rx="1.5" fill="white" opacity="0.6" />
                   <rect x="5.5" y="7" width="3" height="10" rx="1.5" fill="white" opacity="0.8" />
@@ -54,7 +54,7 @@ export default function Navigation() {
                   <rect x="14.5" y="6" width="3" height="11" rx="1.5" fill="white" opacity="0.8" />
                 </svg>
               </div>
-              <span className="font-display font-700 text-[15px] text-white">Sonic Studio</span>
+              <span className="font-display font-700 text-[15px] text-white">Nathaniel</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -85,7 +85,7 @@ export default function Navigation() {
               </a>
 
               <Link href="/challenge"
-                className="ml-2 px-5 py-2 rounded-full bg-white text-[#080D1A] text-[13px] font-display font-700 hover:bg-violet-100 transition-colors"
+                className="ml-2 px-5 py-2 rounded-full bg-amber-600 text-white text-[13px] font-display font-700 hover:bg-amber-500 transition-colors"
               >
                 Start Quiz
               </Link>
@@ -113,7 +113,7 @@ export default function Navigation() {
             transition={{ duration: 0.15 }}
             className="fixed inset-0 z-40 md:hidden"
           >
-            <div className="absolute inset-0 bg-[#080D1A]/97 backdrop-blur-2xl" onClick={() => setIsOpen(false)} />
+            <div className="absolute inset-0 bg-[#0a0a08]/97 backdrop-blur-2xl" onClick={() => setIsOpen(false)} />
             <motion.div
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -152,7 +152,7 @@ export default function Navigation() {
                   </a>
                 </div>
                 <Link href="/challenge" onClick={() => setIsOpen(false)}
-                  className="block text-center px-4 py-4 rounded-full bg-white text-[#080D1A] font-display font-700 text-base"
+                  className="block text-center px-4 py-4 rounded-full bg-amber-600 text-white font-display font-700 text-base"
                 >
                   Start Quiz Now
                 </Link>

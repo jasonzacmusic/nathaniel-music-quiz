@@ -46,7 +46,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="bg-[#080D1A] text-slate-100">
+    <main className="bg-[#0a0a08] text-slate-100">
       <HeroSection
         stats={{
           totalQuestions: quizStats.total_questions,
@@ -62,11 +62,11 @@ export default async function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12 lg:gap-20 items-start">
             {/* Left — sticky label */}
             <div className="lg:sticky lg:top-28">
-              <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-violet-400/60 mb-4">Topics</p>
+              <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-600/60 mb-4">Topics</p>
               <h2 className="font-display font-700 text-3xl sm:text-4xl text-white leading-[1.15] mb-4">
                 Pick what to<br />train today.
               </h2>
-              <p className="text-white/35 text-base leading-relaxed max-w-sm">
+              <p className="text-stone-500 text-base leading-relaxed max-w-sm">
                 Chord degrees and jazz extensions. Odd meters from 7/8 to 19/8.
                 All 21 modes by ear. Each category draws from real teaching videos.
               </p>
@@ -99,7 +99,7 @@ export default async function Home() {
       {/* ── HOW IT WORKS — horizontal scroll cards ── */}
       <section className="py-20 sm:py-28 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 mb-12">
-          <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-cyan-400/50 mb-4">How it works</p>
+          <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-500/50 mb-4">How it works</p>
           <h2 className="font-display font-700 text-3xl sm:text-4xl text-white leading-[1.15]">
             Three steps. Zero theory books.
           </h2>
@@ -140,7 +140,7 @@ export default async function Home() {
                 {step.num}
               </div>
               <h3 className="font-display font-700 text-lg text-white mb-3">{step.title}</h3>
-              <p className="text-white/35 text-sm leading-relaxed">{step.desc}</p>
+              <p className="text-stone-500 text-sm leading-relaxed">{step.desc}</p>
             </div>
           ))}
           {/* Spacer for scroll end */}
@@ -154,7 +154,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Challenge card */}
             <div className="relative rounded-2xl overflow-hidden border border-white/[0.06] p-8 sm:p-10 flex flex-col justify-between min-h-[280px]"
-              style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(6,182,212,0.04) 100%)" }}
+              style={{ background: "linear-gradient(135deg, rgba(180,83,9,0.08) 0%, rgba(120,53,15,0.04) 100%)" }}
             >
               <div>
                 <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-violet-400/50 mb-4">Challenge a friend</p>
@@ -162,7 +162,7 @@ export default async function Home() {
                   Know someone who thinks they<br className="hidden sm:block" />
                   know their theory?
                 </h3>
-                <p className="text-white/30 text-sm leading-relaxed max-w-sm">
+                <p className="text-stone-500 text-sm leading-relaxed max-w-sm">
                   Send them a quiz and see how they handle secondary dominants, jazz extensions, and odd time signatures.
                 </p>
               </div>
@@ -200,7 +200,7 @@ export default async function Home() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-display font-700 text-base text-white mb-1">Free YouTube Lessons</h3>
-                  <p className="text-white/30 text-sm leading-relaxed">
+                  <p className="text-stone-500 text-sm leading-relaxed">
                     Every quiz question links back to a full lesson. Get one wrong? The explanation is one click away.
                   </p>
                 </div>
@@ -219,7 +219,7 @@ export default async function Home() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-display font-700 text-base text-white mb-1">Support on Patreon</h3>
-                  <p className="text-white/30 text-sm leading-relaxed">
+                  <p className="text-stone-500 text-sm leading-relaxed">
                     New quiz sets weekly. Early access, exclusive deep-dives, and keeping free music education alive.
                   </p>
                 </div>
@@ -238,7 +238,7 @@ export default async function Home() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-display font-700 text-base text-white mb-1">Follow on Instagram</h3>
-                  <p className="text-white/30 text-sm leading-relaxed">
+                  <p className="text-stone-500 text-sm leading-relaxed">
                     Behind the scenes, quick tips, and new quiz announcements.
                   </p>
                 </div>
