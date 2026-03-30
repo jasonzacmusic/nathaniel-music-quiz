@@ -78,7 +78,7 @@ export default function AnswerButton({
       }}
       whileHover={state === "default" && !disabled ? { x: 4, scale: 1.01 } : {}}
       whileTap={state === "default" && !disabled ? { scale: 0.98 } : {}}
-      className={`group relative w-full flex items-center gap-3 px-3 py-3 sm:px-4 sm:py-3.5 rounded-xl border transition-all duration-200 ${styles.container} ${
+      className={`group relative w-full flex items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border transition-all duration-200 ${styles.container} ${
         disabled && state === "default" ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
       }`}
     >
