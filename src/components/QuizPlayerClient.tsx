@@ -291,7 +291,60 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 )}
               </AnimatePresence>
 
-              {/* ═══ POST-ANSWER: result + YouTube + Patreon + Next ═══ */}
+              {/* ═══ YouTube + Patreon — always visible ═══ */}
+              {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
+                <div className="mt-3 space-y-2">
+                  {/* YouTube card */}
+                  {currentQuestion.youtube_url && (
+                    <a
+                      href={currentQuestion.youtube_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl p-3 border border-red-500/30 bg-red-600/20 backdrop-blur-md hover:bg-red-600/30 transition-all"
+                    >
+                      <div className="flex-shrink-0 p-2 bg-white rounded-lg">
+                        <Play className="w-4 h-4 text-red-600 fill-red-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-medium text-red-200/80 uppercase tracking-wide">
+                          Watch the full lesson
+                        </p>
+                        <p className="text-sm font-display font-700 text-white truncate">
+                          {currentQuestion.youtube_title || "Watch on YouTube"}
+                        </p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-white/40 flex-shrink-0" />
+                    </a>
+                  )}
+
+                  {/* Patreon card */}
+                  {currentQuestion.patreon_url && (
+                    <a
+                      href={currentQuestion.patreon_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl p-3 border border-orange-500/30 bg-orange-600/20 backdrop-blur-md hover:bg-orange-600/30 transition-all"
+                    >
+                      <div className="flex-shrink-0 p-2 bg-white rounded-lg">
+                        <svg className="w-4 h-4 text-orange-600 fill-orange-600" viewBox="0 0 24 24">
+                          <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-medium text-orange-200/80 uppercase tracking-wide">
+                          Support this lesson
+                        </p>
+                        <p className="text-sm font-display font-700 text-white truncate">
+                          Get extras on Patreon
+                        </p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-white/40 flex-shrink-0" />
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* ═══ POST-ANSWER: result banner + Next button ═══ */}
               <AnimatePresence>
                 {showPostAnswer && (
                   <motion.div
@@ -326,54 +379,6 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                         )}
                       </div>
                     </div>
-
-                    {/* YouTube card */}
-                    {currentQuestion.youtube_url && (
-                      <a
-                        href={currentQuestion.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 rounded-xl p-3 border border-red-500/30 bg-red-600/20 backdrop-blur-md hover:bg-red-600/30 transition-all"
-                      >
-                        <div className="flex-shrink-0 p-2 bg-white rounded-lg">
-                          <Play className="w-4 h-4 text-red-600 fill-red-600" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-medium text-red-200/80 uppercase tracking-wide">
-                            Watch the full lesson
-                          </p>
-                          <p className="text-sm font-display font-700 text-white truncate">
-                            {currentQuestion.youtube_title || "Watch on YouTube"}
-                          </p>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-white/40 flex-shrink-0" />
-                      </a>
-                    )}
-
-                    {/* Patreon card */}
-                    {currentQuestion.patreon_url && (
-                      <a
-                        href={currentQuestion.patreon_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 rounded-xl p-3 border border-orange-500/30 bg-orange-600/20 backdrop-blur-md hover:bg-orange-600/30 transition-all"
-                      >
-                        <div className="flex-shrink-0 p-2 bg-white rounded-lg">
-                          <svg className="w-4 h-4 text-orange-600 fill-orange-600" viewBox="0 0 24 24">
-                            <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-medium text-orange-200/80 uppercase tracking-wide">
-                            Support this lesson
-                          </p>
-                          <p className="text-sm font-display font-700 text-white truncate">
-                            Get extras on Patreon
-                          </p>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-white/40 flex-shrink-0" />
-                      </a>
-                    )}
 
                     {/* Next / Results button */}
                     <motion.button
