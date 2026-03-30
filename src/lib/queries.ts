@@ -10,6 +10,7 @@ export interface QuizSet {
   upload_date: string;
   status: string;
   apple_notes_title: string;
+  quiz_type: string;
   created_at: string;
 }
 
@@ -27,6 +28,9 @@ export interface Question {
   video_url: string;
   category: string;
   patreon_url: string;
+  quiz_type: string;
+  difficulty: string | null;
+  explanation: string | null;
   created_at: string;
 }
 
@@ -171,7 +175,7 @@ export async function getRandomQuestions(
         patreon_url,
         created_at
       FROM questions
-      WHERE category = ${category}
+      WHERE category = ${category} AND quiz_type = 'ear_training'
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -193,6 +197,7 @@ export async function getRandomQuestions(
         patreon_url,
         created_at
       FROM questions
+      WHERE quiz_type = 'ear_training'
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -307,6 +312,7 @@ export async function getChallengeQuestions(
         patreon_url,
         created_at
       FROM questions
+      WHERE quiz_type = 'ear_training'
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -328,7 +334,7 @@ export async function getChallengeQuestions(
         patreon_url,
         created_at
       FROM questions
-      WHERE category = ANY(${categories})
+      WHERE category = ANY(${categories}) AND quiz_type = 'ear_training'
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -343,6 +349,108 @@ export async function getChallengeQuestions(
     }
     return { ...q, answers };
   });
+}
+
+/**
+ * Get theory quiz categories
+ */
+export async function getTheoryCategories(): Promise<Category[]> {
+  const result = await sql`
+    SELECT
+      category,
+      COUNT(*) as count
+    FROM questions
+    WHERE quiz_type = 'music_theory' AND category IS NOT NULL AND category != ''
+    GROUP BY category
+    ORDER BY count DESC
+  `;
+  return result as unknown as Category[];
+}
+
+/**
+ * Get theory questions with optional difficulty and category filters
+ */
+export async function getTheoryQuestions(
+  count: number,
+  difficulty?: string,
+  category?: string
+): Promise<QuestionWithShuffledAnswers[]> {
+  let result;
+
+  if (difficulty && category) {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, created_at
+      FROM questions
+      WHERE quiz_type = 'music_theory' AND difficulty = ${difficulty} AND category = ${category}
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  } else if (difficulty) {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, created_at
+      FROM questions
+      WHERE quiz_type = 'music_theory' AND difficulty = ${difficulty}
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  } else if (category) {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, created_at
+      FROM questions
+      WHERE quiz_type = 'music_theory' AND category = ${category}
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  } else {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, created_at
+      FROM questions
+      WHERE quiz_type = 'music_theory'
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  }
+
+  return (result as unknown as Question[]).map((q) => ({
+    ...q,
+    answers: shuffleArray([
+      q.correct_answer,
+      q.wrong_answer_1,
+      q.wrong_answer_2,
+      q.wrong_answer_3,
+    ].filter(Boolean)),
+  }));
+}
+
+/**
+ * Get theory quiz stats
+ */
+export async function getTheoryStats(): Promise<{ total_questions: number; categories_count: number; difficulties: { difficulty: string; count: number }[] }> {
+  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type = 'music_theory'`;
+  const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type = 'music_theory' AND category IS NOT NULL AND category != ''`;
+  const difficultiesResult = await sql`
+    SELECT difficulty, COUNT(*) as count FROM questions
+    WHERE quiz_type = 'music_theory' AND difficulty IS NOT NULL
+    GROUP BY difficulty ORDER BY difficulty
+  `;
+
+  return {
+    total_questions: (questionsResult[0] as { count: number }).count,
+    categories_count: (categoriesResult[0] as { count: number }).count,
+    difficulties: difficultiesResult as unknown as { difficulty: string; count: number }[],
+  };
 }
 
 /**

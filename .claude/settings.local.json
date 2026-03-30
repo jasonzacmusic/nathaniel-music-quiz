@@ -16,7 +16,10 @@
       "Bash(cat /home/runner/workspace/.env*)",
       "Bash(grep -r \"video_url\\\\|bunny\\\\|b-cdn\\\\|SET_ID\" /home/runner/workspace/src --include=*.ts --include=*.tsx)",
       "WebFetch(domain:docs.google.com)",
-      "Bash(find /home/runner/workspace -name og-image* -o -name *social*)"
+      "Bash(find /home/runner/workspace -name og-image* -o -name *social*)",
+      "Bash(find /home/runner/workspace -type f \\\\\\(-name *.sql -o -name *init* -o -name *schema* \\\\\\) ! -path */node_modules/*)",
+      "Bash(find /home/runner/workspace -type f \\\\\\(-name *.md -o -name *.txt -o -name README* \\\\\\) ! -path */node_modules/* ! -path */.next/*)",
+      "Bash(grep -r \"CREATE TABLE\\\\|difficulty\\\\|level\" /home/runner/workspace/src --include=*.ts --include=*.tsx)"
     ]
   }
 }

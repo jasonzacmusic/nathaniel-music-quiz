@@ -96,6 +96,31 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ── MUSIC THEORY — new quiz mode ── */}
+      <section className="py-16 sm:py-20 px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <a href="/theory" className="group block">
+            <div className="rounded-2xl border border-amber-800/25 p-6 sm:p-8 hover:border-amber-700/40 transition-all"
+              style={{ background: "linear-gradient(135deg, rgba(180,83,9,0.06) 0%, rgba(120,53,15,0.03) 100%)" }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-600 uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/20 mb-3">
+                    New
+                  </span>
+                  <h3 className="font-display font-700 text-xl sm:text-2xl text-white mb-2">Music Theory Quiz</h3>
+                  <p className="text-stone-500 text-sm leading-relaxed max-w-md">
+                    Scales, modes, chord theory, harmony, and more. Three difficulty levels. No video, pure knowledge.
+                  </p>
+                </div>
+                <svg className="w-6 h-6 text-white/15 group-hover:text-amber-500/50 group-hover:translate-x-1 transition-all flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
       {/* ── HOW IT WORKS — horizontal scroll cards ── */}
       <section className="py-20 sm:py-28 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 mb-12">
