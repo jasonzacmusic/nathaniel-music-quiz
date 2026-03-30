@@ -54,7 +54,7 @@ export default function Navigation() {
                   <rect x="14.5" y="6" width="3" height="11" rx="1.5" fill="white" opacity="0.8" />
                 </svg>
               </div>
-              <span className="font-display font-700 text-[15px] text-white">Nathaniel</span>
+              <span className="font-display font-700 text-[15px] text-white">Sonic Studio</span>
             </Link>
 
             {/* Desktop Nav */}

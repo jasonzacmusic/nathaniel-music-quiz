@@ -20,15 +20,15 @@ const inter = Inter({
 });
 
 const siteUrl = "https://quiz.nathanielschool.com";
-const siteTitle = "Nathaniel Music Quiz — Advanced Ear Training";
+const siteTitle = "Sonic Studio by Nathaniel School of Music";
 const siteDescription =
-  "Can you identify Mixolydian ♭6 by ear? Count 19/8? Spot a secondary dominant? 330+ questions across chord progressions, modes, odd time signatures, and intervals — pulled from real teaching videos. Free.";
+  "Advanced ear training built from real teaching videos. Identify modes, chord degrees, odd time signatures, and jazz extensions by ear. 330+ questions. Free.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteTitle,
-    template: "%s | Nathaniel Music Quiz",
+    template: "%s | Sonic Studio",
   },
   description: siteDescription,
   keywords: [
@@ -42,16 +42,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Nathaniel Music Quiz",
+    siteName: "Sonic Studio",
     title: siteTitle,
-    description: "Advanced ear training: modes, chord degrees, odd time signatures, jazz extensions — all from real teaching videos. Free.",
-    images: [{ url: `${siteUrl}/og-image.png`, width: 1200, height: 630, alt: siteTitle }],
+    description: "Advanced ear training built from real teaching videos. Modes, chord degrees, odd meters, jazz extensions. Free.",
+    images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: siteTitle }],
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
-    description: "Modes, chord degrees, odd meters, jazz extensions — tested by ear. Free.",
-    images: [`${siteUrl}/og-image.png`],
+    description: "Advanced ear training built from real teaching videos. Free.",
+    images: [`${siteUrl}/opengraph-image`],
     creator: "@nathanielschool",
   },
   robots: {
@@ -60,8 +60,12 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
     shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
 };
 

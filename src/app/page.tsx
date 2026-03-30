@@ -5,17 +5,17 @@ import { LINKS } from "@/config/links";
 
 function getCategoryIcon(name: string): string {
   const n = name.toLowerCase();
-  if (n.includes("piano")) return "🎹";
-  if (n.includes("bass")) return "🎸";
-  if (n.includes("chord")) return "🎵";
-  if (n.includes("rhythm")) return "🥁";
-  if (n.includes("scale") || n.includes("mode")) return "🎼";
-  if (n.includes("interval")) return "🎯";
-  if (n.includes("theory")) return "📖";
-  if (n.includes("composition")) return "✍️";
-  if (n.includes("ear")) return "👂";
-  if (n.includes("whistle") || n.includes("tin")) return "🎶";
-  return "🎵";
+  if (n.includes("piano")) return "P";
+  if (n.includes("bass")) return "B";
+  if (n.includes("chord")) return "C";
+  if (n.includes("rhythm")) return "R";
+  if (n.includes("scale") || n.includes("mode")) return "M";
+  if (n.includes("interval")) return "I";
+  if (n.includes("theory")) return "T";
+  if (n.includes("composition")) return "W";
+  if (n.includes("ear")) return "E";
+  if (n.includes("whistle") || n.includes("tin")) return "W";
+  return "Q";
 }
 
 function getCategoryColor(index: number): string {
@@ -168,7 +168,7 @@ export default async function Home() {
               </div>
               <div className="flex flex-wrap gap-2.5 mt-8">
                 <a
-                  href="https://wa.me/?text=Free+ear+training+quiz+from+Nathaniel+School+of+Music+%F0%9F%8E%B5+https://quiz.nathanielschool.com"
+                  href="https://wa.me/?text=Free+advanced+ear+training+quiz+from+Nathaniel+School+of+Music+https://quiz.nathanielschool.com"
                   target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium hover:bg-green-500/20 transition-all"
                 >
@@ -176,7 +176,7 @@ export default async function Home() {
                   WhatsApp
                 </a>
                 <a
-                  href="https://twitter.com/intent/tweet?text=Just+found+this+free+ear+training+quiz+%F0%9F%8E%B5+Built+from+real+music+lessons&url=https://quiz.nathanielschool.com"
+                  href="https://twitter.com/intent/tweet?text=Just+found+this+free+advanced+ear+training+quiz.+Built+from+real+music+lessons&url=https://quiz.nathanielschool.com"
                   target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/10 text-white/60 text-sm font-medium hover:bg-white/[0.08] hover:text-white transition-all"
                 >

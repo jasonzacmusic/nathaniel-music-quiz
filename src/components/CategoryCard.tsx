@@ -50,8 +50,8 @@ export default function CategoryCard({
 
           {/* Icon */}
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ml-2"
-            style={{ backgroundColor: accent + "15" }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ml-2 font-display font-700 text-base"
+            style={{ backgroundColor: accent + "15", color: accent }}
           >
             {icon}
           </div>

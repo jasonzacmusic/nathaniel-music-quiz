@@ -45,27 +45,31 @@ function WaveformVisualizer() {
   );
 }
 
-function FloatingNote({ char, x, y, delay, size }: { char: string; x: string; y: string; delay: number; size: number }) {
+function FloatingDot({ x, y, delay, size }: { x: string; y: string; delay: number; size: number }) {
   return (
     <motion.div
-      className="absolute pointer-events-none select-none"
-      style={{ left: x, top: y, fontSize: size }}
-      initial={{ opacity: 0, y: 0 }}
-      animate={{ opacity: [0, 0.18, 0.28, 0.1, 0], y: [-10, -40, -70, -90] }}
-      transition={{ duration: 6, delay, repeat: Infinity, repeatDelay: 3, ease: "easeOut" }}
-    >
-      {char}
-    </motion.div>
+      className="absolute pointer-events-none select-none rounded-full"
+      style={{
+        left: x,
+        top: y,
+        width: size,
+        height: size,
+        background: "linear-gradient(135deg, rgba(124,58,237,0.4), rgba(6,182,212,0.3))",
+      }}
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: [0, 0.3, 0.5, 0.2, 0], scale: [0.5, 1, 1.2, 0.8, 0.5], y: [-5, -20, -40, -55] }}
+      transition={{ duration: 7, delay, repeat: Infinity, repeatDelay: 4, ease: "easeOut" }}
+    />
   );
 }
 
-const NOTES = [
-  { char: "♩", x: "8%",  y: "60%", delay: 0,   size: 18 },
-  { char: "♪", x: "15%", y: "45%", delay: 1.5, size: 14 },
-  { char: "♫", x: "85%", y: "55%", delay: 0.8, size: 20 },
-  { char: "♬", x: "92%", y: "40%", delay: 2.2, size: 16 },
-  { char: "♩", x: "5%",  y: "30%", delay: 3.5, size: 12 },
-  { char: "♪", x: "95%", y: "70%", delay: 2.8, size: 15 },
+const FLOATING_DOTS = [
+  { x: "8%",  y: "60%", delay: 0,   size: 6 },
+  { x: "15%", y: "45%", delay: 1.5, size: 4 },
+  { x: "85%", y: "55%", delay: 0.8, size: 8 },
+  { x: "92%", y: "40%", delay: 2.2, size: 5 },
+  { x: "5%",  y: "30%", delay: 3.5, size: 3 },
+  { x: "95%", y: "70%", delay: 2.8, size: 6 },
 ];
 
 function CategoryRotator({ categories }: { categories: CategoryInfo[] }) {
@@ -199,8 +203,8 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
         transition={{ duration: 4, repeat: Infinity }}
       />
 
-      {/* Floating notes */}
-      {NOTES.map((note, i) => <FloatingNote key={i} {...note} />)}
+      {/* Floating ambient dots */}
+      {FLOATING_DOTS.map((dot, i) => <FloatingDot key={i} {...dot} />)}
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center pb-32 pt-24">
@@ -217,7 +221,7 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
           <span className="text-xs text-slate-300 font-medium tracking-[0.12em] uppercase">
-            Nathaniel School of Music
+            Sonic Studio
           </span>
         </motion.div>
 
