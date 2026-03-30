@@ -68,7 +68,6 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
       setTriggerConfetti(false);
       setShowAnswers(false);
     }
-    // Scroll back to top on new question
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentIndex, answered]);
 
@@ -111,7 +110,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
   return (
     <div
       ref={scrollRef}
-      className="h-[100dvh] overflow-y-auto bg-black"
+      className="h-[100dvh] overflow-y-auto bg-[#080D1A]"
       style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
     >
       <Confetti trigger={triggerConfetti} />
@@ -134,22 +133,23 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
         )}
       </AnimatePresence>
 
-      {/* ═══ MAIN VIDEO SECTION — full viewport ═══ */}
+      {/* ═══ FULLSCREEN VIDEO + OVERLAY LAYOUT ═══ */}
       <div className="relative w-full min-h-[100dvh]">
-        {/* Video fills entire viewport */}
-        <div className="sticky top-0 h-[100dvh] w-full">
+        {/* Video fills entire viewport — object-cover ensures no black bars */}
+        <div className="fixed inset-0 w-full h-[100dvh]">
           <VideoPlayer
             key={`video-${currentIndex}`}
             videoUrl={currentQuestion.video_url}
             isMuted={isMuted}
+            className="w-full h-full"
           />
         </div>
 
-        {/* ─── All overlays sit on top of the sticky video ─── */}
-        <div className="absolute inset-0 flex flex-col pointer-events-none" style={{ minHeight: "100dvh" }}>
+        {/* ─── All UI overlays on top of video ─── */}
+        <div className="relative z-10 flex flex-col min-h-[100dvh]">
 
           {/* TOP BAR: progress + controls */}
-          <div className="pointer-events-auto relative z-30 flex-shrink-0">
+          <div className="relative z-30 flex-shrink-0">
             {/* Progress bar */}
             <div className="h-1 w-full bg-white/10">
               <motion.div
@@ -206,21 +206,22 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             </div>
           </div>
 
-          {/* SPACER — pushes content to bottom 1/3 */}
-          <div className="flex-1" />
+          {/* SPACER — pushes question + answers to the bottom third */}
+          <div className="flex-1 min-h-0" />
 
-          {/* ─── BOTTOM THIRD: question + answers + mute ─── */}
-          <div className="pointer-events-auto relative z-20 flex-shrink-0">
-            {/* Gradient scrim — only covers the bottom third */}
+          {/* ─── BOTTOM THIRD: gradient scrim + question + answers + mute ─── */}
+          <div className="relative z-20 flex-shrink-0">
+            {/* Gradient scrim — fades from transparent to dark over the bottom area */}
             <div
-              className="absolute inset-0 pointer-events-none -top-16"
+              className="absolute inset-x-0 bottom-0 pointer-events-none"
               style={{
-                background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.88) 60%, rgba(0,0,0,0.95) 100%)",
+                height: "140%",
+                background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 25%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.92) 75%, rgba(0,0,0,0.97) 100%)",
               }}
             />
 
-            <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-5 sm:px-5 sm:pb-6">
-              {/* Question text + mute button on same row */}
+            <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-4 sm:px-5 sm:pb-6 pt-8">
+              {/* Question text + mute button */}
               <div className="flex items-start gap-3 mb-3">
                 <AnimatePresence mode="wait">
                   <motion.h2
@@ -229,13 +230,13 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="flex-1 font-display font-700 text-[15px] sm:text-lg md:text-xl text-white leading-snug"
+                    className="flex-1 font-display font-700 text-[15px] sm:text-lg md:text-xl text-white leading-snug drop-shadow-lg"
                   >
                     {currentQuestion.question_text}
                   </motion.h2>
                 </AnimatePresence>
 
-                {/* Mute toggle — beside the question, always accessible */}
+                {/* Mute toggle */}
                 <motion.button
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -297,7 +298,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="relative z-10 bg-[#080D1A] px-4 py-5 sm:px-6 sm:py-6"
+              className="relative z-20 bg-[#080D1A] px-4 py-5 sm:px-6 sm:py-6"
             >
               <div className="max-w-2xl mx-auto space-y-3">
                 {/* Answer reveal banner */}
@@ -332,6 +333,39 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                     title={currentQuestion.youtube_title}
                     url={currentQuestion.youtube_url}
                   />
+                )}
+
+                {/* Patreon link */}
+                {showYouTube && currentQuestion.patreon_url && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
+                  >
+                    <a
+                      href={currentQuestion.patreon_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl p-3 sm:p-4 border border-orange-500/30 bg-gradient-to-r from-orange-600/90 to-amber-600/90 backdrop-blur-xl hover:from-orange-500/90 hover:to-amber-500/90 transition-all"
+                    >
+                      <div className="flex-shrink-0 p-2 sm:p-2.5 bg-white rounded-lg">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 fill-orange-600" viewBox="0 0 24 24">
+                          <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] sm:text-xs font-medium text-orange-100 uppercase tracking-wide">
+                          Support this lesson
+                        </p>
+                        <p className="text-sm sm:text-base font-display font-700 text-white truncate">
+                          Get extras on Patreon
+                        </p>
+                      </div>
+                      <span className="flex-shrink-0 px-4 sm:px-5 py-2 rounded-lg bg-white text-orange-600 font-bold hover:bg-orange-50 transition-all font-display text-xs sm:text-sm">
+                        Support
+                      </span>
+                    </a>
+                  </motion.div>
                 )}
 
                 {/* Next / Results button */}

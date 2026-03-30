@@ -134,7 +134,7 @@ export async function getQuestionsBySetId(setId: string): Promise<QuestionWithSh
   // Shuffle answers for each question
   const questions = result as Question[];
   return questions.map((q) => {
-    const answers = [q.correct_answer, q.wrong_answer_1, q.wrong_answer_2, q.wrong_answer_3];
+    const answers = [q.correct_answer, q.wrong_answer_1, q.wrong_answer_2, q.wrong_answer_3].filter(Boolean);
     // Fisher-Yates shuffle
     for (let i = answers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -200,7 +200,7 @@ export async function getRandomQuestions(
 
   const questions = result as Question[];
   return questions.map((q) => {
-    const answers = [q.correct_answer, q.wrong_answer_1, q.wrong_answer_2, q.wrong_answer_3];
+    const answers = [q.correct_answer, q.wrong_answer_1, q.wrong_answer_2, q.wrong_answer_3].filter(Boolean);
     for (let i = answers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [answers[i], answers[j]] = [answers[j], answers[i]];
@@ -336,7 +336,7 @@ export async function getChallengeQuestions(
 
   const questions = result as Question[];
   return questions.map((q) => {
-    const answers = [q.correct_answer, q.wrong_answer_1, q.wrong_answer_2, q.wrong_answer_3];
+    const answers = [q.correct_answer, q.wrong_answer_1, q.wrong_answer_2, q.wrong_answer_3].filter(Boolean);
     for (let i = answers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [answers[i], answers[j]] = [answers[j], answers[i]];
