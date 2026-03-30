@@ -42,7 +42,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
   const [showAnswers, setShowAnswers] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowAnswers(true), 400);
+    const timer = setTimeout(() => setShowAnswers(true), 300);
     return () => clearTimeout(timer);
   }, [currentIndex]);
 
@@ -117,7 +117,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
 
   return (
     <div className="h-[100dvh] w-full overflow-hidden bg-black relative">
-      {/* ═══ VIDEO — natural 1080p, aligned to top ═══ */}
+      {/* VIDEO */}
       <div className="absolute inset-0 z-0">
         <VideoPlayer
           key={`video-${currentIndex}`}
@@ -139,14 +139,14 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             transition={{ duration: 0.12 }}
             style={{
               background: flashState === "correct"
-                ? "radial-gradient(ellipse at center 80%, rgba(16,185,129,0.3) 0%, transparent 70%)"
-                : "radial-gradient(ellipse at center 80%, rgba(220,38,38,0.25) 0%, transparent 70%)",
+                ? "radial-gradient(ellipse at center 60%, rgba(16,185,129,0.3) 0%, transparent 70%)"
+                : "radial-gradient(ellipse at center 60%, rgba(220,38,38,0.25) 0%, transparent 70%)",
             }}
           />
         )}
       </AnimatePresence>
 
-      {/* ═══ UI LAYER ═══ */}
+      {/* UI LAYER */}
       <div
         ref={scrollRef}
         className="absolute inset-0 z-10 overflow-y-auto"
@@ -154,7 +154,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
       >
         <div className="min-h-full flex flex-col">
 
-          {/* ─── TOP BAR ─── */}
+          {/* TOP BAR */}
           <div className="flex-shrink-0 pointer-events-auto">
             <div className="h-1 w-full bg-white/10">
               <motion.div
@@ -164,40 +164,38 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 transition={{ duration: 0.4, ease: "easeOut" }}
               />
             </div>
-
-            <div className="flex items-center justify-between px-3 py-2 sm:px-5 sm:py-3">
+            <div className="flex items-center justify-between px-3 py-1.5 sm:px-5 sm:py-2">
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onClick={() => router.push("/")}
-                className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 active:bg-black/60"
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-black/50 backdrop-blur-xl border border-white/10"
                 aria-label="Exit quiz"
               >
-                <ChevronLeft className="w-5 h-5 text-white/70" />
-                <span className="text-xs text-white/50 hidden sm:block">Exit</span>
+                <ChevronLeft className="w-4 h-4 text-white/70" />
+                <span className="text-[11px] text-white/50 hidden sm:block">Exit</span>
               </motion.button>
 
-              <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10">
-                <span className="text-sm sm:text-base font-display font-700 text-white">
-                  {currentIndex + 1}
-                  <span className="text-white/40 font-normal"> / {totalQuestions}</span>
+              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-black/50 backdrop-blur-xl border border-white/10">
+                <span className="text-xs sm:text-sm font-display font-700 text-white">
+                  {currentIndex + 1}<span className="text-white/40 font-normal"> / {totalQuestions}</span>
                 </span>
-                <div className="w-px h-4 bg-white/20" />
+                <div className="w-px h-3.5 bg-white/20" />
                 <div className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-white/40" />
-                  <span className="text-xs sm:text-sm tabular-nums text-white/50">{formatTime(timeElapsed)}</span>
+                  <Clock className="w-3 h-3 text-white/40" />
+                  <span className="text-[11px] sm:text-xs tabular-nums text-white/50">{formatTime(timeElapsed)}</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10">
-                <span className="font-display font-700 text-base sm:text-lg text-amber-400">{score}</span>
-                <span className="text-white/30 text-sm">/</span>
-                <span className="text-white/40 text-sm">{currentIndex + (answered ? 1 : 0)}</span>
+              <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-black/50 backdrop-blur-xl border border-white/10">
+                <span className="font-display font-700 text-sm sm:text-base text-amber-400">{score}</span>
+                <span className="text-white/30 text-xs">/</span>
+                <span className="text-white/40 text-xs">{currentIndex + (answered ? 1 : 0)}</span>
                 {streak >= 2 && (
                   <motion.span
                     key={`streak-${streak}`}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="ml-1 text-xs text-amber-400 font-display font-700"
+                    className="ml-0.5 text-[11px] text-amber-400 font-display font-700"
                   >
                     {streak}x
                   </motion.span>
@@ -206,60 +204,59 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             </div>
           </div>
 
-          {/* SPACER */}
-          <div className="flex-1" />
+          {/* SPACER — only takes ~45% so content starts higher, overlapping video */}
+          <div className="flex-shrink-0" style={{ height: "38%" }} />
 
-          {/* ─── BOTTOM CONTENT: audio + question + answers ─── */}
+          {/* ═══ MAIN CONTENT — overlaps the video ═══ */}
           <div className="flex-shrink-0 pointer-events-auto relative">
-            <div className="relative z-10 w-full max-w-2xl mx-auto px-4 pb-4 sm:px-6 sm:pb-5">
+            <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-3 sm:px-5 sm:pb-4">
 
-              {/* ══ PROMINENT AUDIO BUTTON ══ */}
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileTap={{ scale: 0.92 }}
-                onClick={() => setIsMuted((m) => !m)}
-                className={`relative flex items-center gap-3 mx-auto mb-4 px-5 py-3 rounded-full backdrop-blur-xl border-2 transition-all duration-200 ${
-                  isMuted
-                    ? "bg-amber-600/20 border-amber-500/40 text-amber-300 hover:bg-amber-600/30"
-                    : "bg-amber-600/40 border-amber-400/60 text-white"
-                }`}
-                aria-label={isMuted ? "Unmute" : "Mute"}
-              >
-                {/* Pulsing ring when muted */}
-                {isMuted && (
-                  <motion.span
-                    className="absolute inset-0 rounded-full border-2 border-amber-500/50"
-                    animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0, 0.6] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                )}
-                {isMuted ? (
-                  <VolumeX className="w-6 h-6" />
-                ) : (
-                  <Volume2 className="w-6 h-6" />
-                )}
-                <span className="font-display font-600 text-sm">
-                  {isMuted ? "Tap to hear the clip" : "Playing audio"}
-                </span>
-              </motion.button>
-
-              {/* ══ QUESTION — large, animated ══ */}
-              <AnimatePresence mode="wait">
-                <motion.h2
-                  key={`q-${currentIndex}`}
-                  initial={{ opacity: 0, y: 12, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="font-display font-700 text-lg sm:text-xl md:text-2xl text-white leading-snug mb-4 text-center"
-                  style={{ textShadow: "0 2px 16px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.5)" }}
+              {/* AUDIO BUTTON — prominent, centered */}
+              <div className="flex justify-center mb-3">
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileTap={{ scale: 0.93 }}
+                  onClick={() => setIsMuted((m) => !m)}
+                  className={`relative flex items-center gap-2.5 px-5 py-2.5 rounded-full border-2 transition-all duration-200 ${
+                    isMuted
+                      ? "bg-amber-600/25 border-amber-500/50 text-amber-200 backdrop-blur-xl"
+                      : "bg-emerald-600/25 border-emerald-500/50 text-emerald-200 backdrop-blur-xl"
+                  }`}
                 >
-                  {currentQuestion.question_text}
-                </motion.h2>
+                  {isMuted && (
+                    <motion.span
+                      className="absolute inset-0 rounded-full border-2 border-amber-400/40"
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  )}
+                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  <span className="font-display font-600 text-sm">
+                    {isMuted ? "Tap to hear the clip" : "Playing"}
+                  </span>
+                </motion.button>
+              </div>
+
+              {/* QUESTION — prominent with dark backdrop, amber accent */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`q-${currentIndex}`}
+                  initial={{ opacity: 0, y: 16, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="mb-3 rounded-xl bg-black/70 backdrop-blur-lg border border-amber-800/30 px-4 py-3 sm:px-5 sm:py-4"
+                >
+                  <motion.h2
+                    className="font-display font-700 text-lg sm:text-xl md:text-2xl text-amber-50 leading-snug text-center"
+                  >
+                    {currentQuestion.question_text}
+                  </motion.h2>
+                </motion.div>
               </AnimatePresence>
 
-              {/* ══ ANSWER BUTTONS — compact spacing ══ */}
+              {/* 4 ANSWER BUTTONS */}
               <AnimatePresence mode="wait">
                 {showAnswers && (
                   <motion.div
@@ -267,7 +264,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="space-y-1.5"
+                    className="space-y-1"
                   >
                     {currentQuestion.answers.map((answer, index) => (
                       <AnswerButton
@@ -283,94 +280,77 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 )}
               </AnimatePresence>
 
-              {/* ══ POST-ANSWER: result + YouTube/Patreon + Next ══ */}
+              {/* YOUTUBE + PATREON — always visible, tiny inline row */}
+              {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
+                <div className="flex items-center gap-2 mt-2 justify-center">
+                  {currentQuestion.youtube_url && (
+                    <a
+                      href={currentQuestion.youtube_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/20 border border-red-500/20 text-red-300 hover:bg-red-600/30 transition-all text-[11px] font-medium backdrop-blur-sm"
+                    >
+                      <Play className="w-3 h-3 fill-red-400" />
+                      <span className="truncate max-w-[140px]">{currentQuestion.youtube_title || "Full lesson"}</span>
+                      <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+                    </a>
+                  )}
+                  {currentQuestion.patreon_url && (
+                    <a
+                      href={currentQuestion.patreon_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-600/20 border border-orange-500/20 text-orange-300 hover:bg-orange-600/30 transition-all text-[11px] font-medium backdrop-blur-sm"
+                    >
+                      <svg className="w-3 h-3 fill-orange-400" viewBox="0 0 24 24">
+                        <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
+                      </svg>
+                      Patreon
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* POST-ANSWER: result + Next */}
               <AnimatePresence>
                 {showPostAnswer && (
                   <motion.div
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mt-3 space-y-2"
+                    className="mt-2 space-y-2"
                   >
-                    {/* Correct / Wrong banner */}
-                    <div className={`rounded-xl p-3 border flex items-center gap-3 backdrop-blur-md ${
+                    <div className={`rounded-xl p-2.5 border flex items-center gap-2.5 backdrop-blur-md ${
                       isCorrect
                         ? "bg-emerald-500/15 border-emerald-500/30"
                         : "bg-red-500/15 border-red-500/30"
                     }`}>
-                      <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold ${
+                      <div className={`w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center text-xs font-bold ${
                         isCorrect ? "bg-emerald-500/25 text-emerald-400" : "bg-red-500/25 text-red-400"
                       }`}>
                         {isCorrect ? "✓" : "✗"}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[10px] text-white/50 uppercase tracking-wider font-medium">
+                        <p className="text-[10px] text-white/50 uppercase tracking-wider font-medium leading-none mb-0.5">
                           {isCorrect ? "Correct!" : "The answer was"}
                         </p>
                         <p className="text-sm font-display font-700 text-amber-400 break-words leading-tight">
                           {currentQuestion.correct_answer}
                         </p>
-                        {!isCorrect && selectedAnswer && selectedAnswer !== currentQuestion.correct_answer && (
-                          <p className="text-[11px] text-white/40 mt-0.5">
-                            You picked: <span className="text-red-400">{selectedAnswer}</span>
-                          </p>
-                        )}
                       </div>
                     </div>
 
-                    {/* YouTube + Patreon — compact side-by-side */}
-                    {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
-                      <div className="flex gap-2">
-                        {currentQuestion.youtube_url && (
-                          <a
-                            href={currentQuestion.youtube_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2.5 border border-red-500/25 bg-red-600/15 backdrop-blur-md hover:bg-red-600/25 transition-all"
-                          >
-                            <Play className="w-4 h-4 text-red-400 fill-red-400 flex-shrink-0" />
-                            <span className="text-xs font-display font-600 text-white/80 truncate">
-                              {currentQuestion.youtube_title || "Full lesson"}
-                            </span>
-                            <ExternalLink className="w-3 h-3 text-white/30 flex-shrink-0" />
-                          </a>
-                        )}
-                        {currentQuestion.patreon_url && (
-                          <a
-                            href={currentQuestion.patreon_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-lg px-3 py-2.5 border border-orange-500/25 bg-orange-600/15 backdrop-blur-md hover:bg-orange-600/25 transition-all"
-                          >
-                            <svg className="w-3.5 h-3.5 text-orange-400 fill-orange-400 flex-shrink-0" viewBox="0 0 24 24">
-                              <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
-                            </svg>
-                            <span className="text-xs font-display font-600 text-white/80">Support</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Next / Results button */}
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={handleNextQuestion}
-                      className="w-full py-3.5 rounded-xl font-display font-700 text-base text-white flex items-center justify-center gap-2 active:opacity-90 bg-amber-700 hover:bg-amber-600 transition-colors"
-                      style={{
-                        boxShadow: "0 0 20px rgba(180,83,9,0.3)",
-                      }}
+                      className="w-full py-3 rounded-xl font-display font-700 text-base text-white flex items-center justify-center gap-2 bg-amber-700 hover:bg-amber-600 transition-colors"
+                      style={{ boxShadow: "0 0 20px rgba(180,83,9,0.3)" }}
                     >
                       {isLastQuestion ? (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          See My Results
-                        </>
+                        <><CheckCircle className="w-5 h-5" /> See My Results</>
                       ) : (
-                        <>
-                          Next Question
-                          <ArrowRight className="w-5 h-5" />
-                        </>
+                        <><ArrowRight className="w-5 h-5" /> Next Question</>
                       )}
                     </motion.button>
                   </motion.div>

@@ -78,13 +78,13 @@ export default function AnswerButton({
       }}
       whileHover={state === "default" && !disabled ? { x: 4, scale: 1.01 } : {}}
       whileTap={state === "default" && !disabled ? { scale: 0.98 } : {}}
-      className={`group relative w-full flex items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border transition-all duration-200 ${styles.container} ${
+      className={`group relative w-full flex items-center gap-2.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg border transition-all duration-200 ${styles.container} ${
         disabled && state === "default" ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
       }`}
     >
       {/* Label badge */}
       <span
-        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-display font-700 text-xs sm:text-sm flex-shrink-0 transition-all duration-200 ${styles.label}`}
+        className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-display font-700 text-[11px] sm:text-xs flex-shrink-0 transition-all duration-200 ${styles.label}`}
       >
         {state === "correct" ? (
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
@@ -107,7 +107,7 @@ export default function AnswerButton({
       </span>
 
       {/* Answer text */}
-      <span className={`flex-1 text-left font-medium text-sm leading-snug ${styles.text}`}>
+      <span className={`flex-1 text-left font-medium text-[13px] leading-snug ${styles.text}`}>
         {text}
       </span>
     </motion.button>
