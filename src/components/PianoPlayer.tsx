@@ -5,38 +5,38 @@ import * as Tone from "tone";
 
 const SALAMANDER_URL = "https://tonejs.github.io/audio/salamander/";
 
-// Map note names to Salamander sample files (only loads a subset for faster init)
+// Correct Salamander filenames — no velocity suffix
 const SAMPLE_MAP: Record<string, string> = {
-  A0: "A0v8.mp3",
-  C1: "C1v8.mp3",
-  "D#1": "Ds1v8.mp3",
-  "F#1": "Fs1v8.mp3",
-  A1: "A1v8.mp3",
-  C2: "C2v8.mp3",
-  "D#2": "Ds2v8.mp3",
-  "F#2": "Fs2v8.mp3",
-  A2: "A2v8.mp3",
-  C3: "C3v8.mp3",
-  "D#3": "Ds3v8.mp3",
-  "F#3": "Fs3v8.mp3",
-  A3: "A3v8.mp3",
-  C4: "C4v8.mp3",
-  "D#4": "Ds4v8.mp3",
-  "F#4": "Fs4v8.mp3",
-  A4: "A4v8.mp3",
-  C5: "C5v8.mp3",
-  "D#5": "Ds5v8.mp3",
-  "F#5": "Fs5v8.mp3",
-  A5: "A5v8.mp3",
-  C6: "C6v8.mp3",
-  "D#6": "Ds6v8.mp3",
-  "F#6": "Fs6v8.mp3",
-  A6: "A6v8.mp3",
-  C7: "C7v8.mp3",
-  "D#7": "Ds7v8.mp3",
-  "F#7": "Fs7v8.mp3",
-  A7: "A7v8.mp3",
-  C8: "C8v8.mp3",
+  A0: "A0.mp3",
+  C1: "C1.mp3",
+  "D#1": "Ds1.mp3",
+  "F#1": "Fs1.mp3",
+  A1: "A1.mp3",
+  C2: "C2.mp3",
+  "D#2": "Ds2.mp3",
+  "F#2": "Fs2.mp3",
+  A2: "A2.mp3",
+  C3: "C3.mp3",
+  "D#3": "Ds3.mp3",
+  "F#3": "Fs3.mp3",
+  A3: "A3.mp3",
+  C4: "C4.mp3",
+  "D#4": "Ds4.mp3",
+  "F#4": "Fs4.mp3",
+  A4: "A4.mp3",
+  C5: "C5.mp3",
+  "D#5": "Ds5.mp3",
+  "F#5": "Fs5.mp3",
+  A5: "A5.mp3",
+  C6: "C6.mp3",
+  "D#6": "Ds6.mp3",
+  "F#6": "Fs6.mp3",
+  A6: "A6.mp3",
+  C7: "C7.mp3",
+  "D#7": "Ds7.mp3",
+  "F#7": "Fs7.mp3",
+  A7: "A7.mp3",
+  C8: "C8.mp3",
 };
 
 export function usePiano() {
@@ -56,6 +56,10 @@ export function usePiano() {
       release: 1,
       onload: () => {
         setIsLoaded(true);
+        setIsLoading(false);
+      },
+      onerror: (err) => {
+        console.error("Sampler load error:", err);
         setIsLoading(false);
       },
     }).toDestination();

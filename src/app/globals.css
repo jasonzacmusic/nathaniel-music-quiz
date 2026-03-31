@@ -257,54 +257,20 @@ input:focus, textarea:focus, select:focus {
   background: rgba(244, 63, 94, 0.15);
 }
 
-/* ── Staff Notation (ABCjs) dark mode styling ── */
+/* ── Staff Notation (ABCjs) — clean dark-mode rendering ── */
+.notation-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.notation-container {
+  background: #fefcf3;
+  padding: 8px 4px;
+}
+
 .notation-container svg {
   max-width: 100%;
   height: auto;
-}
-
-.notation-container svg text {
-  fill: #e7e5e4 !important;
-}
-
-.notation-container svg path,
-.notation-container svg line,
-.notation-container svg rect:not([fill="none"]) {
-  stroke: #d6d3d1 !important;
-}
-
-.notation-container svg path[fill="currentColor"],
-.notation-container svg path[fill="#000000"],
-.notation-container svg path[fill="#000"],
-.notation-container svg path[fill="black"],
-.notation-container svg path:not([fill="none"]) {
-  fill: #e7e5e4 !important;
-}
-
-.notation-container svg rect[fill="currentColor"],
-.notation-container svg rect[fill="#000000"],
-.notation-container svg rect[fill="#000"],
-.notation-container svg rect[fill="black"],
-.notation-container svg rect:not([fill="none"]):not([fill="white"]):not([fill="#ffffff"]):not([fill="#fff"]) {
-  fill: #e7e5e4 !important;
-}
-
-.notation-container svg .abcjs-note,
-.notation-container svg .abcjs-beam-elem,
-.notation-container svg .abcjs-rest,
-.notation-container svg .abcjs-clef,
-.notation-container svg .abcjs-key-signature,
-.notation-container svg .abcjs-time-signature {
-  fill: #e7e5e4 !important;
-  stroke: #e7e5e4 !important;
-}
-
-.notation-container svg .abcjs-staff-extra {
-  fill: #78716c !important;
-  stroke: #78716c !important;
-}
-
-/* Staff lines should be subtle */
-.notation-container svg .abcjs-staff {
-  stroke: #57534e !important;
+  display: block;
 }

@@ -130,33 +130,6 @@ export default function NotationPage() {
 
   return (
     <>
-      <style jsx global>{`
-        .notation-container svg {
-          max-width: 100%;
-          height: auto;
-        }
-        .notation-container svg path,
-        .notation-container svg line,
-        .notation-container svg polyline {
-          stroke: #f5f0e8 !important;
-        }
-        .notation-container svg path[fill],
-        .notation-container svg ellipse,
-        .notation-container svg circle {
-          fill: #f5f0e8 !important;
-        }
-        .notation-container svg text {
-          fill: #f5f0e8 !important;
-        }
-        .notation-container svg rect.abcjs-staff-extra {
-          fill: transparent !important;
-        }
-        .notation-container {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(245, 158, 11, 0.15);
-        }
-      `}</style>
-
       <div className="min-h-screen bg-[#0a0a08] text-white">
         {/* Background effects */}
         <div className="fixed inset-0 pointer-events-none">
@@ -235,7 +208,7 @@ export default function NotationPage() {
                   Start Sample Quiz
                   <ArrowRight className="w-5 h-5" />
                 </button>
-                <p className="text-white/30 text-sm mt-3">10 questions across multiple categories</p>
+                <p className="text-white/30 text-sm mt-3">{SAMPLE_QUESTIONS.length} questions across {CATEGORIES.length} categories</p>
               </motion.div>
             </>
           ) : quizFinished ? (
@@ -319,8 +292,10 @@ export default function NotationPage() {
                   </div>
 
                   {/* Notation display */}
-                  <div className="mb-6">
-                    <NotationRenderer notation={currentQuestion.notation} width={350} />
+                  <div className="mb-6 flex justify-center">
+                    <div className="inline-block rounded-xl overflow-hidden shadow-lg">
+                      <NotationRenderer notation={currentQuestion.notation} width={320} showPlayback />
+                    </div>
                   </div>
 
                   {/* Question */}
