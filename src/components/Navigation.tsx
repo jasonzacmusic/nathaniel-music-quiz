@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -49,7 +48,7 @@ export default function Navigation() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
-              <Image src="/nsm-logo.png" alt="NSM" width={28} height={28} className="object-contain" />
+              <img src="/nsm-logo.png" alt="NSM" width={28} height={28} className="object-contain" />
               <span className="font-display font-700 text-[15px] text-white">Nathaniel</span>
             </Link>
 

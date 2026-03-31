@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { LINKS } from "@/config/links";
 
 export default function Footer() {
@@ -48,7 +47,7 @@ export default function Footer() {
           {/* Top row: logo + socials */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-12">
             <Link href="/" className="flex items-center group">
-              <Image src="/nsm-logo-full.png" alt="Nathaniel School of Music" width={180} height={50} className="object-contain" />
+              <img src="/nsm-logo-full.png" alt="Nathaniel School of Music" width={180} height={50} className="object-contain" />
             </Link>
 
             {/* Social row */}
