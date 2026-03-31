@@ -299,11 +299,9 @@ interface SubdivisionQuestion {
 function generateSubdivisionQuestion(): SubdivisionQuestion {
   const chosen = pickRandom(SUBDIVISIONS);
   const totalCells = 4 * chosen.perBeat;
-  const pattern = Array(totalCells).fill(false) as boolean[];
-  pattern[0] = true;
-  for (let i = 1; i < totalCells; i++) {
-    pattern[i] = Math.random() < 0.65;
-  }
+  // ALL subdivision points are hit — the user must identify the subdivision type
+  // by hearing how many hits per beat (1=quarter, 2=quaver, 3=triplet, 4=semiquaver)
+  const pattern = Array(totalCells).fill(true) as boolean[];
   const options = shuffle(SUBDIVISIONS.map((s) => s.name));
   return { subdivision: chosen, pattern, options };
 }
@@ -497,7 +495,7 @@ export default function RhythmTrainer() {
       octaves: 1.5,
     }).toDestination();
     hihatRef.current.frequency.value = 400;
-    hihatRef.current.volume.value = -18;
+    hihatRef.current.volume.value = -10;
 
     clickRef.current = new Tone.Synth({
       oscillator: { type: "triangle" },
@@ -574,25 +572,24 @@ export default function RhythmTrainer() {
               return;
             }
 
-            // Metronome click on quarter positions
-            if (step % subdivision === 0) {
-              const isDownbeat = step === 0;
+            const isQuarterBeat = step % subdivision === 0;
+            const isBeat1 = step === 0;
+
+            // Strong metronome click on every quarter-note beat
+            if (isQuarterBeat) {
               clickRef.current?.triggerAttackRelease(
-                isDownbeat ? "G5" : "C5",
+                isBeat1 ? "G5" : "E5",
                 "32n",
                 time,
-                isDownbeat ? 0.5 : 0.3
+                isBeat1 ? 0.6 : 0.4
               );
+              // Kick on downbeats for a clear pulse
+              kickRef.current?.triggerAttackRelease("C1", "8n", time, isBeat1 ? 0.9 : 0.6);
             }
 
-            // Pattern hit
-            if (pattern[step]) {
-              const isDownbeat = step % subdivision === 0;
-              if (isDownbeat) {
-                kickRef.current?.triggerAttackRelease("C1", "8n", time, 0.8);
-              } else {
-                hihatRef.current?.triggerAttackRelease("16n", time, 0.6);
-              }
+            // Subdivision hits — hihat on every subdivision point
+            if (pattern[step] && !isQuarterBeat) {
+              hihatRef.current?.triggerAttackRelease("16n", time, 0.5);
             }
 
             stepRef.current = step + 1;
