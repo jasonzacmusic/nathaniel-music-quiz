@@ -36,7 +36,7 @@ export interface ScoreTier {
 export function getScoreTier(percentage: number): ScoreTier {
   if (percentage === 100) {
     return {
-      emoji: '🏆',
+      emoji: '',
       message: 'Perfect Score!',
       color: 'text-yellow-500',
       percentage,
@@ -44,7 +44,7 @@ export function getScoreTier(percentage: number): ScoreTier {
   }
   if (percentage >= 90) {
     return {
-      emoji: '🌟',
+      emoji: '',
       message: 'Outstanding!',
       color: 'text-purple-500',
       percentage,
@@ -52,7 +52,7 @@ export function getScoreTier(percentage: number): ScoreTier {
   }
   if (percentage >= 80) {
     return {
-      emoji: '✨',
+      emoji: '',
       message: 'Excellent!',
       color: 'text-blue-500',
       percentage,
@@ -60,7 +60,7 @@ export function getScoreTier(percentage: number): ScoreTier {
   }
   if (percentage >= 70) {
     return {
-      emoji: '👍',
+      emoji: '',
       message: 'Great Job!',
       color: 'text-green-500',
       percentage,
@@ -68,7 +68,7 @@ export function getScoreTier(percentage: number): ScoreTier {
   }
   if (percentage >= 60) {
     return {
-      emoji: '👌',
+      emoji: '',
       message: 'Good Effort!',
       color: 'text-cyan-500',
       percentage,
@@ -76,14 +76,14 @@ export function getScoreTier(percentage: number): ScoreTier {
   }
   if (percentage >= 50) {
     return {
-      emoji: '📚',
+      emoji: '',
       message: 'Keep Practicing!',
       color: 'text-orange-500',
       percentage,
     };
   }
   return {
-    emoji: '💪',
+    emoji: '',
     message: 'Try Again!',
     color: 'text-red-500',
     percentage,

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { LINKS } from "@/config/links";
 
 export default function Footer() {
@@ -46,20 +47,8 @@ export default function Footer() {
 
           {/* Top row: logo + socials */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-12">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #7C3AED, #06B6D4)" }}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <rect x="1" y="11" width="3" height="6" rx="1.5" fill="white" opacity="0.6" />
-                  <rect x="5.5" y="7" width="3" height="10" rx="1.5" fill="white" opacity="0.8" />
-                  <rect x="10" y="4" width="3" height="13" rx="1.5" fill="white" />
-                  <rect x="14.5" y="6" width="3" height="11" rx="1.5" fill="white" opacity="0.8" />
-                </svg>
-              </div>
-              <div>
-                <span className="font-display font-700 text-white text-base">Nathaniel</span>
-                <span className="font-display font-700 text-violet-400 text-base ml-1">Music Quiz</span>
-              </div>
+            <Link href="/" className="flex items-center group">
+              <Image src="/nsm-logo-full.png" alt="Nathaniel School of Music" width={180} height={50} className="object-contain" />
             </Link>
 
             {/* Social row */}

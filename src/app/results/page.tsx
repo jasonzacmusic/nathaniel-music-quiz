@@ -134,7 +134,6 @@ export default function ResultsPage() {
                 boxShadow: `0 0 24px ${tData.glow}`,
               }}
             >
-              <span className="text-base">{tier.emoji}</span>
               {tData.label}
             </div>
           </motion.div>

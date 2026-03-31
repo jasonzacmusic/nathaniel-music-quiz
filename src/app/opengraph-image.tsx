@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Nathaniel School of Music — Ear Training Quiz";
+export const alt = "Nathaniel School of Music — Music Quiz";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -33,25 +33,26 @@ export default function OGImage() {
           }}
         />
 
-        {/* Equalizer icon */}
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginBottom: 40 }}>
-          {[
-            { h: 30, o: 0.5 },
-            { h: 50, o: 0.7 },
-            { h: 70, o: 0.9 },
-            { h: 55, o: 0.7 },
-            { h: 35, o: 0.5 },
-          ].map((bar, i) => (
-            <div
-              key={i}
-              style={{
-                width: 14,
-                height: bar.h,
-                borderRadius: 7,
-                backgroundColor: `rgba(217,119,6,${bar.o})`,
-              }}
-            />
-          ))}
+        {/* Logo mark */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 80,
+            height: 80,
+            borderRadius: 20,
+            background: "#0a0a08",
+            border: "2px solid rgba(245,158,11,0.3)",
+            marginBottom: 40,
+            fontSize: 52,
+            fontWeight: 700,
+            fontFamily: "Georgia, serif",
+            fontStyle: "italic",
+            color: "#f59e0b",
+          }}
+        >
+          N
         </div>
 
         {/* Title */}
@@ -93,7 +94,7 @@ export default function OGImage() {
             gap: 24,
           }}
         >
-          <span>Ear Training Quiz</span>
+          <span>Music Quiz</span>
           <span style={{ color: "rgba(180,83,9,0.5)" }}>|</span>
           <span>330+ Questions</span>
           <span style={{ color: "rgba(180,83,9,0.5)" }}>|</span>

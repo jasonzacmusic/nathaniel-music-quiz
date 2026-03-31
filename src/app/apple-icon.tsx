@@ -14,27 +14,20 @@ export default function AppleIcon() {
           alignItems: "center",
           justifyContent: "center",
           borderRadius: 40,
-          background: "linear-gradient(135deg, #92400e, #b45309, #d97706)",
+          background: "#0a0a08",
         }}
       >
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
-          {[
-            { h: 40, o: 0.6 },
-            { h: 65, o: 0.8 },
-            { h: 90, o: 1 },
-            { h: 70, o: 0.8 },
-            { h: 45, o: 0.6 },
-          ].map((bar, i) => (
-            <div
-              key={i}
-              style={{
-                width: 18,
-                height: bar.h,
-                borderRadius: 9,
-                backgroundColor: `rgba(255,255,255,${bar.o})`,
-              }}
-            />
-          ))}
+        <div
+          style={{
+            fontSize: 110,
+            fontWeight: 700,
+            fontFamily: "Georgia, serif",
+            fontStyle: "italic",
+            color: "#f59e0b",
+            lineHeight: 1,
+          }}
+        >
+          N
         </div>
       </div>
     ),

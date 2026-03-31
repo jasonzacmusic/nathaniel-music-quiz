@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -48,15 +49,7 @@ export default function Navigation() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #92400e, #b45309)" }}>
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                  <rect x="1" y="11" width="3" height="6" rx="1.5" fill="white" opacity="0.6" />
-                  <rect x="5.5" y="7" width="3" height="10" rx="1.5" fill="white" opacity="0.8" />
-                  <rect x="10" y="4" width="3" height="13" rx="1.5" fill="white" />
-                  <rect x="14.5" y="6" width="3" height="11" rx="1.5" fill="white" opacity="0.8" />
-                </svg>
-              </div>
+              <Image src="/nsm-logo.png" alt="NSM" width={28} height={28} className="object-contain" />
               <span className="font-display font-700 text-[15px] text-white">Nathaniel</span>
             </Link>
 
