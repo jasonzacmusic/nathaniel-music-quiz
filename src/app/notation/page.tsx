@@ -327,7 +327,7 @@ export default function NotationPage() {
                   {/* Notation display */}
                   <div className="mb-6 flex justify-center">
                     <div className="inline-block rounded-xl overflow-hidden shadow-lg">
-                      <NotationRenderer notation={currentQuestion.notation} width={320} showPlayback />
+                      <NotationRenderer notation={currentQuestion.notation} width={320} />
                     </div>
                   </div>
 
