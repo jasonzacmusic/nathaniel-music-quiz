@@ -5,6 +5,9 @@ const SPREADSHEET_ID = "1QpCaISHeccQga17igp3ekDz-nJUFwsgSOi2wwXQLyJ8";
 const SHEET_GIDS = [
   { gid: "741041831", name: "Theory Quiz v1" },
   { gid: "113832903", name: "Theory Quiz v2" },
+  { gid: "1865314571", name: "Indian Music Theory" },
+  { gid: "1861222925", name: "Staff Notation Quiz" },
+  { gid: "1929581885", name: "Ear Training Quiz" },
 ];
 
 // Shared secret to authorize sync requests (set in env)
@@ -184,9 +187,13 @@ export async function POST(request: NextRequest) {
     }
     const uniqueRows = Array.from(seen.values());
 
-    // Clear and re-import
-    await sql`DELETE FROM questions WHERE quiz_type = 'music_theory'`;
-    await sql`DELETE FROM quiz_sets WHERE quiz_type = 'music_theory'`;
+    // Clear all sheet-synced quiz types (not ear_training which are the video quizzes)
+    const syncedTypes = Array.from(new Set(uniqueRows.map(r => r.quiz_type)));
+    for (let i = 0; i < syncedTypes.length; i++) {
+      const qt = syncedTypes[i];
+      await sql`DELETE FROM questions WHERE quiz_type = ${qt}`;
+      await sql`DELETE FROM quiz_sets WHERE quiz_type = ${qt}`;
+    }
 
     // Collect unique set_ids
     const setMap = new Map<string, { category: string; count: number }>();
