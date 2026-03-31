@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { getTheoryCategories, getTheoryStats } from "@/lib/queries";
+"use client";
 
-export const dynamic = "force-dynamic";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import EraSlider from "@/components/EraSlider";
 
 const DIFFICULTY_CONFIG = [
   {
@@ -30,15 +31,60 @@ const DIFFICULTY_CONFIG = [
   },
 ];
 
-export default async function TheoryPage() {
-  let categories: { category: string; count: number }[] = [];
-  let stats = { total_questions: 0, categories_count: 0, difficulties: [] as { difficulty: string; count: number }[] };
+interface TheoryStats {
+  total_questions: number;
+  categories_count: number;
+  difficulties: { difficulty: string; count: number }[];
+}
 
-  try {
-    [categories, stats] = await Promise.all([getTheoryCategories(), getTheoryStats()]);
-  } catch {
-    // DB unavailable
+interface Category {
+  category: string;
+  count: number;
+}
+
+function buildQuizUrl(
+  basePath: string,
+  params: Record<string, string | number | undefined>,
+  era: number
+) {
+  const searchParams = new URLSearchParams();
+  for (const [key, val] of Object.entries(params)) {
+    if (val !== undefined) searchParams.set(key, String(val));
   }
+  if (era !== 50) {
+    searchParams.set("era", String(era));
+  }
+  return `${basePath}?${searchParams.toString()}`;
+}
+
+export default function TheoryPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [stats, setStats] = useState<TheoryStats>({
+    total_questions: 0,
+    categories_count: 0,
+    difficulties: [],
+  });
+  const [era, setEra] = useState(50);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/theory")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setCategories(data.categories || []);
+          setStats(
+            data.stats || {
+              total_questions: 0,
+              categories_count: 0,
+              difficulties: [],
+            }
+          );
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
 
   const hasQuestions = stats.total_questions > 0;
 
@@ -59,8 +105,8 @@ export default async function TheoryPage() {
             <span className="block text-amber-400">Quiz</span>
           </h1>
           <p className="text-stone-500 text-lg max-w-xl mx-auto leading-relaxed">
-            Test your knowledge of scales, modes, chord theory, harmony, and more.
-            No video, no audio — pure music theory.
+            Test your knowledge of scales, modes, chord theory, harmony, and
+            more. No video, no audio — pure music theory.
           </p>
 
           {hasQuestions && (
@@ -73,23 +119,48 @@ export default async function TheoryPage() {
         </div>
       </section>
 
+      {/* Era Slider */}
+      {(hasQuestions || !loaded) && (
+        <section className="px-6 pb-12">
+          <div className="max-w-4xl mx-auto">
+            <EraSlider value={era} onChange={setEra} />
+          </div>
+        </section>
+      )}
+
       {/* Quick Start */}
       {hasQuestions && (
         <section className="px-6 pb-16">
           <div className="max-w-4xl mx-auto">
             <Link
-              href="/theory/quiz?count=10"
+              href={buildQuizUrl("/theory/quiz", { count: 10 }, era)}
               className="block group"
             >
               <div className="rounded-2xl border border-amber-700/25 bg-gradient-to-r from-amber-900/15 to-transparent p-6 sm:p-8 hover:border-amber-600/40 transition-all">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] text-amber-600/60 uppercase tracking-[0.15em] font-medium mb-2">Quick start</p>
-                    <h2 className="font-display font-700 text-xl sm:text-2xl text-white mb-1">10 Random Questions</h2>
-                    <p className="text-stone-500 text-sm">All difficulties, all topics. Jump right in.</p>
+                    <p className="text-[11px] text-amber-600/60 uppercase tracking-[0.15em] font-medium mb-2">
+                      Quick start
+                    </p>
+                    <h2 className="font-display font-700 text-xl sm:text-2xl text-white mb-1">
+                      10 Random Questions
+                    </h2>
+                    <p className="text-stone-500 text-sm">
+                      {era === 50
+                        ? "All difficulties, all topics. Jump right in."
+                        : era > 50
+                        ? `Weighted toward jazz & modern theory (${era}% contemporary).`
+                        : `Weighted toward classical foundations (${100 - era}% classical).`}
+                    </p>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-amber-700/20 border border-amber-600/30 flex items-center justify-center group-hover:bg-amber-700/30 transition-colors">
-                    <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    <svg
+                      className="w-5 h-5 text-amber-400"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -101,21 +172,40 @@ export default async function TheoryPage() {
       {/* Difficulty Levels */}
       <section className="px-6 pb-16">
         <div className="max-w-4xl mx-auto">
-          <p className="text-[11px] text-amber-600/50 uppercase tracking-[0.2em] font-medium mb-6">By difficulty</p>
+          <p className="text-[11px] text-amber-600/50 uppercase tracking-[0.2em] font-medium mb-6">
+            By difficulty
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {DIFFICULTY_CONFIG.map((d) => {
-              const diffStats = stats.difficulties.find((s) => s.difficulty === d.level);
+              const diffStats = stats.difficulties.find(
+                (s) => s.difficulty === d.level
+              );
               const count = diffStats ? diffStats.count : 0;
 
               return (
-                <Link key={d.level} href={`/theory/quiz?difficulty=${d.level}&count=10`}>
-                  <div className={`rounded-2xl border p-5 sm:p-6 bg-gradient-to-b ${d.color} ${d.border} transition-all h-full`}>
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-600 uppercase tracking-wider ${d.badge} mb-3`}>
+                <Link
+                  key={d.level}
+                  href={buildQuizUrl(
+                    "/theory/quiz",
+                    { difficulty: d.level, count: 10 },
+                    era
+                  )}
+                >
+                  <div
+                    className={`rounded-2xl border p-5 sm:p-6 bg-gradient-to-b ${d.color} ${d.border} transition-all h-full`}
+                  >
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-600 uppercase tracking-wider ${d.badge} mb-3`}
+                    >
                       {d.label}
                     </span>
-                    <p className="text-stone-500 text-sm leading-relaxed mb-3">{d.desc}</p>
+                    <p className="text-stone-500 text-sm leading-relaxed mb-3">
+                      {d.desc}
+                    </p>
                     {count > 0 && (
-                      <p className="text-[11px] text-stone-600">{count} questions</p>
+                      <p className="text-[11px] text-stone-600">
+                        {count} questions
+                      </p>
                     )}
                   </div>
                 </Link>
@@ -129,13 +219,26 @@ export default async function TheoryPage() {
       {categories.length > 0 && (
         <section className="px-6 pb-24">
           <div className="max-w-4xl mx-auto">
-            <p className="text-[11px] text-amber-600/50 uppercase tracking-[0.2em] font-medium mb-6">By topic</p>
+            <p className="text-[11px] text-amber-600/50 uppercase tracking-[0.2em] font-medium mb-6">
+              By topic
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {categories.map((cat) => (
-                <Link key={cat.category} href={`/theory/quiz?category=${encodeURIComponent(cat.category)}&count=10`}>
+                <Link
+                  key={cat.category}
+                  href={buildQuizUrl(
+                    "/theory/quiz",
+                    { category: cat.category, count: 10 },
+                    era
+                  )}
+                >
                   <div className="flex items-center justify-between px-4 py-3.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-amber-800/30 transition-all">
-                    <span className="font-display font-600 text-sm text-white/80">{cat.category}</span>
-                    <span className="text-xs text-stone-600">{cat.count} q</span>
+                    <span className="font-display font-600 text-sm text-white/80">
+                      {cat.category}
+                    </span>
+                    <span className="text-xs text-stone-600">
+                      {cat.count} q
+                    </span>
                   </div>
                 </Link>
               ))}
@@ -145,12 +248,20 @@ export default async function TheoryPage() {
       )}
 
       {/* Empty state */}
-      {!hasQuestions && (
+      {loaded && !hasQuestions && (
         <section className="px-6 pb-24">
           <div className="max-w-2xl mx-auto text-center py-16">
-            <p className="text-stone-600 text-lg mb-2">Theory questions coming soon.</p>
-            <p className="text-stone-700 text-sm">We&apos;re building a library of music theory questions from real textbooks.</p>
-            <Link href="/" className="inline-block mt-6 px-6 py-3 rounded-xl bg-amber-700 text-white font-display font-700 hover:bg-amber-600 transition-colors">
+            <p className="text-stone-600 text-lg mb-2">
+              Theory questions coming soon.
+            </p>
+            <p className="text-stone-700 text-sm">
+              We&apos;re building a library of music theory questions from real
+              textbooks.
+            </p>
+            <Link
+              href="/"
+              className="inline-block mt-6 px-6 py-3 rounded-xl bg-amber-700 text-white font-display font-700 hover:bg-amber-600 transition-colors"
+            >
               Try Ear Training Instead
             </Link>
           </div>

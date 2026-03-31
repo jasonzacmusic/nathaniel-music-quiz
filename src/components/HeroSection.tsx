@@ -73,7 +73,7 @@ function CategoryRotator({ categories }: { categories: CategoryInfo[] }) {
           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500" />
         </span>
         <span className="text-[10px] text-stone-500 uppercase tracking-[0.15em] font-medium">
-          Test your ears on
+          Test yourself on
         </span>
       </div>
 
@@ -274,7 +274,7 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
               >
                 <path d="M8 5v14l11-7z" />
               </motion.svg>
-              Start Training — It&apos;s Free
+              Start Quiz — It&apos;s Free
             </motion.button>
           </Link>
 

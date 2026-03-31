@@ -14,3 +14,9 @@ export { default as StreakCounter } from "./StreakCounter";
 export { default as Confetti } from "./Confetti";
 export { default as CategoryCard } from "./CategoryCard";
 export { default as YouTubeCard } from "./YouTubeCard";
+
+// Notation Components
+export { default as NotationRenderer } from "./NotationRenderer";
+
+// Theory Components
+export { default as EraSlider } from "./EraSlider";

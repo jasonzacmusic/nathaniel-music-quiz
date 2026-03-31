@@ -269,6 +269,14 @@ export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps
                 </div>
               )}
 
+              {/* Improvement note — shown on wrong answers */}
+              {!isCorrect && currentQuestion.improvement_note && (
+                <div className="rounded-xl p-4 border border-violet-800/20 bg-violet-950/10">
+                  <p className="text-[10px] text-violet-400/60 uppercase tracking-wider font-medium mb-1.5">Study Tip</p>
+                  <p className="text-sm text-stone-300 leading-relaxed">{currentQuestion.improvement_note}</p>
+                </div>
+              )}
+
               {/* YouTube link */}
               {currentQuestion.youtube_url && (
                 <a

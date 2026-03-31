@@ -22,6 +22,8 @@ export default function Navigation() {
     { href: "/", label: "Home" },
     { href: "/#categories", label: "Topics" },
     { href: "/theory", label: "Theory" },
+    { href: "/notation", label: "Notation" },
+    { href: "/ear-training", label: "Ear Training" },
     { href: "/challenge", label: "Challenge" },
     { href: "/contact", label: "Contact" },
   ];

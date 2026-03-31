@@ -62,9 +62,9 @@ export default async function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12 lg:gap-20 items-start">
             {/* Left — sticky label */}
             <div className="lg:sticky lg:top-28">
-              <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-600/60 mb-4">Topics</p>
+              <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-600/60 mb-4">Video Quiz Topics</p>
               <h2 className="font-display font-700 text-3xl sm:text-4xl text-white leading-[1.15] mb-4">
-                Pick what to<br />train today.
+                Pick what to<br />quiz today.
               </h2>
               <p className="text-stone-500 text-base leading-relaxed max-w-sm">
                 Chord degrees and jazz extensions. Odd meters from 7/8 to 19/8.
@@ -96,28 +96,78 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── MUSIC THEORY — new quiz mode ── */}
+      {/* ── QUIZ MODES — three ways to test yourself ── */}
       <section className="py-16 sm:py-20 px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <a href="/theory" className="group block">
-            <div className="rounded-2xl border border-amber-800/25 p-6 sm:p-8 hover:border-amber-700/40 transition-all"
-              style={{ background: "linear-gradient(135deg, rgba(180,83,9,0.06) 0%, rgba(120,53,15,0.03) 100%)" }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-600 uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/20 mb-3">
-                    New
-                  </span>
-                  <h3 className="font-display font-700 text-xl sm:text-2xl text-white mb-2">Music Theory Quiz</h3>
-                  <p className="text-stone-500 text-sm leading-relaxed max-w-md">
-                    Scales, modes, chord theory, harmony, and more. Three difficulty levels. No video, pure knowledge.
-                  </p>
+          <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-600/60 mb-4">Quiz Modes</p>
+          <h2 className="font-display font-700 text-3xl sm:text-4xl text-white leading-[1.15] mb-8">
+            Three ways to test yourself.
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Music Theory */}
+            <a href="/theory" className="group block">
+              <div className="rounded-2xl border border-amber-800/25 p-6 hover:border-amber-700/40 transition-all h-full"
+                style={{ background: "linear-gradient(135deg, rgba(180,83,9,0.06) 0%, rgba(120,53,15,0.03) 100%)" }}>
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
                 </div>
-                <svg className="w-6 h-6 text-white/15 group-hover:text-amber-500/50 group-hover:translate-x-1 transition-all flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <h3 className="font-display font-700 text-lg text-white mb-2">Music Theory</h3>
+                <p className="text-stone-500 text-sm leading-relaxed">
+                  Scales, modes, chord theory, harmony. Three difficulty levels. Pure knowledge.
+                </p>
+                <div className="mt-4 flex items-center gap-1.5 text-amber-500/60 group-hover:text-amber-400 transition-colors text-xs font-medium">
+                  Start quiz <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+
+            {/* Staff Notation */}
+            <a href="/notation" className="group block">
+              <div className="rounded-2xl border border-violet-800/25 p-6 hover:border-violet-700/40 transition-all h-full"
+                style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(76,29,149,0.03) 100%)" }}>
+                <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                  </svg>
+                </div>
+                <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-600 uppercase tracking-wider bg-violet-500/15 text-violet-400 border border-violet-500/20 mb-3">
+                  New
+                </span>
+                <h3 className="font-display font-700 text-lg text-white mb-2">Staff Notation</h3>
+                <p className="text-stone-500 text-sm leading-relaxed">
+                  Read notes, intervals, chords, and key signatures directly from the staff.
+                </p>
+                <div className="mt-4 flex items-center gap-1.5 text-violet-500/60 group-hover:text-violet-400 transition-colors text-xs font-medium">
+                  Try it <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </div>
+              </div>
+            </a>
+
+            {/* Ear Training */}
+            <a href="/ear-training" className="group block">
+              <div className="rounded-2xl border border-cyan-800/25 p-6 hover:border-cyan-700/40 transition-all h-full"
+                style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.06) 0%, rgba(14,116,144,0.03) 100%)" }}>
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                  </svg>
+                </div>
+                <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-600 uppercase tracking-wider bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 mb-3">
+                  New
+                </span>
+                <h3 className="font-display font-700 text-lg text-white mb-2">Ear Training</h3>
+                <p className="text-stone-500 text-sm leading-relaxed">
+                  Identify intervals, chords, and scales by ear. Salamander Grand Piano samples.
+                </p>
+                <div className="mt-4 flex items-center gap-1.5 text-cyan-500/60 group-hover:text-cyan-400 transition-colors text-xs font-medium">
+                  Train your ear <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
       </section>
 

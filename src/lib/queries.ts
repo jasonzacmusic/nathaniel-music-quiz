@@ -31,6 +31,7 @@ export interface Question {
   quiz_type: string;
   difficulty: string | null;
   explanation: string | null;
+  improvement_note: string | null;
   created_at: string;
 }
 
@@ -382,7 +383,7 @@ export async function getTheoryQuestions(
       SELECT id, set_id, question_number, question_text,
         correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
         youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, created_at
+        quiz_type, difficulty, explanation, improvement_note, created_at
       FROM questions
       WHERE quiz_type = 'music_theory' AND difficulty = ${difficulty} AND category = ${category}
       ORDER BY RANDOM()
@@ -393,7 +394,7 @@ export async function getTheoryQuestions(
       SELECT id, set_id, question_number, question_text,
         correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
         youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, created_at
+        quiz_type, difficulty, explanation, improvement_note, created_at
       FROM questions
       WHERE quiz_type = 'music_theory' AND difficulty = ${difficulty}
       ORDER BY RANDOM()
@@ -404,7 +405,7 @@ export async function getTheoryQuestions(
       SELECT id, set_id, question_number, question_text,
         correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
         youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, created_at
+        quiz_type, difficulty, explanation, improvement_note, created_at
       FROM questions
       WHERE quiz_type = 'music_theory' AND category = ${category}
       ORDER BY RANDOM()
@@ -415,7 +416,7 @@ export async function getTheoryQuestions(
       SELECT id, set_id, question_number, question_text,
         correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
         youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, created_at
+        quiz_type, difficulty, explanation, improvement_note, created_at
       FROM questions
       WHERE quiz_type = 'music_theory'
       ORDER BY RANDOM()

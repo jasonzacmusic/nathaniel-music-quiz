@@ -146,37 +146,41 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
         )}
       </AnimatePresence>
 
-      {/* ═══ FLOATING YouTube + Patreon — DESKTOP: left edge, MOBILE: tiny top pills ═══ */}
+      {/* ═══ FLOATING YouTube + Patreon — prominent buttons on RIGHT side ═══ */}
       {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
-        <>
-          {/* Desktop: floating pills on left edge alongside the video */}
-          <div className="hidden md:flex absolute left-3 top-[38%] z-20 flex-col gap-2 pointer-events-auto">
-            {currentQuestion.youtube_url && (
-              <a
-                href={currentQuestion.youtube_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-red-600/25 border border-red-500/25 text-red-300 hover:bg-red-600/40 transition-all text-[10px] font-medium backdrop-blur-sm"
-              >
-                <Play className="w-3 h-3 fill-red-400" />
-                <span className="truncate max-w-[90px]">{currentQuestion.youtube_title || "Lesson"}</span>
-              </a>
-            )}
-            {currentQuestion.patreon_url && (
-              <a
-                href={currentQuestion.patreon_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-orange-600/25 border border-orange-500/25 text-orange-300 hover:bg-orange-600/40 transition-all text-[10px] font-medium backdrop-blur-sm"
-              >
-                <svg className="w-3 h-3 fill-orange-400" viewBox="0 0 24 24">
-                  <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
-                </svg>
-                Patreon
-              </a>
-            )}
-          </div>
-        </>
+        <div className="absolute right-3 sm:right-4 top-[30%] sm:top-[35%] z-20 flex flex-col gap-3 pointer-events-auto">
+          {currentQuestion.youtube_url && (
+            <motion.a
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              href={currentQuestion.youtube_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600/40 border-2 border-red-500/50 text-white hover:bg-red-600/60 hover:border-red-400/70 hover:scale-105 transition-all text-sm font-display font-700 backdrop-blur-md shadow-lg shadow-red-900/30"
+            >
+              <Play className="w-5 h-5 fill-white" />
+              <span className="hidden sm:inline truncate max-w-[120px]">{currentQuestion.youtube_title || "Watch Lesson"}</span>
+              <span className="sm:hidden">YouTube</span>
+            </motion.a>
+          )}
+          {currentQuestion.patreon_url && (
+            <motion.a
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7, duration: 0.4 }}
+              href={currentQuestion.patreon_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600/40 border-2 border-orange-500/50 text-white hover:bg-orange-600/60 hover:border-orange-400/70 hover:scale-105 transition-all text-sm font-display font-700 backdrop-blur-md shadow-lg shadow-orange-900/30"
+            >
+              <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
+              </svg>
+              Patreon
+            </motion.a>
+          )}
+        </div>
       )}
 
       {/* UI LAYER */}
@@ -237,38 +241,8 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             </div>
           </div>
 
-          {/* Mobile YouTube + Patreon — tiny icon pills below top bar */}
-          {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
-            <div className="flex md:hidden justify-center gap-2 mt-1 flex-shrink-0 pointer-events-auto">
-              {currentQuestion.youtube_url && (
-                <a
-                  href={currentQuestion.youtube_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-7 h-7 rounded-full bg-red-600/25 border border-red-500/20 flex items-center justify-center"
-                  title="Watch full lesson"
-                >
-                  <Play className="w-3 h-3 fill-red-400 text-red-400" />
-                </a>
-              )}
-              {currentQuestion.patreon_url && (
-                <a
-                  href={currentQuestion.patreon_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-7 h-7 rounded-full bg-orange-600/25 border border-orange-500/20 flex items-center justify-center"
-                  title="Support on Patreon"
-                >
-                  <svg className="w-3 h-3 fill-orange-400" viewBox="0 0 24 24">
-                    <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
-                  </svg>
-                </a>
-              )}
-            </div>
-          )}
-
           {/* SPACER — pushes content to the BOTTOM HALF of the screen */}
-          <div className="flex-shrink-0 h-[55%] sm:h-[58%]" />
+          <div className="flex-shrink-0 h-[50%] sm:h-[50%]" />
 
           {/* ═══ BOTTOM HALF: audio + question + 4 answers ═══ */}
           <div className="flex-shrink-0 pointer-events-auto relative">

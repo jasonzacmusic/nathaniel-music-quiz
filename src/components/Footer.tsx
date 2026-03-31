@@ -88,6 +88,8 @@ export default function Footer() {
                 links: [
                   { label: "Browse Topics", href: "/#categories" },
                   { label: "Custom Challenge", href: "/challenge" },
+                  { label: "Staff Notation", href: "/notation" },
+                  { label: "Ear Training", href: "/ear-training" },
                   { label: "Contact", href: "/contact" },
                 ],
               },
@@ -145,7 +147,7 @@ export default function Footer() {
               {new Date().getFullYear()} Nathaniel School of Music
             </p>
             <p className="text-[11px] text-white/20 font-mono">
-              Built with care. Ear training from real lessons.
+              Built with care. Music training from real lessons.
             </p>
           </div>
         </div>

@@ -20,9 +20,9 @@ const inter = Inter({
 });
 
 const siteUrl = "https://quiz.nathanielschool.com";
-const siteTitle = "Nathaniel School of Music — Ear Training Quiz";
+const siteTitle = "Nathaniel School of Music — Music Quiz";
 const siteDescription =
-  "Advanced ear training built from real teaching videos. Identify modes, chord degrees, odd time signatures, and jazz extensions by ear. 330+ questions. Free.";
+  "Your one-stop music quiz — ear training, music theory, staff notation, and sound-based exercises. 400+ questions. Free.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -35,6 +35,7 @@ export const metadata: Metadata = {
     "ear training", "music theory quiz", "modes by ear", "chord progressions",
     "odd time signatures", "secondary dominants", "jazz extensions", "interval training",
     "Nathaniel School of Music", "music education", "Dorian Mixolydian", "bass piano lessons",
+    "staff notation", "piano ear training", "music quiz",
   ],
   authors: [{ name: "Nathaniel School of Music", url: "https://nathanielschool.com" }],
   creator: "Nathaniel School of Music",
@@ -44,13 +45,13 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "Nathaniel School of Music",
     title: siteTitle,
-    description: "Advanced ear training built from real teaching videos. Modes, chord degrees, odd meters, jazz extensions. Free.",
+    description: "Your one-stop music quiz — ear training, music theory, staff notation, and sound-based exercises. 400+ questions. Free.",
     images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: siteTitle }],
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
-    description: "Advanced ear training built from real teaching videos. Free.",
+    description: "Your one-stop music quiz — ear training, music theory, staff notation, and sound-based exercises. 400+ questions. Free.",
     images: [`${siteUrl}/opengraph-image`],
     creator: "@nathanielschool",
   },
