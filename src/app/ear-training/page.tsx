@@ -285,17 +285,20 @@ export default function EarTrainingPage() {
     }
   }, [question, isLoaded, playCurrentQuestion]);
 
-  /* Start exercise */
+  /* Start exercise — auto-loads piano if needed */
   const startExercise = useCallback(
-    (type: ExerciseType) => {
+    async (type: ExerciseType) => {
       setActiveExercise(type);
       setScore(0);
       setTotal(0);
       setStreak(0);
       setBestStreak(0);
       nextQuestion(type);
+      if (!isLoaded && !isLoading) {
+        await initPiano();
+      }
     },
-    [nextQuestion]
+    [nextQuestion, isLoaded, isLoading, initPiano]
   );
 
   /* Handle answer selection */
@@ -350,7 +353,15 @@ export default function EarTrainingPage() {
 
             {/* Piano status */}
             <div className="flex items-center gap-3">
-              {isLoaded ? (
+              {isLoading && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/[0.05]">
+                  <Loader2 className="w-3 h-3 animate-spin text-amber-400" />
+                  <span className="text-[10px] text-amber-400 font-medium uppercase tracking-[0.12em]">
+                    Loading...
+                  </span>
+                </div>
+              )}
+              {isLoaded && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/[0.05]">
                   <span className="flex h-1.5 w-1.5 relative">
                     <span className="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 opacity-75" />
@@ -360,29 +371,6 @@ export default function EarTrainingPage() {
                     Piano Ready
                   </span>
                 </div>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={initPiano}
-                  disabled={isLoading}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl font-display font-600 text-sm bg-amber-700 hover:bg-amber-600 text-white transition-colors disabled:opacity-60"
-                  style={{
-                    boxShadow: "0 0 20px rgba(180,83,9,0.25), 0 4px 12px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading Samples...
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4" />
-                      Load Piano
-                    </>
-                  )}
-                </motion.button>
               )}
             </div>
           </div>
@@ -445,8 +433,24 @@ export default function EarTrainingPage() {
                 </span>
               </div>
 
+              {/* Loading overlay while samples load */}
+              {!isLoaded && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center mb-8 py-8"
+                >
+                  <div className="relative w-16 h-16 mx-auto mb-4">
+                    <div className="absolute inset-0 rounded-full border-2 border-violet-800/30" />
+                    <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-violet-400 animate-spin" />
+                  </div>
+                  <p className="text-stone-400 font-display font-500">Loading piano samples...</p>
+                  <p className="text-stone-600 text-sm mt-1">High-quality Salamander Grand Piano</p>
+                </motion.div>
+              )}
+
               {/* Play / Replay button */}
-              <div className="flex justify-center mb-10">
+              {isLoaded && <div className="flex justify-center mb-10">
                 <motion.button
                   whileHover={{ scale: 1.06 }}
                   whileTap={{ scale: 0.94 }}
@@ -458,7 +462,7 @@ export default function EarTrainingPage() {
                   <Volume2 className="w-6 h-6" />
                   {selectedAnswer !== null ? "Replay" : "Play Sound"}
                 </motion.button>
-              </div>
+              </div>}
 
               {/* Question prompt */}
               <motion.p
@@ -612,55 +616,16 @@ export default function EarTrainingPage() {
                   scales by ear. Powered by Salamander Grand Piano samples.
                 </motion.p>
 
-                {/* Load Piano CTA -- only show if not loaded */}
-                {!isLoaded && (
+                {/* Loading indicator — only during sample load */}
+                {isLoading && (
                   <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
-                    className="mb-12"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/20 bg-amber-500/[0.05] mb-8"
                   >
-                    <motion.button
-                      whileHover={{ scale: 1.04, y: -2 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={initPiano}
-                      disabled={isLoading}
-                      className="relative group inline-flex items-center gap-3 px-8 py-4 rounded-xl font-display font-700 text-base text-white overflow-hidden bg-amber-700 hover:bg-amber-600 transition-colors disabled:opacity-60"
-                      style={{
-                        boxShadow: "0 0 30px rgba(180,83,9,0.35), 0 4px 20px rgba(0,0,0,0.3)",
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Loading Salamander Piano...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-5 h-5" />
-                          Load Piano Samples
-                        </>
-                      )}
-                    </motion.button>
-                    <p className="text-xs text-stone-600 mt-3">
-                      Web Audio requires a user gesture to start. Click to load samples.
-                    </p>
-                  </motion.div>
-                )}
-
-                {isLoaded && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/[0.05] mb-12"
-                  >
-                    <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                    </span>
-                    <span className="text-sm text-emerald-400 font-medium">
-                      Piano loaded -- pick an exercise below
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                    <span className="text-sm text-amber-400 font-medium">
+                      Loading piano samples...
                     </span>
                   </motion.div>
                 )}
@@ -677,12 +642,7 @@ export default function EarTrainingPage() {
                       transition={{ duration: 0.5, delay: 0.1 + idx * 0.07 }}
                       whileHover={{ scale: 1.03, y: -4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        if (!isLoaded) {
-                          initPiano();
-                        }
-                        startExercise(cat.id);
-                      }}
+                      onClick={() => startExercise(cat.id)}
                       className={`group relative text-left p-5 rounded-2xl border ${cat.border} bg-gradient-to-br ${cat.gradient} backdrop-blur-sm transition-all hover:shadow-card-hover overflow-hidden`}
                     >
                       {/* Glow blob */}

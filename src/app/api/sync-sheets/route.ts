@@ -38,6 +38,7 @@ interface QuestionRow {
   youtube_title: string | null;
   video_url: string;
   patreon_url: string | null;
+  notation_data: string | null;
 }
 
 function parseCSV(text: string): Record<string, string>[] {
@@ -144,6 +145,7 @@ function normalizeRow(row: Record<string, string>): QuestionRow | null {
     youtube_title: emptyToNull(row.youtube_title),
     video_url: row.video_url?.trim() || "",
     patreon_url: emptyToNull(row.patreon_url),
+    notation_data: emptyToNull(row.notation_data),
   };
 }
 
@@ -213,13 +215,13 @@ export async function POST(request: NextRequest) {
           set_id, question_number, question_text, correct_answer,
           wrong_answer_1, wrong_answer_2, wrong_answer_3,
           youtube_title, youtube_url, video_url,
-          category, patreon_url, quiz_type, difficulty, explanation, improvement_note
+          category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data
         ) VALUES (
           ${row.set_id}, ${row.question_number}, ${row.question_text}, ${row.correct_answer},
           ${row.wrong_answer_1}, ${row.wrong_answer_2}, ${row.wrong_answer_3},
           ${row.youtube_title}, ${row.youtube_url}, ${row.video_url},
           ${row.category}, ${row.patreon_url}, ${row.quiz_type}, ${row.difficulty},
-          ${row.explanation}, ${row.improvement_note}
+          ${row.explanation}, ${row.improvement_note}, ${row.notation_data}
         )
       `;
       inserted++;

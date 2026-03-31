@@ -32,6 +32,7 @@ export interface Question {
   difficulty: string | null;
   explanation: string | null;
   improvement_note: string | null;
+  notation_data: string | null;
   created_at: string;
 }
 
@@ -452,6 +453,98 @@ export async function getTheoryStats(): Promise<{ total_questions: number; categ
     categories_count: (categoriesResult[0] as { count: number }).count,
     difficulties: difficultiesResult as unknown as { difficulty: string; count: number }[],
   };
+}
+
+/**
+ * Get staff notation questions with optional difficulty and category filters
+ */
+export async function getNotationQuestions(
+  count: number,
+  difficulty?: string,
+  category?: string
+): Promise<QuestionWithShuffledAnswers[]> {
+  let result;
+
+  if (difficulty && category) {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
+      FROM questions
+      WHERE quiz_type = 'staff_notation' AND difficulty = ${difficulty} AND category = ${category}
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  } else if (difficulty) {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
+      FROM questions
+      WHERE quiz_type = 'staff_notation' AND difficulty = ${difficulty}
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  } else if (category) {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
+      FROM questions
+      WHERE quiz_type = 'staff_notation' AND category = ${category}
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  } else {
+    result = await sql`
+      SELECT id, set_id, question_number, question_text,
+        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
+        youtube_title, youtube_url, video_url, category, patreon_url,
+        quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
+      FROM questions
+      WHERE quiz_type = 'staff_notation'
+      ORDER BY RANDOM()
+      LIMIT ${count}
+    `;
+  }
+
+  return (result as unknown as Question[]).map((q) => ({
+    ...q,
+    answers: shuffleArray([
+      q.correct_answer,
+      q.wrong_answer_1,
+      q.wrong_answer_2,
+      q.wrong_answer_3,
+    ].filter(Boolean)),
+  }));
+}
+
+/**
+ * Get notation quiz stats
+ */
+export async function getNotationStats(): Promise<{ total_questions: number; categories_count: number }> {
+  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type = 'staff_notation'`;
+  const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type = 'staff_notation' AND category IS NOT NULL AND category != ''`;
+  return {
+    total_questions: (questionsResult[0] as { count: number }).count,
+    categories_count: (categoriesResult[0] as { count: number }).count,
+  };
+}
+
+/**
+ * Get notation categories
+ */
+export async function getNotationCategories(): Promise<Category[]> {
+  const result = await sql`
+    SELECT category, COUNT(*) as count
+    FROM questions
+    WHERE quiz_type = 'staff_notation' AND category IS NOT NULL AND category != ''
+    GROUP BY category ORDER BY count DESC
+  `;
+  return result as unknown as Category[];
 }
 
 /**
