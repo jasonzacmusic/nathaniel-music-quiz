@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  allowedDevOrigins: ["*.replit.dev", "*.kirk.replit.dev"],
-};
+const nextConfig = {};
 
 export default nextConfig;
