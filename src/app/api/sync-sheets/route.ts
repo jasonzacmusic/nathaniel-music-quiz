@@ -187,20 +187,32 @@ export async function POST(request: NextRequest) {
     }
     const uniqueRows = Array.from(seen.values());
 
-    // SAFETY: Only delete if we have enough data to reimport
-    // This prevents the 10-minute sync from wiping data when sheets are being edited
-    if (uniqueRows.length < 50) {
+    // SAFETY: Validate data quality before importing
+    const SAFE_SYNC_TYPES = ["music_theory", "indian_classical", "staff_notation", "ear_training_text"];
+
+    // Filter out any rows with invalid quiz_type (answer text leaking into wrong column)
+    const validRows = uniqueRows.filter(r => SAFE_SYNC_TYPES.includes(r.quiz_type));
+    const invalidCount = uniqueRows.length - validRows.length;
+
+    if (invalidCount > 10) {
       return NextResponse.json({
         success: false,
-        error: `Only ${uniqueRows.length} rows found — too few, skipping sync to prevent data loss`,
-        rowCount: uniqueRows.length,
+        error: `${invalidCount} rows have invalid quiz_type — CSV column mapping is broken, aborting sync`,
+        sample: uniqueRows.filter(r => !SAFE_SYNC_TYPES.includes(r.quiz_type)).slice(0, 3).map(r => r.quiz_type),
       });
     }
 
-    // Only clear types that we're about to reimport, and only known safe types
-    const SAFE_SYNC_TYPES = ["music_theory", "indian_classical", "staff_notation", "ear_training_text"];
-    const syncedTypes = Array.from(new Set(uniqueRows.map(r => r.quiz_type)))
-      .filter(t => SAFE_SYNC_TYPES.includes(t));
+    if (validRows.length < 50) {
+      return NextResponse.json({
+        success: false,
+        error: `Only ${validRows.length} valid rows found — too few, skipping sync`,
+      });
+    }
+
+    // Use validRows from here
+    const uniqueRowsFinal = validRows;
+
+    const syncedTypes = Array.from(new Set(uniqueRowsFinal.map(r => r.quiz_type)));
 
     for (let i = 0; i < syncedTypes.length; i++) {
       const qt = syncedTypes[i];
@@ -210,7 +222,7 @@ export async function POST(request: NextRequest) {
 
     // Collect unique set_ids
     const setMap = new Map<string, { category: string; count: number }>();
-    for (const row of uniqueRows) {
+    for (const row of uniqueRowsFinal) {
       if (!setMap.has(row.set_id)) {
         setMap.set(row.set_id, { category: row.category, count: 0 });
       }
@@ -221,7 +233,7 @@ export async function POST(request: NextRequest) {
     const setEntries = Array.from(setMap.entries());
     for (let i = 0; i < setEntries.length; i++) {
       const [setId, meta] = setEntries[i];
-      const qt = uniqueRows.find(r => r.set_id === setId)?.quiz_type || "music_theory";
+      const qt = uniqueRowsFinal.find(r => r.set_id === setId)?.quiz_type || "music_theory";
       await sql`
         INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
         VALUES (${setId}, ${qt}, ${meta.category}, ${meta.count}, ${meta.category}, ${qt})
@@ -230,7 +242,7 @@ export async function POST(request: NextRequest) {
 
     // Insert questions
     let inserted = 0;
-    for (const row of uniqueRows) {
+    for (const row of uniqueRowsFinal) {
       await sql`
         INSERT INTO questions (
           set_id, question_number, question_text, correct_answer,
