@@ -105,8 +105,8 @@ export default function TheoryPage() {
             <span className="block text-amber-400">Quiz</span>
           </h1>
           <p className="text-stone-500 text-lg max-w-xl mx-auto leading-relaxed">
-            Test your knowledge of scales, modes, chord theory, harmony, and
-            more. No video, no audio — pure music theory.
+            Western classical to jazz, Carnatic to Hindustani — test your
+            knowledge across the world&apos;s music traditions.
           </p>
 
           {hasQuestions && (
@@ -146,11 +146,13 @@ export default function TheoryPage() {
                       10 Random Questions
                     </h2>
                     <p className="text-stone-500 text-sm">
-                      {era === 50
-                        ? "All difficulties, all topics. Jump right in."
-                        : era > 50
-                        ? `Weighted toward jazz & modern theory (${era}% contemporary).`
-                        : `Weighted toward classical foundations (${100 - era}% classical).`}
+                      {era >= 0 && era <= 25
+                        ? "Classical foundations — intervals, key signatures, form."
+                        : era <= 50
+                        ? "Jazz & modern — voicings, progressions, harmony."
+                        : era <= 75
+                        ? "Carnatic — ragas, tala, melakarta system."
+                        : "Hindustani — thaat, raga, taal, gharana."}
                     </p>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-amber-700/20 border border-amber-600/30 flex items-center justify-center group-hover:bg-amber-700/30 transition-colors">
