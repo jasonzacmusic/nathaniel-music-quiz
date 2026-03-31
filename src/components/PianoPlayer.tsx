@@ -97,6 +97,20 @@ export function usePiano() {
     [isLoaded]
   );
 
+  const playChordSequence = useCallback(
+    (chordNotes: string[][], interval: number = 0.8) => {
+      if (samplerRef.current && isLoaded) {
+        const now = Tone.now();
+        chordNotes.forEach((chord, i) => {
+          chord.forEach(note => {
+            samplerRef.current!.triggerAttackRelease(note, "2n", now + i * interval);
+          });
+        });
+      }
+    },
+    [isLoaded]
+  );
+
   const cleanup = useCallback(() => {
     if (samplerRef.current) {
       samplerRef.current.dispose();
@@ -109,5 +123,5 @@ export function usePiano() {
     return cleanup;
   }, [cleanup]);
 
-  return { initPiano, playNote, playNotes, playSequence, isLoaded, isLoading };
+  return { initPiano, playNote, playNotes, playSequence, playChordSequence, isLoaded, isLoading };
 }

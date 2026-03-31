@@ -18,9 +18,12 @@ import {
   Layers,
   BarChart3,
   Zap,
+  Timer,
+  GitBranch,
 } from "lucide-react";
 import Link from "next/link";
 import { usePiano } from "@/components/PianoPlayer";
+import RhythmTrainer from "@/components/RhythmTrainer";
 
 /* ---------- Music theory data ---------- */
 
@@ -72,7 +75,16 @@ const SCALES = [
   { name: "Mixolydian", intervals: [0, 2, 4, 5, 7, 9, 10, 12] },
 ];
 
-type ExerciseType = "intervals" | "triads" | "seventh-chords" | "scales" | "single-notes";
+const PROGRESSIONS = [
+  { name: "I - IV - V - I", chords: [[0,4,7], [5,9,12], [7,11,14], [0,4,7]] },
+  { name: "I - V - vi - IV", chords: [[0,4,7], [7,11,14], [9,12,16], [5,9,12]] },
+  { name: "ii - V - I", chords: [[2,5,9], [7,11,14], [0,4,7], [0,4,7]] },
+  { name: "I - vi - IV - V", chords: [[0,4,7], [9,12,16], [5,9,12], [7,11,14]] },
+  { name: "I - IV - vi - V", chords: [[0,4,7], [5,9,12], [9,12,16], [7,11,14]] },
+  { name: "vi - IV - I - V", chords: [[9,12,16], [5,9,12], [0,4,7], [7,11,14]] },
+];
+
+type ExerciseType = "intervals" | "triads" | "seventh-chords" | "scales" | "single-notes" | "rhythm" | "progressions";
 
 interface Question {
   type: ExerciseType;
@@ -170,6 +182,34 @@ function generateQuestion(type: ExerciseType): Question {
         notesToPlay: scale.intervals.map((i) => midiToNote(rootMidi + i)),
       };
     }
+    case "progressions": {
+      const prog = pickRandom(PROGRESSIONS);
+      const others = PROGRESSIONS.filter((p) => p.name !== prog.name);
+      const distractors = shuffle(others).slice(0, 3).map((p) => p.name);
+      const notesToPlay: string[] = [];
+      for (const chord of prog.chords) {
+        for (const interval of chord) {
+          notesToPlay.push(midiToNote(rootMidi + interval));
+        }
+      }
+      return {
+        type,
+        correctAnswer: prog.name,
+        options: shuffle([prog.name, ...distractors]),
+        rootMidi,
+        notesToPlay,
+      };
+    }
+    case "rhythm": {
+      // Rhythm is handled by RhythmTrainer component, return a dummy question
+      return {
+        type,
+        correctAnswer: "",
+        options: [],
+        rootMidi: 0,
+        notesToPlay: [],
+      };
+    }
   }
 }
 
@@ -229,12 +269,30 @@ const CATEGORIES: {
     border: "border-emerald-500/20",
     detail: "Major, Minor, Modes and more",
   },
+  {
+    id: "rhythm",
+    title: "Rhythm",
+    description: "Identify subdivisions and patterns",
+    icon: <Timer className="w-6 h-6" />,
+    gradient: "from-orange-500/20 to-red-500/10",
+    border: "border-orange-500/20",
+    detail: "Quavers, triplets, semiquavers",
+  },
+  {
+    id: "progressions",
+    title: "Progressions",
+    description: "Identify chord progressions",
+    icon: <GitBranch className="w-6 h-6" />,
+    gradient: "from-indigo-500/20 to-blue-500/10",
+    border: "border-indigo-500/20",
+    detail: "Common 4-chord patterns",
+  },
 ];
 
 /* ---------- Main page component ---------- */
 
 export default function EarTrainingPage() {
-  const { initPiano, playNote, playNotes, playSequence, isLoaded, isLoading } = usePiano();
+  const { initPiano, playNote, playNotes, playSequence, playChordSequence, isLoaded, isLoading } = usePiano();
 
   const [activeExercise, setActiveExercise] = useState<ExerciseType | null>(null);
   const [question, setQuestion] = useState<Question | null>(null);
@@ -259,8 +317,15 @@ export default function EarTrainingPage() {
       playNotes(notesToPlay);
     } else if (type === "scales") {
       playSequence(notesToPlay, 0.35);
+    } else if (type === "progressions") {
+      // Group notes into chords of 3
+      const chords: string[][] = [];
+      for (let i = 0; i < notesToPlay.length; i += 3) {
+        chords.push(notesToPlay.slice(i, i + 3));
+      }
+      playChordSequence(chords, 0.8);
     }
-  }, [question, isLoaded, playNote, playNotes, playSequence]);
+  }, [question, isLoaded, playNote, playNotes, playSequence, playChordSequence]);
 
   /* Start a new question */
   const nextQuestion = useCallback(
@@ -293,9 +358,11 @@ export default function EarTrainingPage() {
       setTotal(0);
       setStreak(0);
       setBestStreak(0);
-      nextQuestion(type);
-      if (!isLoaded && !isLoading) {
-        await initPiano();
+      if (type !== "rhythm") {
+        nextQuestion(type);
+        if (!isLoaded && !isLoading) {
+          await initPiano();
+        }
       }
     },
     [nextQuestion, isLoaded, isLoading, initPiano]
@@ -377,7 +444,18 @@ export default function EarTrainingPage() {
         </div>
 
         <AnimatePresence mode="wait">
-          {activeExercise && question ? (
+          {activeExercise === "rhythm" ? (
+            /* ---------- RHYTHM MODE ---------- */
+            <motion.div
+              key="rhythm"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+            >
+              <RhythmTrainer onExit={exitExercise} />
+            </motion.div>
+          ) : activeExercise && question ? (
             /* ---------- EXERCISE MODE ---------- */
             <motion.div
               key="exercise"
@@ -476,6 +554,7 @@ export default function EarTrainingPage() {
                 {activeExercise === "triads" && "What type of triad is this?"}
                 {activeExercise === "seventh-chords" && "What type of seventh chord is this?"}
                 {activeExercise === "scales" && "What scale is being played?"}
+                {activeExercise === "progressions" && "What chord progression do you hear?"}
               </motion.p>
 
               {/* Answer choices */}
