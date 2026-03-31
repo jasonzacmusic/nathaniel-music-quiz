@@ -196,7 +196,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert quiz_sets
-    for (const [setId, meta] of setMap) {
+    const setEntries = Array.from(setMap.entries());
+    for (let i = 0; i < setEntries.length; i++) {
+      const [setId, meta] = setEntries[i];
       await sql`
         INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
         VALUES (${setId}, 'music_theory', ${meta.category}, ${meta.count}, ${meta.category}, 'music_theory')
