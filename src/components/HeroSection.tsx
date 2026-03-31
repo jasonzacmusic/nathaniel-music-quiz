@@ -233,12 +233,12 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
         >
           {[
             { value: displayStats.questions, suffix: "+", label: "Questions" },
-            { value: displayStats.sets, suffix: "", label: "Quiz Sets" },
-            { value: displayStats.categories, suffix: "", label: "Topics" },
+            { value: 4, suffix: "", label: "Quiz Modes" },
+            { value: null, suffix: "", label: "Global Traditions", text: "Global" },
           ].map((stat, i) => (
             <div key={i} className="px-6 py-3.5 text-center min-w-[90px]">
               <div className="text-2xl md:text-3xl font-display font-700 text-white tabular-nums">
-                {stat.value}
+                {stat.text ? stat.text : stat.value}
                 <span className="text-amber-500">{stat.suffix}</span>
               </div>
               <div className="text-[10px] text-stone-600 mt-0.5 uppercase tracking-widest font-medium">
