@@ -86,8 +86,30 @@ export default function NotationPage() {
   const [answered, setAnswered] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const currentQuestion = SAMPLE_QUESTIONS[currentIndex];
+  // Filter questions by category if one is selected
+  const filteredQuestions = activeCategory
+    ? SAMPLE_QUESTIONS.filter((q) => q.category === activeCategory)
+    : SAMPLE_QUESTIONS;
+  const currentQuestion = filteredQuestions[currentIndex];
+
+  // Count per category
+  const categoryCounts: Record<string, number> = {};
+  SAMPLE_QUESTIONS.forEach((q) => {
+    categoryCounts[q.category] = (categoryCounts[q.category] || 0) + 1;
+  });
+
+  const startQuiz = useCallback((category?: string) => {
+    setActiveCategory(category || null);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setAnswerStates({});
+    setScore(0);
+    setAnswered(0);
+    setQuizStarted(true);
+    setQuizFinished(false);
+  }, []);
 
   const handleAnswer = useCallback((answer: string) => {
     if (selectedAnswer) return;
@@ -109,7 +131,7 @@ export default function NotationPage() {
   }, [selectedAnswer, currentQuestion]);
 
   const handleNext = useCallback(() => {
-    if (currentIndex >= SAMPLE_QUESTIONS.length - 1) {
+    if (currentIndex >= filteredQuestions.length - 1) {
       setQuizFinished(true);
       return;
     }
@@ -126,6 +148,7 @@ export default function NotationPage() {
     setAnswered(0);
     setQuizFinished(false);
     setQuizStarted(false);
+    setActiveCategory(null);
   }, []);
 
   return (
@@ -171,44 +194,54 @@ export default function NotationPage() {
                 <h2 className="font-display font-700 text-xl text-white/80 mb-6 text-center">
                   Question Categories
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* All Questions button */}
+                <motion.button
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => startQuiz()}
+                  className="w-full mb-6 p-5 rounded-xl bg-gradient-to-r from-amber-600/30 to-orange-600/20 border-2 border-amber-500/40 hover:border-amber-400/60 transition-all text-left group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-display font-700 text-lg text-white mb-1">All Categories</h3>
+                      <p className="text-white/50 text-sm">{filteredQuestions.length} questions across all topics</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+                      <ArrowRight className="w-5 h-5 text-amber-400" />
+                    </div>
+                  </div>
+                </motion.button>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {CATEGORIES.map((cat, i) => {
                     const Icon = cat.icon;
+                    const count = categoryCounts[cat.name] || 0;
                     return (
-                      <motion.div
+                      <motion.button
                         key={cat.name}
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 + i * 0.08 }}
-                        className={`p-5 rounded-xl bg-gradient-to-br ${cat.color} border ${cat.border} backdrop-blur-sm`}
+                        whileHover={{ scale: 1.03, y: -2 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => startQuiz(cat.name)}
+                        className={`p-5 rounded-xl bg-gradient-to-br ${cat.color} border ${cat.border} backdrop-blur-sm text-left hover:shadow-lg transition-all group`}
                       >
-                        <div className="flex items-center gap-3 mb-2">
-                          <Icon className="w-5 h-5 text-white/70" />
-                          <h3 className="font-display font-700 text-white/90">{cat.name}</h3>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
+                            <h3 className="font-display font-700 text-white/90">{cat.name}</h3>
+                          </div>
+                          <span className="text-xs text-white/30 font-display">{count}q</span>
                         </div>
                         <p className="text-white/45 text-sm leading-relaxed">{cat.desc}</p>
-                      </motion.div>
+                      </motion.button>
                     );
                   })}
                 </div>
-              </motion.div>
-
-              {/* Start Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="text-center"
-              >
-                <button
-                  onClick={() => setQuizStarted(true)}
-                  className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-display font-700 text-lg hover:from-amber-400 hover:to-orange-400 transition-all duration-300 shadow-glow-amber"
-                >
-                  <Music className="w-5 h-5" />
-                  Start Sample Quiz
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-                <p className="text-white/30 text-sm mt-3">{SAMPLE_QUESTIONS.length} questions across {CATEGORIES.length} categories</p>
               </motion.div>
             </>
           ) : quizFinished ? (
@@ -228,13 +261,13 @@ export default function NotationPage() {
                 </h2>
                 <p className="text-white/50 mb-6">
                   You scored <span className="text-amber-400 font-700">{score}</span> out of{" "}
-                  <span className="text-white/70 font-700">{SAMPLE_QUESTIONS.length}</span>
+                  <span className="text-white/70 font-700">{filteredQuestions.length}</span>
                 </p>
 
                 <div className="flex items-center justify-center gap-3 mb-8">
                   <div className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
                     <div className="text-2xl font-display font-700 text-amber-400">
-                      {Math.round((score / SAMPLE_QUESTIONS.length) * 100)}%
+                      {Math.round((score / filteredQuestions.length) * 100)}%
                     </div>
                     <div className="text-xs text-white/40">Accuracy</div>
                   </div>
@@ -260,7 +293,7 @@ export default function NotationPage() {
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white/40 text-sm font-medium">
-                    Question {currentIndex + 1} of {SAMPLE_QUESTIONS.length}
+                    Question {currentIndex + 1} of {filteredQuestions.length}
                   </span>
                   <span className="text-amber-400 text-sm font-display font-700">
                     Score: {score}/{answered}
@@ -270,7 +303,7 @@ export default function NotationPage() {
                   <motion.div
                     className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
                     initial={{ width: 0 }}
-                    animate={{ width: `${((currentIndex + 1) / SAMPLE_QUESTIONS.length) * 100}%` }}
+                    animate={{ width: `${((currentIndex + 1) / filteredQuestions.length) * 100}%` }}
                     transition={{ duration: 0.4 }}
                   />
                 </div>
@@ -329,7 +362,7 @@ export default function NotationPage() {
                         onClick={handleNext}
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/15 text-white font-display font-700 hover:bg-white/15 transition-all duration-200"
                       >
-                        {currentIndex >= SAMPLE_QUESTIONS.length - 1 ? "See Results" : "Next Question"}
+                        {currentIndex >= filteredQuestions.length - 1 ? "See Results" : "Next Question"}
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </motion.div>
