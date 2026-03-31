@@ -20,3 +20,6 @@ export { default as NotationRenderer } from "./NotationRenderer";
 
 // Theory Components
 export { default as EraSlider } from "./EraSlider";
+
+// Rhythm Training
+export { default as RhythmTrainer } from "./RhythmTrainer";

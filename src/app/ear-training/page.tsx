@@ -453,7 +453,7 @@ export default function EarTrainingPage() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
             >
-              <RhythmTrainer onExit={exitExercise} />
+              <RhythmTrainer />
             </motion.div>
           ) : activeExercise && question ? (
             /* ---------- EXERCISE MODE ---------- */
