@@ -19,7 +19,28 @@
       "Bash(find /home/runner/workspace -name og-image* -o -name *social*)",
       "Bash(find /home/runner/workspace -type f \\\\\\(-name *.sql -o -name *init* -o -name *schema* \\\\\\) ! -path */node_modules/*)",
       "Bash(find /home/runner/workspace -type f \\\\\\(-name *.md -o -name *.txt -o -name README* \\\\\\) ! -path */node_modules/* ! -path */.next/*)",
-      "Bash(grep -r \"CREATE TABLE\\\\|difficulty\\\\|level\" /home/runner/workspace/src --include=*.ts --include=*.tsx)"
+      "Bash(grep -r \"CREATE TABLE\\\\|difficulty\\\\|level\" /home/runner/workspace/src --include=*.ts --include=*.tsx)",
+      "Bash(find /home/runner/workspace/src -type f -name route.ts -o -name *.api.ts)",
+      "Bash(find /home/runner/workspace -path */node_modules -prune -o -type f \\\\\\(-name *.sql -o -name *init* -o -name *seed* \\\\\\) -print)",
+      "Bash(find /home/runner/workspace/src -type f -name *.ts -o -name *.tsx)",
+      "WebSearch",
+      "WebFetch(domain:beatoeartraining.com)",
+      "Bash(npm install:*)",
+      "Bash(curl -s http://0.0.0.0:5000/notation)",
+      "Bash(curl -s http://0.0.0.0:5000/ear-training)",
+      "Bash(curl -s http://0.0.0.0:5000/theory)",
+      "Bash(cat /home/runner/workspace/.github/workflows/*.yml)",
+      "WebFetch(domain:doc-08-84-sheets.googleusercontent.com)",
+      "Bash(curl -s -L \"https://docs.google.com/spreadsheets/d/1QpCaISHeccQga17igp3ekDz-nJUFwsgSOi2wwXQLyJ8/gviz/tq?tqx=out:csv&gid=741041831\" -o /home/runner/workspace/music_theory_questions.csv)",
+      "Bash(curl -s -L \"https://docs.google.com/spreadsheets/d/1QpCaISHeccQga17igp3ekDz-nJUFwsgSOi2wwXQLyJ8/gviz/tq?tqx=out:csv&gid=113832903\" -o /home/runner/workspace/music_theory_questions_2.csv)",
+      "Bash(printenv)",
+      "Bash(npx next:*)",
+      "Bash(git restore:*)",
+      "WebFetch(domain:tonejs.github.io)",
+      "Bash(pkill -f 'next dev')",
+      "Bash(ls -la /home/runner/workspace/public/nsm-logo*.png)",
+      "Bash(ls:*)",
+      "Bash(curl -s -L \"https://docs.google.com/spreadsheets/d/1QpCaISHeccQga17igp3ekDz-nJUFwsgSOi2wwXQLyJ8/gviz/tq?tqx=out:csv&gid=1865314571\" -o /home/runner/workspace/indian_music.csv)"
     ]
   }
 }
