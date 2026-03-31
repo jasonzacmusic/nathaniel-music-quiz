@@ -19,6 +19,7 @@ import {
   Drum,
 } from "lucide-react";
 import * as Tone from "tone";
+import VolumeControl from "@/components/VolumeControl";
 
 /* ================================================================
    Types & Constants
@@ -1039,6 +1040,16 @@ export default function RhythmTrainer() {
                 exercises.
               </motion.p>
             </div>
+
+            {/* Volume control */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="max-w-sm mx-auto mb-4"
+            >
+              <VolumeControl />
+            </motion.div>
 
             {/* Tempo control */}
             <motion.div
