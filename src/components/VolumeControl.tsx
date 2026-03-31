@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Volume2, VolumeX } from "lucide-react";
-import * as Tone from "tone";
 
 const STORAGE_KEY = "nsm-volume";
 const DEFAULT_DB = -2; // -2 dB default reduction
@@ -20,20 +19,26 @@ export function useVolume() {
   useEffect(() => {
     const stored = getStoredVolume();
     setVolume(stored);
-    Tone.getDestination().volume.value = stored;
+    import("tone").then((Tone) => {
+      Tone.getDestination().volume.value = stored;
+    });
   }, []);
 
   const changeVolume = useCallback((db: number) => {
     const clamped = Math.max(-30, Math.min(6, db));
     setVolume(clamped);
-    Tone.getDestination().volume.value = clamped;
+    import("tone").then((Tone) => {
+      Tone.getDestination().volume.value = clamped;
+    });
     localStorage.setItem(STORAGE_KEY, String(clamped));
   }, []);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
       const next = !m;
-      Tone.getDestination().mute = next;
+      import("tone").then((Tone) => {
+        Tone.getDestination().mute = next;
+      });
       return next;
     });
   }, []);

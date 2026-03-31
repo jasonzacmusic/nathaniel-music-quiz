@@ -187,8 +187,21 @@ export async function POST(request: NextRequest) {
     }
     const uniqueRows = Array.from(seen.values());
 
-    // Clear all sheet-synced quiz types (not ear_training which are the video quizzes)
-    const syncedTypes = Array.from(new Set(uniqueRows.map(r => r.quiz_type)));
+    // SAFETY: Only delete if we have enough data to reimport
+    // This prevents the 10-minute sync from wiping data when sheets are being edited
+    if (uniqueRows.length < 50) {
+      return NextResponse.json({
+        success: false,
+        error: `Only ${uniqueRows.length} rows found — too few, skipping sync to prevent data loss`,
+        rowCount: uniqueRows.length,
+      });
+    }
+
+    // Only clear types that we're about to reimport, and only known safe types
+    const SAFE_SYNC_TYPES = ["music_theory", "indian_classical", "staff_notation", "ear_training_text"];
+    const syncedTypes = Array.from(new Set(uniqueRows.map(r => r.quiz_type)))
+      .filter(t => SAFE_SYNC_TYPES.includes(t));
+
     for (let i = 0; i < syncedTypes.length; i++) {
       const qt = syncedTypes[i];
       await sql`DELETE FROM questions WHERE quiz_type = ${qt}`;
@@ -208,9 +221,10 @@ export async function POST(request: NextRequest) {
     const setEntries = Array.from(setMap.entries());
     for (let i = 0; i < setEntries.length; i++) {
       const [setId, meta] = setEntries[i];
+      const qt = uniqueRows.find(r => r.set_id === setId)?.quiz_type || "music_theory";
       await sql`
         INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
-        VALUES (${setId}, 'music_theory', ${meta.category}, ${meta.count}, ${meta.category}, 'music_theory')
+        VALUES (${setId}, ${qt}, ${meta.category}, ${meta.count}, ${meta.category}, ${qt})
       `;
     }
 
