@@ -345,10 +345,23 @@ export default function EarTrainingPage() {
       const timer = setTimeout(() => {
         playCurrentQuestion();
         questionPlayedRef.current = true;
-      }, 400);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [question, isLoaded, playCurrentQuestion]);
+
+  /* Keyboard shortcut: Space to replay */
+  useEffect(() => {
+    if (!activeExercise || activeExercise === "rhythm" || !question) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space" && e.target === document.body) {
+        e.preventDefault();
+        playCurrentQuestion();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeExercise, question, playCurrentQuestion]);
 
   /* Start exercise — auto-loads piano if needed */
   const startExercise = useCallback(
@@ -359,10 +372,11 @@ export default function EarTrainingPage() {
       setStreak(0);
       setBestStreak(0);
       if (type !== "rhythm") {
-        nextQuestion(type);
         if (!isLoaded && !isLoading) {
+          // Load piano first, then generate question so auto-play waits for loaded state
           await initPiano();
         }
+        nextQuestion(type);
       }
     },
     [nextQuestion, isLoaded, isLoading, initPiano]
@@ -511,36 +525,56 @@ export default function EarTrainingPage() {
                 </span>
               </div>
 
-              {/* Loading overlay while samples load */}
-              {!isLoaded && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center mb-8 py-8"
-                >
-                  <div className="relative w-16 h-16 mx-auto mb-4">
-                    <div className="absolute inset-0 rounded-full border-2 border-violet-800/30" />
-                    <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-violet-400 animate-spin" />
-                  </div>
-                  <p className="text-stone-400 font-display font-500">Loading piano samples...</p>
-                  <p className="text-stone-600 text-sm mt-1">High-quality Salamander Grand Piano</p>
-                </motion.div>
-              )}
-
-              {/* Play / Replay button */}
-              {isLoaded && <div className="flex justify-center mb-10">
-                <motion.button
-                  whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.94 }}
-                  onClick={playCurrentQuestion}
-                  disabled={!isLoaded}
-                  className="relative group flex items-center gap-3 px-8 py-4 rounded-2xl font-display font-700 text-lg bg-gradient-to-br from-violet-600 to-violet-700 text-white shadow-glow-purple hover:from-violet-500 hover:to-violet-600 transition-all disabled:opacity-40"
-                >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <Volume2 className="w-6 h-6" />
-                  {selectedAnswer !== null ? "Replay" : "Play Sound"}
-                </motion.button>
-              </div>}
+              {/* Play / Replay button — always visible */}
+              <div className="flex flex-col items-center mb-10">
+                {!isLoaded ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center"
+                  >
+                    <div className="relative flex items-center justify-center w-20 h-20 mb-3">
+                      <div className="absolute inset-0 rounded-full border-2 border-violet-800/30" />
+                      <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-violet-400 border-b-transparent border-l-transparent animate-spin" />
+                      <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
+                    </div>
+                    <p className="text-stone-400 font-display font-500 text-sm">Loading piano...</p>
+                    <p className="text-stone-600 text-xs mt-1">Salamander Grand Piano samples</p>
+                  </motion.div>
+                ) : (
+                  <>
+                    <motion.button
+                      key={`play-${total}`}
+                      initial={{ scale: 1 }}
+                      animate={selectedAnswer === null ? {
+                        scale: [1, 1.06, 1],
+                        boxShadow: [
+                          "0 0 20px rgba(124,58,237,0.3)",
+                          "0 0 40px rgba(124,58,237,0.5)",
+                          "0 0 20px rgba(124,58,237,0.3)",
+                        ],
+                      } : {}}
+                      transition={selectedAnswer === null ? {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      } : {}}
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={playCurrentQuestion}
+                      className="relative group flex items-center gap-3 px-10 py-5 rounded-2xl font-display font-700 text-xl bg-gradient-to-br from-violet-600 to-violet-700 text-white hover:from-violet-500 hover:to-violet-600 transition-all"
+                      style={{ boxShadow: "0 0 30px rgba(124,58,237,0.35)" }}
+                    >
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                      <Volume2 className="w-7 h-7" />
+                      {selectedAnswer !== null ? "Replay Sound" : "Play Sound"}
+                    </motion.button>
+                    <span className="text-stone-600 text-xs mt-3 tracking-wide">
+                      Press <kbd className="px-1.5 py-0.5 rounded border border-stone-700 bg-stone-800 text-stone-400 text-[10px] font-mono">Space</kbd> to replay
+                    </span>
+                  </>
+                )}
+              </div>
 
               {/* Question prompt */}
               <motion.p
@@ -622,18 +656,30 @@ export default function EarTrainingPage() {
                       {isCorrect ? "Correct!" : `Incorrect -- the answer was ${question.correctAnswer}`}
                     </p>
 
-                    <motion.button
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => nextQuestion(activeExercise)}
-                      className="flex items-center gap-2 px-6 py-3 rounded-xl font-display font-600 text-sm bg-amber-700 hover:bg-amber-600 text-white transition-colors"
-                      style={{
-                        boxShadow: "0 0 20px rgba(180,83,9,0.25)",
-                      }}
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      Next Question
-                    </motion.button>
+                    <div className="flex items-center gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
+                        onClick={playCurrentQuestion}
+                        className="flex items-center gap-2 px-5 py-3 rounded-xl font-display font-600 text-sm border border-violet-500/30 bg-violet-500/[0.1] hover:bg-violet-500/[0.2] text-violet-300 transition-colors"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                        Replay
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => nextQuestion(activeExercise)}
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl font-display font-600 text-sm bg-amber-700 hover:bg-amber-600 text-white transition-colors"
+                        style={{
+                          boxShadow: "0 0 20px rgba(180,83,9,0.25)",
+                        }}
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Next Question
+                      </motion.button>
+                    </div>
 
                     {bestStreak > 1 && (
                       <p className="text-xs text-stone-600 mt-2">
