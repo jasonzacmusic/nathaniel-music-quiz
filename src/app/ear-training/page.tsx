@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { usePiano } from "@/components/PianoPlayer";
 import RhythmTrainer from "@/components/RhythmTrainer";
-// Volume is controlled globally via Tone.Destination in VolumeControl (used in RhythmTrainer)
+import VolumeControl from "@/components/VolumeControl";
 
 /* ---------- Music theory data ---------- */
 
@@ -433,8 +433,9 @@ export default function EarTrainingPage() {
               <span className="text-sm font-medium">Home</span>
             </Link>
 
-            {/* Piano status */}
+            {/* Volume + Piano status */}
             <div className="flex items-center gap-3">
+              <VolumeControl compact />
               {isLoading && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/[0.05]">
                   <Loader2 className="w-3 h-3 animate-spin text-amber-400" />

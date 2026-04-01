@@ -1191,7 +1191,7 @@ export default function RhythmTrainer() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
           >
-            {/* Header: back + score */}
+            {/* Header: back + volume + score */}
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={exitMode}
@@ -1201,6 +1201,7 @@ export default function RhythmTrainer() {
                 Back to modes
               </button>
               <div className="flex items-center gap-4">
+                <VolumeControl compact />
                 <div className="flex items-center gap-1.5 text-sm text-stone-400">
                   <Trophy className="w-4 h-4 text-amber-500" />
                   <span className="font-display font-700 text-white">

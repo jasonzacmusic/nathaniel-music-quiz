@@ -45,6 +45,8 @@ interface QuestionRow {
 }
 
 function parseCSV(text: string): Record<string, string>[] {
+  // Split text into logical lines, preserving quoted fields that span multiple lines.
+  // IMPORTANT: keep quotes in the output so the value parser can handle commas inside quotes.
   const lines: string[] = [];
   let current = "";
   let inQuotes = false;
@@ -52,12 +54,8 @@ function parseCSV(text: string): Record<string, string>[] {
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     if (ch === '"') {
-      if (inQuotes && text[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
+      inQuotes = !inQuotes;
+      current += ch; // keep the quote
     } else if (ch === "\n" && !inQuotes) {
       lines.push(current);
       current = "";
@@ -69,51 +67,42 @@ function parseCSV(text: string): Record<string, string>[] {
 
   if (lines.length < 2) return [];
 
-  const headerLine = lines[0];
-  const headers: string[] = [];
-  let hCurrent = "";
-  let hInQuotes = false;
-  for (let i = 0; i < headerLine.length; i++) {
-    const ch = headerLine[i];
-    if (ch === '"') {
-      hInQuotes = !hInQuotes;
-    } else if (ch === "," && !hInQuotes) {
-      headers.push(hCurrent.trim());
-      hCurrent = "";
-    } else {
-      hCurrent += ch;
-    }
-  }
-  headers.push(hCurrent.trim());
-
-  const rows: Record<string, string>[] = [];
-  for (let r = 1; r < lines.length; r++) {
-    const line = lines[r];
-    if (!line.trim()) continue;
-    const values: string[] = [];
+  // Parse a single CSV line into field values (handles quotes + escaped "")
+  function parseFields(line: string): string[] {
+    const fields: string[] = [];
     let val = "";
-    let vInQuotes = false;
+    let q = false;
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
       if (ch === '"') {
-        if (vInQuotes && line[i + 1] === '"') {
+        if (q && line[i + 1] === '"') {
           val += '"';
           i++;
         } else {
-          vInQuotes = !vInQuotes;
+          q = !q;
         }
-      } else if (ch === "," && !vInQuotes) {
-        values.push(val.trim());
+      } else if (ch === "," && !q) {
+        fields.push(val);
         val = "";
       } else {
         val += ch;
       }
     }
-    values.push(val.trim());
+    fields.push(val);
+    return fields;
+  }
+
+  const headers = parseFields(lines[0]).map((h) => h.trim());
+
+  const rows: Record<string, string>[] = [];
+  for (let r = 1; r < lines.length; r++) {
+    const line = lines[r];
+    if (!line.trim()) continue;
+    const values = parseFields(line);
 
     const row: Record<string, string> = {};
     for (let c = 0; c < headers.length; c++) {
-      if (headers[c]) row[headers[c]] = values[c] || "";
+      if (headers[c]) row[headers[c]] = (values[c] || "").trim();
     }
     rows.push(row);
   }
@@ -214,10 +203,12 @@ export async function POST(request: NextRequest) {
 
     const syncedTypes = Array.from(new Set(uniqueRowsFinal.map(r => r.quiz_type)));
 
+    // Delete all questions first, then quiz_sets (FK: questions references quiz_sets)
     for (let i = 0; i < syncedTypes.length; i++) {
-      const qt = syncedTypes[i];
-      await sql`DELETE FROM questions WHERE quiz_type = ${qt}`;
-      await sql`DELETE FROM quiz_sets WHERE quiz_type = ${qt}`;
+      await sql`DELETE FROM questions WHERE quiz_type = ${syncedTypes[i]}`;
+    }
+    for (let i = 0; i < syncedTypes.length; i++) {
+      await sql`DELETE FROM quiz_sets WHERE quiz_type = ${syncedTypes[i]}`;
     }
 
     // Collect unique set_ids

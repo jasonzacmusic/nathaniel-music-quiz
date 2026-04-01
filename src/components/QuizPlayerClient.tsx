@@ -11,6 +11,7 @@ import { formatTime } from "@/lib/utils";
 import VideoPlayer from "./VideoPlayer";
 import AnswerButton from "./AnswerButton";
 import Confetti from "./Confetti";
+import VolumeControl from "./VolumeControl";
 
 interface QuizPlayerClientProps {
   questions: QuestionWithShuffledAnswers[];
@@ -223,20 +224,25 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-black/50 backdrop-blur-xl border border-white/10">
-                <span className="font-display font-700 text-sm sm:text-base text-amber-400">{score}</span>
-                <span className="text-white/30 text-xs">/</span>
-                <span className="text-white/40 text-xs">{currentIndex + (answered ? 1 : 0)}</span>
-                {streak >= 2 && (
-                  <motion.span
-                    key={`streak-${streak}`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="ml-0.5 text-[11px] text-amber-400 font-display font-700"
-                  >
-                    {streak}x
-                  </motion.span>
-                )}
+              <div className="flex items-center gap-2">
+                <div className="px-2.5 py-1.5 rounded-lg bg-black/50 backdrop-blur-xl border border-white/10">
+                  <VolumeControl compact className="" />
+                </div>
+                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-black/50 backdrop-blur-xl border border-white/10">
+                  <span className="font-display font-700 text-sm sm:text-base text-amber-400">{score}</span>
+                  <span className="text-white/30 text-xs">/</span>
+                  <span className="text-white/40 text-xs">{currentIndex + (answered ? 1 : 0)}</span>
+                  {streak >= 2 && (
+                    <motion.span
+                      key={`streak-${streak}`}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="ml-0.5 text-[11px] text-amber-400 font-display font-700"
+                    >
+                      {streak}x
+                    </motion.span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -248,30 +254,21 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
           <div className="flex-shrink-0 pointer-events-auto relative">
             <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-3 sm:px-5 sm:pb-4">
 
-              {/* AUDIO BUTTON */}
+              {/* AUDIO PLAY/MUTE TOGGLE */}
               <div className="flex justify-center mb-2">
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   whileTap={{ scale: 0.93 }}
                   onClick={() => setIsMuted((m) => !m)}
-                  className={`relative flex items-center gap-2.5 px-5 py-2.5 rounded-full border-2 transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 text-sm font-display font-600 backdrop-blur-xl ${
                     isMuted
-                      ? "bg-amber-600/25 border-amber-500/50 text-amber-200 backdrop-blur-xl"
-                      : "bg-emerald-600/25 border-emerald-500/50 text-emerald-200 backdrop-blur-xl"
+                      ? "bg-amber-600/20 border-amber-500/40 text-amber-200"
+                      : "bg-emerald-600/20 border-emerald-500/40 text-emerald-200"
                   }`}
                 >
-                  {isMuted && (
-                    <motion.span
-                      className="absolute inset-0 rounded-full border-2 border-amber-400/40"
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                  )}
-                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                  <span className="font-display font-600 text-sm">
-                    {isMuted ? "Tap to hear the clip" : "Playing"}
-                  </span>
+                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  {isMuted ? "Tap to hear" : "Playing"}
                 </motion.button>
               </div>
 
