@@ -201,15 +201,9 @@ export async function POST(request: NextRequest) {
     // Use validRows from here
     const uniqueRowsFinal = validRows;
 
-    const syncedTypes = Array.from(new Set(uniqueRowsFinal.map(r => r.quiz_type)));
-
-    // Delete all questions first, then quiz_sets (FK: questions references quiz_sets)
-    for (let i = 0; i < syncedTypes.length; i++) {
-      await sql`DELETE FROM questions WHERE quiz_type = ${syncedTypes[i]}`;
-    }
-    for (let i = 0; i < syncedTypes.length; i++) {
-      await sql`DELETE FROM quiz_sets WHERE quiz_type = ${syncedTypes[i]}`;
-    }
+    // Clear all data safely (TRUNCATE avoids FK issues)
+    await sql`TRUNCATE TABLE questions CASCADE`;
+    await sql`TRUNCATE TABLE quiz_sets CASCADE`;
 
     // Collect unique set_ids
     const setMap = new Map<string, { category: string; count: number }>();
@@ -220,7 +214,7 @@ export async function POST(request: NextRequest) {
       setMap.get(row.set_id)!.count++;
     }
 
-    // Insert quiz_sets
+    // Insert quiz_sets (ON CONFLICT for shared set_ids across quiz types)
     const setEntries = Array.from(setMap.entries());
     for (let i = 0; i < setEntries.length; i++) {
       const [setId, meta] = setEntries[i];
@@ -228,6 +222,7 @@ export async function POST(request: NextRequest) {
       await sql`
         INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
         VALUES (${setId}, ${qt}, ${meta.category}, ${meta.count}, ${meta.category}, ${qt})
+        ON CONFLICT (set_id) DO UPDATE SET num_questions = EXCLUDED.num_questions
       `;
     }
 
