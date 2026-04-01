@@ -362,7 +362,7 @@ export async function getTheoryCategories(): Promise<Category[]> {
       category,
       COUNT(*) as count
     FROM questions
-    WHERE quiz_type = 'music_theory' AND category IS NOT NULL AND category != ''
+    WHERE quiz_type IN ('music_theory', 'indian_classical') AND category IS NOT NULL AND category != ''
     GROUP BY category
     ORDER BY count DESC
   `;
@@ -375,53 +375,50 @@ export async function getTheoryCategories(): Promise<Category[]> {
 export async function getTheoryQuestions(
   count: number,
   difficulty?: string,
-  category?: string
+  category?: string,
+  categoryList?: string[]
 ): Promise<QuestionWithShuffledAnswers[]> {
   let result;
 
-  if (difficulty && category) {
-    result = await sql`
-      SELECT id, set_id, question_number, question_text,
-        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
-        youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, improvement_note, created_at
-      FROM questions
-      WHERE quiz_type = 'music_theory' AND difficulty = ${difficulty} AND category = ${category}
-      ORDER BY RANDOM()
-      LIMIT ${count}
-    `;
+  if (category) {
+    if (difficulty) {
+      result = await sql`
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty = ${difficulty} AND category = ${category}
+        ORDER BY RANDOM() LIMIT ${count}
+      `;
+    } else {
+      result = await sql`
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND category = ${category}
+        ORDER BY RANDOM() LIMIT ${count}
+      `;
+    }
+  } else if (categoryList && categoryList.length > 0) {
+    if (difficulty) {
+      result = await sql`
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty = ${difficulty} AND category = ANY(${categoryList})
+        ORDER BY RANDOM() LIMIT ${count}
+      `;
+    } else {
+      result = await sql`
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND category = ANY(${categoryList})
+        ORDER BY RANDOM() LIMIT ${count}
+      `;
+    }
   } else if (difficulty) {
     result = await sql`
-      SELECT id, set_id, question_number, question_text,
-        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
-        youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, improvement_note, created_at
-      FROM questions
-      WHERE quiz_type = 'music_theory' AND difficulty = ${difficulty}
-      ORDER BY RANDOM()
-      LIMIT ${count}
-    `;
-  } else if (category) {
-    result = await sql`
-      SELECT id, set_id, question_number, question_text,
-        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
-        youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, improvement_note, created_at
-      FROM questions
-      WHERE quiz_type = 'music_theory' AND category = ${category}
-      ORDER BY RANDOM()
-      LIMIT ${count}
+      SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+      FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty = ${difficulty}
+      ORDER BY RANDOM() LIMIT ${count}
     `;
   } else {
     result = await sql`
-      SELECT id, set_id, question_number, question_text,
-        correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3,
-        youtube_title, youtube_url, video_url, category, patreon_url,
-        quiz_type, difficulty, explanation, improvement_note, created_at
-      FROM questions
-      WHERE quiz_type = 'music_theory'
-      ORDER BY RANDOM()
-      LIMIT ${count}
+      SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+      FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical')
+      ORDER BY RANDOM() LIMIT ${count}
     `;
   }
 
@@ -440,11 +437,11 @@ export async function getTheoryQuestions(
  * Get theory quiz stats
  */
 export async function getTheoryStats(): Promise<{ total_questions: number; categories_count: number; difficulties: { difficulty: string; count: number }[] }> {
-  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type = 'music_theory'`;
-  const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type = 'music_theory' AND category IS NOT NULL AND category != ''`;
+  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical')`;
+  const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND category IS NOT NULL AND category != ''`;
   const difficultiesResult = await sql`
     SELECT difficulty, COUNT(*) as count FROM questions
-    WHERE quiz_type = 'music_theory' AND difficulty IS NOT NULL
+    WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty IS NOT NULL
     GROUP BY difficulty ORDER BY difficulty
   `;
 

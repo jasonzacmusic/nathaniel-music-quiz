@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { LINKS } from "@/config/links";
+import VolumeControl from "@/components/VolumeControl";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,6 +69,8 @@ export default function Navigation() {
                   </Link>
                 );
               })}
+
+              <VolumeControl compact />
 
               <div className="w-px h-4 bg-white/10 mx-2" />
 
@@ -134,6 +137,7 @@ export default function Navigation() {
               </div>
 
               <div className="border-t border-white/[0.06] pt-6 space-y-3">
+                <VolumeControl />
                 <div className="flex gap-3">
                   <a href={LINKS.youtube} target="_blank" rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/[0.06] border border-red-500/15 rounded-xl text-red-400 text-sm font-medium"

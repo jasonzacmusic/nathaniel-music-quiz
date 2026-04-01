@@ -8,6 +8,7 @@ interface TheoryQuizPageProps {
     count?: string;
     difficulty?: string;
     category?: string;
+    categories?: string;
   };
 }
 
@@ -24,12 +25,18 @@ export default async function TheoryQuizPage({ searchParams }: TheoryQuizPagePro
   const count = searchParams.count ? parseInt(searchParams.count) : 10;
   const difficulty = searchParams.difficulty;
   const category = searchParams.category;
+  const categoriesParam = searchParams.categories;
 
   const questionCount = isNaN(count) ? 10 : Math.min(Math.max(count, 1), 50);
 
+  // Support comma-separated categories from tradition slider
+  const categoryList = categoriesParam
+    ? categoriesParam.split(",").map((c) => c.trim()).filter(Boolean)
+    : undefined;
+
   let questions;
   try {
-    questions = await getTheoryQuestions(questionCount, difficulty, category);
+    questions = await getTheoryQuestions(questionCount, difficulty, category, categoryList);
   } catch (error) {
     console.error("Error fetching theory questions:", error);
     notFound();

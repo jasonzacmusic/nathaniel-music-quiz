@@ -184,14 +184,19 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
       if (parsed.notes.length === 0) return;
 
       const renderer = new Renderer(el, Renderer.Backends.SVG);
-      const staveWidth = Math.max(width - 20, 200);
-      const height = 180;
+      // Use a narrower staff for fewer notes to prevent stretched ledger lines
+      const noteCount = parsed.notes.length;
+      const staveWidth = noteCount <= 2
+        ? Math.min(width - 20, 180)
+        : Math.min(width - 20, Math.max(200, noteCount * 70 + 80));
+      const height = 160;
       renderer.resize(width, height);
 
       const context = renderer.getContext();
       context.setFont("Arial", 10);
+      context.scale(1.2, 1.2);
 
-      const stave = new Stave(10, 30, staveWidth);
+      const stave = new Stave(10, 20, staveWidth);
       stave.addClef(parsed.clef);
       stave.setContext(context).draw();
 
@@ -201,6 +206,8 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
           duration: n.duration,
           clef: parsed.clef,
         });
+        // Thinner ledger lines for a cleaner look
+        note.setLedgerLineStyle({ strokeStyle: '#555', lineWidth: 1.5 });
         if (n.accidentals) {
           for (const acc of n.accidentals) {
             note.addModifier(new Accidental(acc.type), acc.index);
@@ -218,7 +225,11 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
       voice.setStrict(false);
       voice.addTickables(vexNotes);
 
-      new Formatter().joinVoices([voice]).format([voice], staveWidth - 60);
+      // Tighter format width based on note count to avoid stretched single notes
+      const formatWidth = noteCount <= 2
+        ? Math.max(80, staveWidth - 80)
+        : staveWidth - 60;
+      new Formatter().joinVoices([voice]).format([voice], formatWidth);
       voice.draw(context, stave);
     } catch (e) {
       console.error("VexFlow render error:", e);
@@ -235,7 +246,7 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
     <div
       ref={containerRef}
       className="rounded-xl overflow-hidden bg-white"
-      style={{ minHeight: 150, minWidth: width }}
+      style={{ minHeight: 160, minWidth: width }}
     />
   );
 }
