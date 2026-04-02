@@ -105,11 +105,10 @@ function CategoryRotator({ categories }: { categories: CategoryInfo[] }) {
 
           <div className="absolute right-3 bottom-3 flex items-end gap-[2px] h-4">
             {[0, 1, 2, 3].map((i) => (
-              <motion.div
+              <div
                 key={`${index}-${i}`}
                 className="w-[3px] rounded-full bg-amber-600/60"
-                animate={{ height: ["4px", "14px", "6px", "12px", "4px"] }}
-                transition={{ duration: 1.2, delay: i * 0.12, repeat: Infinity, ease: "easeInOut" }}
+                style={{ animation: `waveBar 1.2s ease-in-out ${i * 0.12}s infinite`, height: "4px" }}
               />
             ))}
           </div>
@@ -138,7 +137,8 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
   useEffect(() => {
     const duration = 2200;
     const startTime = Date.now();
-    const interval = setInterval(() => {
+    let raf: number;
+    const tick = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
@@ -147,9 +147,10 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
         categories: Math.floor(ease * stats.categories),
         sets: Math.floor(ease * stats.totalSets),
       });
-      if (progress === 1) clearInterval(interval);
-    }, 16);
-    return () => clearInterval(interval);
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [stats]);
 
   return (
@@ -164,10 +165,9 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
       <div className="absolute inset-0 noise-overlay" />
 
       {/* Top shimmer line */}
-      <motion.div
+      <div
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/50 to-transparent"
-        animate={{ opacity: [0.3, 0.8, 0.3] }}
-        transition={{ duration: 5, repeat: Infinity }}
+        style={{ animation: "shimmerLine 5s ease-in-out infinite" }}
       />
 
       {/* Main content */}
@@ -265,15 +265,14 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              <motion.svg
+              <svg
                 className="w-5 h-5"
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                animate={{ scale: [1, 1.15, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                style={{ animation: "playPulse 2s ease-in-out infinite" }}
               >
                 <path d="M8 5v14l11-7z" />
-              </motion.svg>
+              </svg>
               Start Quiz — It&apos;s Free
             </motion.button>
           </Link>
@@ -309,19 +308,17 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
         <CategoryRotator categories={categories} />
 
         {/* Scroll cue */}
-        <motion.div
+        <div
           className="absolute bottom-36 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 8, 0], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{ animation: "scrollCueFade 2.5s ease-in-out infinite" }}
         >
           <div className="w-5 h-8 rounded-full border border-stone-700 flex justify-center pt-1.5">
-            <motion.div
+            <div
               className="w-1 h-1.5 rounded-full bg-stone-600"
-              animate={{ y: [0, 10, 0], opacity: [1, 0.2, 1] }}
-              transition={{ duration: 2.5, repeat: Infinity }}
+              style={{ animation: "scrollDot 2.5s ease-in-out infinite" }}
             />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <WaveformVisualizer />

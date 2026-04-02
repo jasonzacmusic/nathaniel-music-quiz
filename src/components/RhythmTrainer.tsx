@@ -614,17 +614,26 @@ export default function RhythmTrainer() {
                 ? ppq / 3
                 : ppq / 4;
 
-        const animate = () => {
+        let lastStep = -1;
+        let lastFrameTime = 0;
+        const animate = (timestamp: number) => {
           if (!isPlayingRef.current) {
             setState((s) => ({ ...s, currentStep: -1, isPlaying: false }));
             return;
           }
-          const ticks = transport.ticks;
-          const currentStepCalc = Math.min(
-            Math.floor(ticks / ticksPerCell),
-            totalCells - 1
-          );
-          setState((s) => ({ ...s, currentStep: currentStepCalc }));
+          // Throttle to ~30fps (every 33ms)
+          if (timestamp - lastFrameTime >= 33) {
+            lastFrameTime = timestamp;
+            const ticks = transport.ticks;
+            const currentStepCalc = Math.min(
+              Math.floor(ticks / ticksPerCell),
+              totalCells - 1
+            );
+            if (currentStepCalc !== lastStep) {
+              lastStep = currentStepCalc;
+              setState((s) => ({ ...s, currentStep: currentStepCalc }));
+            }
+          }
           animFrameRef.current = requestAnimationFrame(animate);
         };
         animFrameRef.current = requestAnimationFrame(animate);

@@ -55,14 +55,14 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
     setQuestionStartTime(Date.now());
   }, [currentIndex, currentQuestion]);
 
-  // Timer for total time elapsed
+  // Timer for total time elapsed — stops when quiz is complete
   useEffect(() => {
+    if (isComplete) return;
     const timer = setInterval(() => {
       setTimeElapsed((prev) => prev + 1);
     }, 1000);
-
     return () => clearInterval(timer);
-  }, []);
+  }, [isComplete]);
 
   const handleAnswer = useCallback(
     (answer: string) => {
