@@ -19,6 +19,10 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Hide nav entirely on immersive/full-screen pages
+  const hiddenRoutes = ["/quiz", "/theory/quiz", "/results"];
+  const isHidden = hiddenRoutes.some((r) => pathname.startsWith(r));
+
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/#categories", label: "Topics" },
@@ -34,6 +38,8 @@ export default function Navigation() {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
+
+  if (isHidden) return null;
 
   return (
     <>

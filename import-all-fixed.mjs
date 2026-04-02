@@ -10,43 +10,54 @@ async function importCSV(file, forceQuizType) {
   const records = parse(csv, { columns: true, skip_empty_lines: true, trim: true, relax_column_count: true });
   const rows = records.filter(r => r.set_id && r.question_text && r.correct_answer);
 
-  // Insert quiz_sets
+  // Collect unique set_ids
   const setMap = new Map();
   for (const r of rows) {
     const qt = forceQuizType || r.quiz_type || 'music_theory';
     if (!setMap.has(r.set_id)) setMap.set(r.set_id, { category: r.category, count: 0, qt });
     setMap.get(r.set_id).count++;
   }
+
+  // Insert quiz_sets first, wait for all to complete
+  let setsInserted = 0;
   for (const [setId, meta] of setMap.entries()) {
     await sql`INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
       VALUES (${setId}, ${meta.qt}, ${meta.category}, ${meta.count}, ${meta.category}, ${meta.qt})
       ON CONFLICT (set_id) DO UPDATE SET num_questions = EXCLUDED.num_questions, category = EXCLUDED.category, quiz_type = EXCLUDED.quiz_type`;
+    setsInserted++;
   }
+  console.log(`  ${file}: ${setsInserted} sets created`);
 
   // Insert questions
   let inserted = 0;
+  let errors = 0;
   for (const r of rows) {
     const qt = forceQuizType || r.quiz_type || 'music_theory';
-    await sql`INSERT INTO questions (set_id, question_number, question_text, correct_answer,
-      wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url,
-      category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data)
-      VALUES (${r.set_id}, ${parseInt(r.question_number,10)||0}, ${r.question_text}, ${r.correct_answer},
-      ${r.wrong_answer_1}, ${r.wrong_answer_2}, ${r.wrong_answer_3}, ${emptyToNull(r.youtube_title)},
-      ${emptyToNull(r.youtube_url)}, ${r.video_url || ''}, ${r.category}, ${emptyToNull(r.patreon_url)},
-      ${qt}, ${r.difficulty}, ${r.explanation}, ${emptyToNull(r.improvement_note)}, ${emptyToNull(r.notation_data)})`;
-    inserted++;
-    if (inserted % 200 === 0) console.log(`  ${file}: ${inserted}...`);
+    try {
+      await sql`INSERT INTO questions (set_id, question_number, question_text, correct_answer,
+        wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url,
+        category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data)
+        VALUES (${r.set_id}, ${parseInt(r.question_number,10)||0}, ${r.question_text}, ${r.correct_answer},
+        ${r.wrong_answer_1||''}, ${r.wrong_answer_2||''}, ${r.wrong_answer_3||''}, ${emptyToNull(r.youtube_title)},
+        ${emptyToNull(r.youtube_url)}, ${r.video_url || ''}, ${r.category}, ${emptyToNull(r.patreon_url)},
+        ${qt}, ${r.difficulty||'beginner'}, ${r.explanation||''}, ${emptyToNull(r.improvement_note)}, ${emptyToNull(r.notation_data)})`;
+      inserted++;
+    } catch (e) {
+      errors++;
+      if (errors <= 3) console.error(`  Error on ${r.set_id}: ${e.message}`);
+    }
+    if (inserted % 200 === 0 && inserted > 0) console.log(`  ${file}: ${inserted} questions...`);
   }
+  if (errors > 0) console.log(`  ${file}: ${errors} errors`);
   return inserted;
 }
 
 async function main() {
-  // Clear all non-video data
+  // Clear all non-video data (preserve ear_training)
   await sql`DELETE FROM questions WHERE quiz_type != 'ear_training'`;
-  await sql`DELETE FROM quiz_sets WHERE quiz_type != 'ear_training' AND quiz_type IS NOT NULL`;
-  console.log('Cleared non-video data');
+  await sql`DELETE FROM quiz_sets WHERE quiz_type != 'ear_training'`;
+  console.log('Cleared non-video data (preserved ear_training)');
 
-  // Import each dataset
   const t1 = await importCSV('music_theory_questions.csv', 'music_theory');
   console.log(`Theory v1: ${t1}`);
 
@@ -68,9 +79,6 @@ async function main() {
   console.log('\nFINAL COUNTS:');
   all.forEach(c => { console.log(`  ${c.quiz_type}: ${c.count}`); total += parseInt(c.count); });
   console.log(`  TOTAL: ${total}`);
-
-  const withNotation = await sql`SELECT COUNT(*) as count FROM questions WHERE notation_data IS NOT NULL AND notation_data != ''`;
-  console.log(`With notation_data: ${withNotation[0].count}`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

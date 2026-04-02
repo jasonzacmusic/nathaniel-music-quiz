@@ -43,6 +43,7 @@ export default async function CategoryPage({ params }: PageProps) {
   const decodedName = decodeURIComponent(name);
   const allCategories = await getCategories();
 
+  // For video quiz instrument categories, count ear_training questions specifically
   const categoryInfo = allCategories.find(
     (cat) => cat.category.toLowerCase() === decodedName.toLowerCase()
   );

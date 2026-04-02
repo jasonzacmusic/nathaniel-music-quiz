@@ -226,9 +226,32 @@ export default function TheoryPage() {
           {/* Step 3: Start Quiz */}
           <section className="px-6 pb-12">
             <div className="max-w-4xl mx-auto">
-              <p className="text-[11px] text-amber-600/50 uppercase tracking-[0.2em] font-medium mb-6">
+              <p className="text-[11px] text-amber-600/50 uppercase tracking-[0.2em] font-medium mb-3">
                 Step 3 — Pick session length
               </p>
+              {/* Show active traditions */}
+              {(() => {
+                const weights = getTraditionWeights(sliderValue);
+                const active = Object.entries(weights)
+                  .filter(([, w]) => w > 0.05)
+                  .sort((a, b) => b[1] - a[1]);
+                const tradColors: Record<string, string> = {
+                  western: "text-amber-400", jazz: "text-violet-400",
+                  carnatic: "text-orange-400", hindustani: "text-indigo-400",
+                };
+                return (
+                  <p className="text-xs text-stone-600 mb-6">
+                    Questions from:{" "}
+                    {active.map(([name, w], i) => (
+                      <span key={name}>
+                        {i > 0 && ", "}
+                        <span className={tradColors[name]}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                        <span className="text-stone-700"> ({Math.round(w * 100)}%)</span>
+                      </span>
+                    ))}
+                  </p>
+                );
+              })()}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { count: 10, label: "Quick 10", color: "border-amber-700/25 hover:border-amber-600/40" },

@@ -351,19 +351,6 @@ export default function EarTrainingPage() {
     }
   }, [question, isLoaded, playCurrentQuestion]);
 
-  /* Keyboard shortcut: Space to replay */
-  useEffect(() => {
-    if (!activeExercise || activeExercise === "rhythm" || !question) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && e.target === document.body) {
-        e.preventDefault();
-        playCurrentQuestion();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeExercise, question, playCurrentQuestion]);
-
   /* Start exercise — auto-loads piano if needed */
   const startExercise = useCallback(
     async (type: ExerciseType) => {
@@ -405,6 +392,37 @@ export default function EarTrainingPage() {
     [question, selectedAnswer]
   );
 
+  /* Keyboard shortcuts: Space to replay, 1-4 to answer, Enter for next */
+  useEffect(() => {
+    if (!activeExercise || activeExercise === "rhythm" || !question) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target !== document.body) return;
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        playCurrentQuestion();
+        return;
+      }
+
+      // 1-4 to select answer
+      if (selectedAnswer === null) {
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= question.options.length) {
+          e.preventDefault();
+          handleAnswer(question.options[num - 1]);
+        }
+      }
+
+      // Enter for next question
+      if (selectedAnswer !== null && e.key === "Enter") {
+        e.preventDefault();
+        nextQuestion(activeExercise);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeExercise, question, selectedAnswer, playCurrentQuestion, handleAnswer, nextQuestion]);
+
   /* Go back to category selection */
   const exitExercise = useCallback(() => {
     setActiveExercise(null);
@@ -414,7 +432,7 @@ export default function EarTrainingPage() {
   }, []);
 
   return (
-    <main className="bg-[#0a0a08] text-slate-100 min-h-screen">
+    <main className="bg-[#0a0a08] text-slate-100 min-h-screen pt-16">
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(124,58,237,0.12),transparent)]" />
@@ -469,6 +487,15 @@ export default function EarTrainingPage() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
             >
+              <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6">
+                <button
+                  onClick={exitExercise}
+                  className="flex items-center gap-2 text-stone-500 hover:text-stone-300 transition-colors text-sm mb-4"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to exercises
+                </button>
+              </div>
               <RhythmTrainer />
             </motion.div>
           ) : activeExercise && question ? (

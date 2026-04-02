@@ -29,10 +29,12 @@ export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps
     totalQuestions,
     score,
     streak,
+    bestStreak,
     answered,
     selectedAnswer,
     isCorrect,
     timeElapsed,
+    questionTimes,
     handleAnswer,
     nextQuestion,
   } = useQuiz({ questions });
@@ -70,13 +72,36 @@ export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps
 
   const handleNextQuestion = useCallback(() => {
     if (isLastQuestion && answered) {
-      const resultData = { score, total: totalQuestions, timeElapsed, setId: "theory" };
+      const resultData = { score, total: totalQuestions, timeElapsed, setId: title || "theory", bestStreak, questionTimes };
       sessionStorage.setItem("quizResults", JSON.stringify(resultData));
       router.push("/results");
     } else {
       nextQuestion();
     }
-  }, [isLastQuestion, answered, score, totalQuestions, timeElapsed, router, nextQuestion]);
+  }, [isLastQuestion, answered, score, totalQuestions, timeElapsed, title, bestStreak, questionTimes, router, nextQuestion]);
+
+  // Keyboard shortcuts: 1-4 to select answers, Enter/Space for next
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target !== document.body) return;
+      if (!currentQuestion) return;
+
+      if (!answered && showAnswers) {
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= currentQuestion.answers.length) {
+          e.preventDefault();
+          handleAnswer(currentQuestion.answers[num - 1]);
+        }
+      }
+
+      if (answered && showPostAnswer && (e.key === "Enter" || e.code === "Space")) {
+        e.preventDefault();
+        handleNextQuestion();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentQuestion, answered, showAnswers, showPostAnswer, handleAnswer, handleNextQuestion]);
 
   const getAnswerState = (answer: string): "default" | "correct" | "wrong" | "reveal" => {
     if (!answered || !currentQuestion) return "default";

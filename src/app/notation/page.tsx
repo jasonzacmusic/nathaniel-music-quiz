@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, ArrowRight, RotateCcw, BookOpen, Layers, Hash, Award, Loader2 } from "lucide-react";
+import { Music, ArrowRight, BookOpen, Layers, Hash, Award, Loader2, ChevronLeft, Clock } from "lucide-react";
+import { formatTime } from "@/lib/utils";
 import AnswerButton from "@/components/AnswerButton";
 import NotationRenderer from "@/components/NotationRenderer";
 
@@ -35,6 +37,7 @@ const DEFAULT_STYLE = { icon: Music, desc: "Staff notation questions", color: "f
 type AnswerState = "default" | "correct" | "wrong" | "reveal";
 
 export default function NotationPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -47,10 +50,23 @@ export default function NotationPage() {
   const [answerStates, setAnswerStates] = useState<Record<string, AnswerState>>({});
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [timeElapsed, setTimeElapsed] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentQuestion = questions[currentIndex];
+
+  // Timer
+  useEffect(() => {
+    if (quizStarted && !quizFinished) {
+      timerRef.current = setInterval(() => setTimeElapsed((t) => t + 1), 1000);
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }
+    if (timerRef.current) clearInterval(timerRef.current);
+  }, [quizStarted, quizFinished]);
 
   // Fetch categories and stats on mount
   useEffect(() => {
@@ -73,6 +89,9 @@ export default function NotationPage() {
     setAnswerStates({});
     setScore(0);
     setAnswered(0);
+    setStreak(0);
+    setBestStreak(0);
+    setTimeElapsed(0);
     setQuizFinished(false);
     setLoadingQuestions(true);
 
@@ -101,9 +120,15 @@ export default function NotationPage() {
     if (isCorrect) {
       newStates[answer] = "correct";
       setScore((s) => s + 1);
+      setStreak((s) => {
+        const next = s + 1;
+        setBestStreak((b) => Math.max(b, next));
+        return next;
+      });
     } else {
       newStates[answer] = "wrong";
       newStates[currentQuestion.correct_answer] = "reveal";
+      setStreak(0);
     }
 
     setAnswerStates(newStates);
@@ -112,13 +137,15 @@ export default function NotationPage() {
 
   const handleNext = useCallback(() => {
     if (currentIndex >= questions.length - 1) {
-      setQuizFinished(true);
+      const resultData = { score, total: questions.length, timeElapsed, setId: "notation", bestStreak };
+      sessionStorage.setItem("quizResults", JSON.stringify(resultData));
+      router.push("/results");
       return;
     }
     setCurrentIndex((i) => i + 1);
     setSelectedAnswer(null);
     setAnswerStates({});
-  }, [currentIndex, questions.length]);
+  }, [currentIndex, questions.length, score, timeElapsed, bestStreak, router]);
 
   const handleRestart = useCallback(() => {
     setQuestions([]);
@@ -131,9 +158,33 @@ export default function NotationPage() {
     setQuizStarted(false);
   }, []);
 
+  // Keyboard shortcuts: 1-4 to select answers, Enter/Space for next
+  useEffect(() => {
+    if (!quizStarted || quizFinished) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target !== document.body) return;
+      if (!currentQuestion) return;
+
+      if (!selectedAnswer) {
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= currentQuestion.answers.length) {
+          e.preventDefault();
+          handleAnswer(currentQuestion.answers[num - 1]);
+        }
+      }
+
+      if (selectedAnswer && (e.key === "Enter" || e.code === "Space")) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [quizStarted, quizFinished, currentQuestion, selectedAnswer, handleAnswer, handleNext]);
+
   return (
     <>
-      <div className="min-h-screen bg-[#0a0a08] text-white">
+      <div className="min-h-screen bg-[#0a0a08] text-white pt-16">
         {/* Background effects */}
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
@@ -250,66 +301,50 @@ export default function NotationPage() {
                 </div>
               </motion.div>
             </>
-          ) : quizFinished ? (
-            /* Results */
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-lg mx-auto text-center"
-            >
-              <div className="p-8 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md">
-                <div className="text-6xl mb-4">
-                  {score >= 9 ? "🏆" : score >= 7 ? "🌟" : score >= 5 ? "👏" : "📚"}
-                </div>
-                <h2 className="font-display font-700 text-3xl mb-2">
-                  {score >= 9 ? "Outstanding!" : score >= 7 ? "Great Work!" : score >= 5 ? "Good Effort!" : "Keep Practicing!"}
-                </h2>
-                <p className="text-white/50 mb-6">
-                  You scored <span className="text-amber-400 font-700">{score}</span> out of{" "}
-                  <span className="text-white/70 font-700">{questions.length}</span>
-                </p>
-
-                <div className="flex items-center justify-center gap-3 mb-8">
-                  <div className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <div className="text-2xl font-display font-700 text-amber-400">
-                      {Math.round((score / questions.length) * 100)}%
-                    </div>
-                    <div className="text-xs text-white/40">Accuracy</div>
-                  </div>
-                  <div className="px-4 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
-                    <div className="text-2xl font-display font-700 text-violet-400">{answered}</div>
-                    <div className="text-xs text-white/40">Answered</div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleRestart}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-display font-700 hover:from-amber-400 hover:to-orange-400 transition-all duration-300"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Try Again
-                </button>
-              </div>
-            </motion.div>
           ) : quizStarted && currentQuestion ? (
             /* Quiz Player */
             <div className="max-w-2xl mx-auto">
+              {/* Top bar with back, progress, timer, score */}
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  onClick={handleRestart}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-white/60 hover:text-white transition-colors text-sm"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:block text-[11px]">Back</span>
+                </button>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-display font-700 text-white">
+                    {currentIndex + 1}<span className="text-white/40 font-normal"> / {questions.length}</span>
+                  </span>
+                  <div className="w-px h-3.5 bg-white/15" />
+                  <Clock className="w-3 h-3 text-white/30" />
+                  <span className="text-[11px] tabular-nums text-white/40">{formatTime(timeElapsed)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-display font-700 text-amber-400">{score}</span>
+                  <span className="text-white/30 text-xs">/</span>
+                  <span className="text-white/40 text-xs">{answered}</span>
+                  {streak >= 2 && (
+                    <motion.span
+                      key={`streak-${streak}`}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="ml-0.5 text-[11px] text-amber-400 font-display font-700"
+                    >
+                      {streak}x
+                    </motion.span>
+                  )}
+                </div>
+              </div>
+
               {/* Progress bar */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/40 text-sm font-medium">
-                    Question {currentIndex + 1} of {questions.length}
-                  </span>
-                  <span className="text-amber-400 text-sm font-display font-700">
-                    Score: {score}/{answered}
-                  </span>
-                </div>
                 <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
                     initial={{ width: 0 }}
-                    animate={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                    animate={{ width: `${((currentIndex + (selectedAnswer ? 1 : 0)) / questions.length) * 100}%` }}
                     transition={{ duration: 0.4 }}
                   />
                 </div>

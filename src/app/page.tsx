@@ -16,11 +16,12 @@ export default async function Home() {
     // DB unavailable — render with empty state
   }
 
-  // Video quiz instrument categories
+  // Video quiz instrument categories — use real counts from DB
+  const catCount = (name: string) => categories.find(c => c.category.toLowerCase() === name.toLowerCase())?.count || 0;
   const instrumentCategories = [
     {
       name: "Piano",
-      count: 310,
+      count: catCount("Piano"),
       icon: (
         <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
@@ -33,7 +34,7 @@ export default async function Home() {
     },
     {
       name: "Bass",
-      count: 10,
+      count: catCount("Bass"),
       icon: (
         <svg className="w-8 h-8 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
@@ -46,7 +47,7 @@ export default async function Home() {
     },
     {
       name: "Whistle",
-      count: 6,
+      count: catCount("Whistle"),
       icon: (
         <svg className="w-8 h-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />

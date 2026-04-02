@@ -21,7 +21,8 @@
     "react-dom": "^18",
     "resend": "^6.10.0",
     "tone": "^15.1.22",
-    "vexflow": "^5.0.0"
+    "vexflow": "^5.0.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",

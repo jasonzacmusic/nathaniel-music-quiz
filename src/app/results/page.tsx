@@ -13,6 +13,8 @@ interface QuizResults {
   total: number;
   timeElapsed: number;
   setId: string;
+  bestStreak?: number;
+  questionTimes?: number[];
 }
 
 const tierData = (percentage: number) => {
@@ -214,13 +216,14 @@ export default function ResultsPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.65, duration: 0.5 }}
-            className="grid grid-cols-4 gap-2 mb-8"
+            className={`grid ${results.bestStreak ? "grid-cols-5" : "grid-cols-4"} gap-2 mb-8`}
           >
             {[
               { label: "Time", value: formatTime(results.timeElapsed), color: "text-white" },
               { label: "Per Q", value: `${avgTime}s`, color: "text-violet-400" },
               { label: "Correct", value: String(results.score), color: "text-amber-400" },
               { label: "Missed", value: String(results.total - results.score), color: "text-rose-400" },
+              ...(results.bestStreak ? [{ label: "Streak", value: String(results.bestStreak), color: "text-orange-400" }] : []),
             ].map((stat, i) => (
               <div key={i} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
                 <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-1 font-medium">{stat.label}</p>

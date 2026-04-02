@@ -225,7 +225,7 @@ export async function getCategories(): Promise<Category[]> {
       category,
       COUNT(*) as count
     FROM questions
-    WHERE category IS NOT NULL AND category != ''
+    WHERE category IS NOT NULL AND category != '' AND quiz_type = 'ear_training'
     GROUP BY category
     ORDER BY count DESC
   `;

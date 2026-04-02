@@ -41,7 +41,6 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
 
   const currentQuestion = questions[currentIndex] || null;
   const totalQuestions = questions.length;
-  const isComplete = currentIndex >= totalQuestions && answered;
 
   // Initialize shuffled answers when current question changes
   useEffect(() => {
@@ -56,6 +55,8 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
   }, [currentIndex, currentQuestion]);
 
   // Timer for total time elapsed — stops when quiz is complete
+  const isComplete = currentIndex >= totalQuestions && answered;
+
   useEffect(() => {
     if (isComplete) return;
     const timer = setInterval(() => {

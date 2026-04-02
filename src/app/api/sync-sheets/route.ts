@@ -3,6 +3,7 @@ import sql from "@/lib/db";
 
 const SPREADSHEET_ID = "1QpCaISHeccQga17igp3ekDz-nJUFwsgSOi2wwXQLyJ8";
 const SHEET_GIDS = [
+  { gid: "0", name: "Video Ear Training" },
   { gid: "741041831", name: "Theory Quiz v1" },
   { gid: "113832903", name: "Theory Quiz v2" },
   { gid: "1865314571", name: "Indian Music Theory" },
@@ -113,12 +114,22 @@ function normalizeRow(row: Record<string, string>): QuestionRow | null {
   const setId = row.set_id?.trim();
   const questionText = row.question_text?.trim();
   const correctAnswer = row.correct_answer?.trim();
-  const category = row.category?.trim();
+  // Video quiz sheet uses "quiz_mode" as category (e.g. "piano", "bass")
+  const category = row.category?.trim() || row.quiz_mode?.trim();
 
   if (!setId || !questionText || !correctAnswer || !category) return null;
 
   const emptyToNull = (v: string | undefined) =>
     !v || v.trim() === "" ? null : v.trim();
+
+  // Detect video quiz rows: they have quiz_mode (piano/bass) and video_url with CDN links,
+  // but no quiz_type column. Capitalize category for display (e.g. "piano" → "Piano").
+  const hasVideoUrl = row.video_url?.trim() && row.video_url.trim().length > 5;
+  const isVideoQuiz = !row.quiz_type && row.quiz_mode && hasVideoUrl;
+
+  const displayCategory = isVideoQuiz
+    ? category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
+    : category;
 
   return {
     set_id: setId,
@@ -128,15 +139,15 @@ function normalizeRow(row: Record<string, string>): QuestionRow | null {
     wrong_answer_1: row.wrong_answer_1?.trim() || "",
     wrong_answer_2: row.wrong_answer_2?.trim() || "",
     wrong_answer_3: row.wrong_answer_3?.trim() || "",
-    category,
-    quiz_type: row.quiz_type?.trim() || "music_theory",
+    category: displayCategory,
+    quiz_type: isVideoQuiz ? "ear_training" : (row.quiz_type?.trim() || "music_theory"),
     difficulty: row.difficulty?.trim() || "beginner",
     explanation: row.explanation?.trim() || "",
     improvement_note: emptyToNull(row.improvement_note),
     youtube_url: emptyToNull(row.youtube_url),
     youtube_title: emptyToNull(row.youtube_title),
     video_url: row.video_url?.trim() || "",
-    patreon_url: emptyToNull(row.patreon_url),
+    patreon_url: emptyToNull(row.patreon_url || row["Patreon Link"]),
     notation_data: emptyToNull(row.notation_data),
   };
 }
@@ -177,7 +188,7 @@ export async function POST(request: NextRequest) {
     const uniqueRows = Array.from(seen.values());
 
     // SAFETY: Validate data quality before importing
-    const SAFE_SYNC_TYPES = ["music_theory", "indian_classical", "staff_notation", "ear_training_text"];
+    const SAFE_SYNC_TYPES = ["ear_training", "music_theory", "indian_classical", "staff_notation", "ear_training_text"];
 
     // Filter out any rows with invalid quiz_type (answer text leaking into wrong column)
     const validRows = uniqueRows.filter(r => SAFE_SYNC_TYPES.includes(r.quiz_type));
@@ -201,9 +212,10 @@ export async function POST(request: NextRequest) {
     // Use validRows from here
     const uniqueRowsFinal = validRows;
 
-    // Clear all data safely (TRUNCATE avoids FK issues)
-    await sql`TRUNCATE TABLE questions CASCADE`;
-    await sql`TRUNCATE TABLE quiz_sets CASCADE`;
+    // Only delete questions/sets for the quiz types we're about to re-import.
+    // This preserves video-based ear_training data (and any other types not in this sync).
+    await sql`DELETE FROM questions WHERE quiz_type = ANY(${SAFE_SYNC_TYPES})`;
+    await sql`DELETE FROM quiz_sets WHERE quiz_type = ANY(${SAFE_SYNC_TYPES})`;
 
     // Collect unique set_ids
     const setMap = new Map<string, { category: string; count: number }>();

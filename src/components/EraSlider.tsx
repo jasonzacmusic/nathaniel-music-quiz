@@ -278,7 +278,7 @@ export default function EraSlider({ value, onChange }: EraSliderProps) {
           />
         </div>
 
-        {/* Active zone topics */}
+        {/* Active zone topics + blend indicator */}
         <motion.div
           key={activeZone.name}
           initial={{ opacity: 0 }}
@@ -286,9 +286,26 @@ export default function EraSlider({ value, onChange }: EraSliderProps) {
           transition={{ duration: 0.3 }}
           className="text-center"
         >
-          <p className="text-[11px] text-stone-500 leading-relaxed">
+          <p className="text-[11px] text-stone-500 leading-relaxed mb-2">
             {activeZone.topics}
           </p>
+          {/* Show blend when between zones */}
+          {(() => {
+            const blended = ZONES.filter((_, i) => i !== activeZoneIndex && zoneOpacities[i] > 0.15);
+            if (blended.length === 0) return null;
+            return (
+              <p className="text-[10px] text-stone-600">
+                + blending with{" "}
+                {blended.map((z, i) => (
+                  <span key={z.name}>
+                    {i > 0 && " & "}
+                    <span className={z.textColor}>{z.name}</span>
+                    <span className="text-stone-700"> ({Math.round(zoneOpacities[ZONES.indexOf(z)] * 100)}%)</span>
+                  </span>
+                ))}
+              </p>
+            );
+          })()}
         </motion.div>
       </div>
 
