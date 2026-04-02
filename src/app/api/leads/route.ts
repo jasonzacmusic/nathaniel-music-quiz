@@ -56,17 +56,22 @@ export async function POST(request: NextRequest) {
       message: message ? message.trim() : undefined,
     });
 
-    // Also append to Google Sheets (non-blocking, don't fail the request if this errors)
+    // Also append to Google Sheets (await it so Vercel Edge doesn't kill it before completion)
     const leadId = crypto.randomUUID();
-    appendToSheet('Quiz', [
-      new Date().toISOString(),
-      name.trim(),
-      email.trim(),
-      phone ? phone.trim() : '',
-      instrument ? instrument.trim() : '',
-      message ? message.trim() : '',
-      leadId,
-    ]).catch((err) => console.error('Sheet append failed:', err));
+    try {
+      await appendToSheet('Quiz', [
+        new Date().toISOString(),
+        name.trim(),
+        email.trim(),
+        phone ? phone.trim() : '',
+        instrument ? instrument.trim() : '',
+        message ? message.trim() : '',
+        leadId,
+      ]);
+    } catch (err) {
+      console.error('Sheet append failed:', err);
+      // We don't throw here so the user still gets a success response since the DB save worked
+    }
 
     return NextResponse.json({
       success: true,
