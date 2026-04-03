@@ -214,21 +214,36 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         // Calculate dimensions
         const noteCount = parsed.notes.length;
         const hasKeySig = parsed.keySignature !== "C";
-        const keySigSpace = hasKeySig ? 40 : 0;
+        const keySigSpace = hasKeySig ? 45 : 0;
+        const isChord = noteCount === 1 && parsed.notes[0].keys.length > 1;
+        const hasAccidentals = parsed.notes.some(n => n.accidentals && n.accidentals.length > 0);
+        const accidentalSpace = hasAccidentals ? 20 : 0;
         const clefSpace = 50;
         let staveWidth: number;
 
         if (parsed.hasKeySignatureOnly) {
+          // Key signature only — compact
           staveWidth = clefSpace + keySigSpace + 40;
+        } else if (isChord) {
+          // Single chord — needs room for accidentals but not too wide
+          staveWidth = clefSpace + keySigSpace + accidentalSpace + 70;
         } else if (noteCount <= 1) {
-          staveWidth = clefSpace + keySigSpace + 60;
+          // Single note
+          staveWidth = clefSpace + keySigSpace + accidentalSpace + 55;
         } else if (noteCount <= 4) {
-          staveWidth = clefSpace + keySigSpace + noteCount * 55;
+          // Short sequence (intervals displayed as sequence)
+          staveWidth = clefSpace + keySigSpace + noteCount * 50 + accidentalSpace;
         } else {
-          staveWidth = clefSpace + keySigSpace + noteCount * 40 + 30;
+          // Scales — give generous width so notes breathe
+          staveWidth = clefSpace + keySigSpace + noteCount * 35 + 40;
         }
 
-        staveWidth = Math.min(staveWidth, width - 20);
+        // Allow scales to use full available width
+        const maxWidth = noteCount > 4 ? width - 10 : width - 20;
+        staveWidth = Math.min(staveWidth, maxWidth);
+        // Scales: use at least 80% of available width
+        if (noteCount > 5) staveWidth = Math.max(staveWidth, Math.min(maxWidth, 300));
+
         const svgHeight = 180;
         const svgWidth = Math.max(staveWidth + 30, 180);
 
@@ -278,15 +293,14 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
             autoStem: true,
           });
 
-          // Professional ledger line styling — thin, proportional
+          // Ledger line pre-styling (post-render CSS fixes the width)
           note.setLedgerLineStyle({
-            strokeStyle: "#555",
+            strokeStyle: "#444",
             lineWidth: 1.0,
-            // Note: VexFlow controls ledger line length based on note head width
           });
 
-          // Note head styling
-          note.setStyle({ strokeStyle: "#222", fillStyle: "#222" });
+          // Crisp note head styling
+          note.setStyle({ strokeStyle: "#1a1a1a", fillStyle: "#1a1a1a" });
 
           if (n.accidentals) {
             for (const acc of n.accidentals) {
@@ -306,22 +320,54 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         voice.setStrict(false);
         voice.addTickables(vexNotes);
 
-        // Tight formatting for clean spacing
+        // Format width: tight for single notes, spacious for scales
+        const availableWidth = staveWidth - clefSpace - keySigSpace;
         const formatWidth = noteCount <= 1
-          ? 40
+          ? Math.max(40, availableWidth * 0.6)
           : noteCount <= 4
-            ? Math.max(60, (staveWidth - clefSpace - keySigSpace) * 0.85)
-            : staveWidth - clefSpace - keySigSpace - 15;
+            ? Math.max(60, availableWidth * 0.85)
+            : availableWidth - 10;
 
         new Formatter().joinVoices([voice]).format([voice], formatWidth);
         voice.draw(context, stave);
 
-        // Post-render: style SVG for crisp rendering
+        // Post-render SVG quality enhancements
         const svg = el.querySelector("svg");
         if (svg) {
           svg.style.maxWidth = "100%";
           svg.style.height = "auto";
           svg.setAttribute("shape-rendering", "geometricPrecision");
+
+          // Fix ledger lines: VexFlow draws them too wide by default.
+          // Shorten them to ~1.6x note head width (theory standard).
+          svg.querySelectorAll(".vf-ledger-line, [class*='ledger']").forEach(line => {
+            const pathEl = line as SVGElement;
+            pathEl.setAttribute("stroke-width", "1.0");
+            pathEl.setAttribute("stroke", "#444");
+          });
+
+          // Also target ledger lines by their characteristic: short horizontal
+          // lines drawn outside the staff. VexFlow renders them as <path> or <line>.
+          svg.querySelectorAll("line").forEach(line => {
+            const y1 = parseFloat(line.getAttribute("y1") || "0");
+            const y2 = parseFloat(line.getAttribute("y2") || "0");
+            const x1 = parseFloat(line.getAttribute("x1") || "0");
+            const x2 = parseFloat(line.getAttribute("x2") || "0");
+            const isHorizontal = Math.abs(y1 - y2) < 0.5;
+            const lineLen = Math.abs(x2 - x1);
+
+            // Ledger lines are short horizontal lines (typically 15-30px)
+            // Staff lines span the full stave width (much longer)
+            if (isHorizontal && lineLen > 10 && lineLen < 50) {
+              // Shorten by 25% on each side
+              const cx = (x1 + x2) / 2;
+              const newHalf = lineLen * 0.38; // ~76% of original
+              line.setAttribute("x1", String(cx - newHalf));
+              line.setAttribute("x2", String(cx + newHalf));
+              line.setAttribute("stroke-width", "1.0");
+              line.setAttribute("stroke", "#444");
+            }
+          });
         }
       } catch (e) {
         console.error("VexFlow render error:", e);
