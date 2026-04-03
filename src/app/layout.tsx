@@ -20,22 +20,25 @@ const inter = Inter({
 });
 
 const siteUrl = "https://quiz.nathanielschool.com";
-const siteTitle = "Sonic Studio — Ear Training & Music Theory | Nathaniel School";
+const siteTitle = "Music Quiz — Ear Training, Theory & Notation | Nathaniel School of Music";
 const siteDescription =
-  "Train your ear with real video lessons, music theory across 4 traditions, staff notation, and interactive exercises. 2,000+ questions. Free.";
+  "Free music quiz with 2,000+ questions. Video ear training, music theory, Indian classical, staff notation, and interactive piano exercises. Grow as a musician.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteTitle,
-    template: "%s | Sonic Studio",
+    template: "%s | Nathaniel Music Quiz",
   },
   description: siteDescription,
   keywords: [
-    "ear training", "music theory quiz", "modes by ear", "chord progressions",
-    "odd time signatures", "secondary dominants", "jazz extensions", "interval training",
-    "Nathaniel School of Music", "music education", "Dorian Mixolydian", "bass piano lessons",
-    "staff notation", "piano ear training", "music quiz",
+    "music quiz", "ear training quiz", "music theory quiz", "free music quiz",
+    "interval training", "chord identification", "staff notation quiz",
+    "video ear training", "piano ear training", "bass ear training",
+    "modes by ear", "chord progressions", "jazz theory quiz",
+    "Carnatic music quiz", "Hindustani music quiz", "Indian classical theory",
+    "sight reading", "music education", "learn music online",
+    "Nathaniel School of Music", "interactive music quiz",
   ],
   authors: [{ name: "Nathaniel School of Music", url: "https://nathanielschool.com" }],
   creator: "Nathaniel School of Music",
@@ -45,13 +48,13 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "Nathaniel School of Music",
     title: siteTitle,
-    description: "Your one-stop music quiz — ear training, music theory, staff notation, and sound-based exercises. 400+ questions. Free.",
+    description: siteDescription,
     images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: siteTitle }],
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
-    description: "Your one-stop music quiz — ear training, music theory, staff notation, and sound-based exercises. 400+ questions. Free.",
+    description: siteDescription,
     images: [`${siteUrl}/opengraph-image`],
     creator: "@nathanielschool",
   },
