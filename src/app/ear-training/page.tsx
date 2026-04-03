@@ -228,28 +228,28 @@ const CATEGORIES: {
   {
     id: "single-notes",
     title: "Single Notes",
-    description: "Identify the note played",
+    description: "Identify the note being played on the piano",
     icon: <Music className="w-6 h-6" />,
-    gradient: "from-cyan-500/20 to-blue-500/10",
-    border: "border-cyan-500/20",
+    gradient: "from-cyan-500/30 to-blue-600/15",
+    border: "border-cyan-400/30",
     detail: "12 notes across the chromatic scale",
   },
   {
     id: "intervals",
     title: "Intervals",
-    description: "Hear two notes, name the interval",
+    description: "Hear two notes, name the distance between them",
     icon: <BarChart3 className="w-6 h-6" />,
-    gradient: "from-violet-500/20 to-purple-500/10",
-    border: "border-violet-500/20",
+    gradient: "from-violet-500/30 to-purple-600/15",
+    border: "border-violet-400/30",
     detail: "Minor 2nd through Octave",
   },
   {
     id: "triads",
     title: "Triads",
-    description: "Identify Major, Minor, Dim, Aug",
+    description: "Major, Minor, Diminished, Augmented",
     icon: <Layers className="w-6 h-6" />,
-    gradient: "from-amber-500/20 to-orange-500/10",
-    border: "border-amber-500/20",
+    gradient: "from-amber-500/30 to-orange-600/15",
+    border: "border-amber-400/30",
     detail: "4 triad qualities",
   },
   {
@@ -257,35 +257,35 @@ const CATEGORIES: {
     title: "Seventh Chords",
     description: "Maj7, Min7, Dom7, Dim7 and more",
     icon: <Zap className="w-6 h-6" />,
-    gradient: "from-rose-500/20 to-pink-500/10",
-    border: "border-rose-500/20",
+    gradient: "from-rose-500/30 to-pink-600/15",
+    border: "border-rose-400/30",
     detail: "6 seventh chord types",
   },
   {
     id: "scales",
-    title: "Scales",
-    description: "Hear a scale, identify it",
+    title: "Scales & Modes",
+    description: "Hear a scale, identify which one it is",
     icon: <Headphones className="w-6 h-6" />,
-    gradient: "from-emerald-500/20 to-teal-500/10",
-    border: "border-emerald-500/20",
-    detail: "Major, Minor, Modes and more",
+    gradient: "from-emerald-500/30 to-teal-600/15",
+    border: "border-emerald-400/30",
+    detail: "Major, Minor, Dorian, Mixolydian and more",
   },
   {
     id: "rhythm",
     title: "Rhythm",
-    description: "Identify subdivisions and patterns",
+    description: "Identify subdivisions and rhythmic patterns",
     icon: <Timer className="w-6 h-6" />,
-    gradient: "from-orange-500/20 to-red-500/10",
-    border: "border-orange-500/20",
+    gradient: "from-orange-500/30 to-red-600/15",
+    border: "border-orange-400/30",
     detail: "Quavers, triplets, semiquavers",
   },
   {
     id: "progressions",
     title: "Progressions",
-    description: "Identify chord progressions",
+    description: "Identify chord progressions by ear",
     icon: <GitBranch className="w-6 h-6" />,
-    gradient: "from-indigo-500/20 to-blue-500/10",
-    border: "border-indigo-500/20",
+    gradient: "from-indigo-500/30 to-blue-600/15",
+    border: "border-indigo-400/30",
     detail: "Common 4-chord patterns",
   },
 ];
@@ -340,14 +340,31 @@ export default function EarTrainingPage() {
     []
   );
 
-  /* Auto-play when question changes and piano is loaded */
+  const [playCount, setPlayCount] = useState(0);
+  const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* Auto-play 3 times when question changes — student doesn't have to keep hitting play */
   useEffect(() => {
+    if (!question || !isLoaded || !questionPlayedRef.current === false) {
+      // do nothing
+    }
     if (question && isLoaded && !questionPlayedRef.current) {
-      const timer = setTimeout(() => {
-        playCurrentQuestion();
-        questionPlayedRef.current = true;
-      }, 600);
-      return () => clearTimeout(timer);
+      questionPlayedRef.current = true;
+      setPlayCount(0);
+
+      const playSequentially = (count: number) => {
+        if (count >= 3) return;
+        autoPlayTimerRef.current = setTimeout(() => {
+          playCurrentQuestion();
+          setPlayCount(count + 1);
+          playSequentially(count + 1);
+        }, count === 0 ? 600 : 2500);
+      };
+
+      playSequentially(0);
+      return () => {
+        if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+      };
     }
   }, [question, isLoaded, playCurrentQuestion]);
 
@@ -568,17 +585,39 @@ export default function EarTrainingPage() {
                       } : {}}
                       whileHover={{ scale: 1.08 }}
                       whileTap={{ scale: 0.92 }}
-                      onClick={playCurrentQuestion}
-                      className="relative group flex items-center gap-3 px-10 py-5 rounded-2xl font-display font-700 text-xl bg-gradient-to-br from-violet-600 to-violet-700 text-white hover:from-violet-500 hover:to-violet-600 transition-all"
-                      style={{ boxShadow: "0 0 30px rgba(124,58,237,0.35)" }}
+                      onClick={() => { playCurrentQuestion(); setPlayCount(p => p + 1); }}
+                      className="relative group flex items-center gap-3 px-10 py-5 rounded-2xl font-display font-700 text-xl text-white transition-all"
+                      style={{
+                        background: "linear-gradient(135deg, #7c3aed, #6d28d9, #06b6d4)",
+                        boxShadow: "0 0 30px rgba(124,58,237,0.35), 0 0 60px rgba(6,182,212,0.15)",
+                      }}
                     >
                       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                       <Volume2 className="w-7 h-7" />
                       {selectedAnswer !== null ? "Replay Sound" : "Play Sound"}
                     </motion.button>
-                    <span className="text-stone-600 text-xs mt-3 tracking-wide">
-                      Press <kbd className="px-1.5 py-0.5 rounded border border-stone-700 bg-stone-800 text-stone-400 text-[10px] font-mono">Space</kbd> to replay
-                    </span>
+                    <div className="flex items-center gap-3 mt-3">
+                      {/* Play count dots */}
+                      <div className="flex items-center gap-1.5">
+                        {[1, 2, 3].map(n => (
+                          <motion.div
+                            key={n}
+                            className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                              playCount >= n ? "bg-violet-400" : "bg-stone-800"
+                            }`}
+                            animate={playCount >= n ? { scale: [1, 1.3, 1] } : {}}
+                            transition={{ duration: 0.3 }}
+                          />
+                        ))}
+                        <span className="text-stone-600 text-[10px] ml-1">
+                          {playCount === 0 ? "auto-plays 3x" : `played ${playCount}x`}
+                        </span>
+                      </div>
+                      <span className="text-stone-800">|</span>
+                      <span className="text-stone-600 text-[10px] tracking-wide">
+                        <kbd className="px-1.5 py-0.5 rounded border border-stone-700 bg-stone-800 text-stone-400 text-[10px] font-mono">Space</kbd> replay
+                      </span>
+                    </div>
                   </>
                 )}
               </div>
@@ -602,22 +641,18 @@ export default function EarTrainingPage() {
               <div className="grid grid-cols-2 gap-3 mb-10">
                 {question.options.map((option, idx) => {
                   let btnClass =
-                    "relative px-5 py-4 rounded-xl border text-left font-display font-600 text-sm transition-all ";
+                    "relative px-5 py-4 rounded-xl border-2 text-left font-display font-600 text-sm transition-all duration-200 ";
 
                   if (selectedAnswer === null) {
-                    // Unanswered
                     btnClass +=
-                      "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.15] text-stone-200 cursor-pointer";
+                      "border-violet-500/15 bg-violet-500/[0.04] hover:bg-violet-500/[0.10] hover:border-violet-400/30 text-stone-200 cursor-pointer hover:shadow-lg hover:shadow-violet-900/20";
                   } else if (option === question.correctAnswer) {
-                    // Correct answer highlight
                     btnClass +=
-                      "border-emerald-500/40 bg-emerald-500/[0.12] text-emerald-300";
+                      "border-emerald-400/50 bg-emerald-500/[0.15] text-emerald-300 shadow-lg shadow-emerald-900/20";
                   } else if (option === selectedAnswer && !isCorrect) {
-                    // Wrong answer highlight
                     btnClass +=
-                      "border-red-500/40 bg-red-500/[0.12] text-red-300";
+                      "border-red-400/50 bg-red-500/[0.15] text-red-300";
                   } else {
-                    // Other options after answering
                     btnClass +=
                       "border-white/[0.04] bg-white/[0.01] text-stone-600";
                   }
@@ -627,18 +662,23 @@ export default function EarTrainingPage() {
                       key={option}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
+                      transition={{ delay: idx * 0.06 }}
+                      whileHover={selectedAnswer === null ? { scale: 1.03, y: -2 } : {}}
+                      whileTap={selectedAnswer === null ? { scale: 0.97 } : {}}
                       onClick={() => handleAnswer(option)}
                       disabled={selectedAnswer !== null}
                       className={btnClass}
                     >
                       <span className="relative z-10 flex items-center gap-2">
-                        {selectedAnswer !== null && option === question.correctAnswer && (
-                          <Check className="w-4 h-4 text-emerald-400" />
-                        )}
-                        {selectedAnswer === option && !isCorrect && (
-                          <X className="w-4 h-4 text-red-400" />
-                        )}
+                        <span className="w-5 h-5 rounded-md bg-white/[0.06] flex items-center justify-center text-[10px] font-700 text-stone-500 flex-shrink-0">
+                          {selectedAnswer !== null && option === question.correctAnswer ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : selectedAnswer === option && !isCorrect ? (
+                            <X className="w-3.5 h-3.5 text-red-400" />
+                          ) : (
+                            idx + 1
+                          )}
+                        </span>
                         {option}
                       </span>
                     </motion.button>
@@ -769,32 +809,36 @@ export default function EarTrainingPage() {
                   {CATEGORIES.map((cat, idx) => (
                     <motion.button
                       key={cat.id}
-                      initial={{ opacity: 0, y: 16 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.1 + idx * 0.07 }}
-                      whileHover={{ scale: 1.03, y: -4 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.04, y: -6 }}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => startExercise(cat.id)}
-                      className={`group relative text-left p-5 rounded-2xl border ${cat.border} bg-gradient-to-br ${cat.gradient} backdrop-blur-sm transition-all hover:shadow-card-hover overflow-hidden`}
+                      className={`group relative text-left p-6 rounded-2xl border-2 ${cat.border} bg-gradient-to-br ${cat.gradient} backdrop-blur-sm transition-all overflow-hidden`}
+                      style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.2)" }}
                     >
-                      {/* Glow blob */}
-                      <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity bg-white/10" />
+                      {/* Glow blob — more colorful */}
+                      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 bg-gradient-to-br from-white/20 to-transparent" />
 
                       <div className="relative">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="p-2 rounded-lg bg-white/[0.06] border border-white/[0.06] text-stone-300 group-hover:text-white transition-colors">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="p-2.5 rounded-xl bg-white/[0.08] border border-white/[0.08] text-white/70 group-hover:text-white group-hover:bg-white/[0.12] transition-all">
                             {cat.icon}
                           </div>
-                          <Play className="w-4 h-4 text-stone-600 group-hover:text-stone-300 transition-colors" />
+                          <div className="flex items-center gap-1.5 text-stone-600 group-hover:text-white/60 transition-colors">
+                            <span className="text-[10px] font-medium uppercase tracking-wider hidden sm:block">Start</span>
+                            <Play className="w-4 h-4 fill-current" />
+                          </div>
                         </div>
 
-                        <h3 className="font-display font-700 text-base text-white mb-1">
+                        <h3 className="font-display font-700 text-lg text-white mb-1.5">
                           {cat.title}
                         </h3>
-                        <p className="text-sm text-stone-400 mb-2">
+                        <p className="text-sm text-stone-300/70 mb-3 leading-relaxed">
                           {cat.description}
                         </p>
-                        <p className="text-xs text-stone-600">
+                        <p className="text-[11px] text-stone-500 font-medium">
                           {cat.detail}
                         </p>
                       </div>
