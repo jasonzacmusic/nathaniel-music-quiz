@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       rows_written: rows.length,
-      categories: [...new Set(questions.map(q => q.category))],
+      categories: Array.from(new Set(questions.map(q => q.category))),
       message: `Pushed ${rows.length} questions to "${NOTATION_SHEET}" in Google Sheets`,
     });
   } catch (error) {
