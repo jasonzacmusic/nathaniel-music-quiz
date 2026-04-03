@@ -242,9 +242,9 @@ export async function POST(request: NextRequest) {
     const uniqueRowsFinal = validRows;
 
     // Only delete questions/sets for the quiz types we're about to re-import.
-    // This preserves video-based ear_training data (and any other types not in this sync).
-    await sql`DELETE FROM questions WHERE quiz_type = ANY(${SAFE_SYNC_TYPES})`;
-    await sql`DELETE FROM quiz_sets WHERE quiz_type = ANY(${SAFE_SYNC_TYPES})`;
+    // Preserve hand-crafted rhythm notation questions (set_id starts with 'notation-rhythm')
+    await sql`DELETE FROM questions WHERE quiz_type = ANY(${SAFE_SYNC_TYPES}) AND set_id NOT LIKE 'notation-rhythm%'`;
+    await sql`DELETE FROM quiz_sets WHERE quiz_type = ANY(${SAFE_SYNC_TYPES}) AND set_id NOT LIKE 'notation-rhythm%'`;
 
     const BATCH_SIZE = 50;
 
