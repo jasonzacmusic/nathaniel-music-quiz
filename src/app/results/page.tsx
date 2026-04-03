@@ -379,15 +379,13 @@ export default function ResultsPage() {
               <p className="text-stone-500 text-sm mb-3">
                 Enjoyed this quiz? Help us keep it free for everyone.
               </p>
-              <a
-                href="https://www.patreon.com/nathanielschool"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/support"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-orange-500/25 bg-orange-500/[0.06] hover:bg-orange-500/[0.12] text-orange-300 font-display font-600 text-sm transition-all"
               >
                 <Heart className="w-4 h-4" />
                 Support Nathaniel School
-              </a>
+              </Link>
               <p className="text-stone-700 text-xs mt-2">
                 Every contribution helps us create more lessons and quizzes
               </p>

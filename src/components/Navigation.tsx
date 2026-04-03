@@ -30,6 +30,7 @@ export default function Navigation() {
     { href: "/notation", label: "Notation" },
     { href: "/ear-training", label: "Ear Training" },
     { href: "/challenge", label: "Challenge" },
+    { href: "/support", label: "Support" },
     { href: "/contact", label: "Contact" },
   ];
 
