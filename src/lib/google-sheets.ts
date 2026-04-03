@@ -65,7 +65,7 @@ async function createJWT(email: string, privateKeyPEM: string, scopes: string[])
 }
 
 // Get access token from Google
-async function getAccessToken(email: string, privateKey: string): Promise<string> {
+export async function getAccessToken(email: string, privateKey: string): Promise<string> {
   const jwt = await createJWT(email, privateKey, [
     'https://www.googleapis.com/auth/spreadsheets',
   ]);

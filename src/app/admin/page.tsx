@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Search, Eye, EyeOff, Lock, Settings, Users, Music } from 'lucide-react';
+import { LogOut, Search, Eye, EyeOff, Lock, Settings, Users, Music, Plus, CheckCircle, AlertCircle } from 'lucide-react';
 import VideoPlayer from '@/components/VideoPlayer';
 import { getVideoUrl } from '@/lib/utils';
 
@@ -51,7 +51,7 @@ export default function AdminPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Dashboard state
-  const [activeTab, setActiveTab] = useState<'sets' | 'overlay' | 'leads'>('sets');
+  const [activeTab, setActiveTab] = useState<'sets' | 'add' | 'overlay' | 'leads'>('sets');
   const [quizSets, setQuizSets] = useState<QuizSet[]>([]);
   const [stats, setStats] = useState({ total_sets: 0, total_questions: 0, categories_count: 0 });
   const [searchQuery, setSearchQuery] = useState('');
@@ -348,7 +348,7 @@ export default function AdminPage() {
           className="bg-slate-900/50 backdrop-blur border border-slate-700 rounded-2xl overflow-hidden"
         >
           <div className="flex border-b border-slate-700">
-            {(['sets', 'overlay', 'leads'] as const).map((tab) => (
+            {(['sets', 'add', 'overlay', 'leads'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -359,6 +359,7 @@ export default function AdminPage() {
                 }`}
               >
                 {tab === 'sets' && 'Quiz Sets'}
+                {tab === 'add' && 'Add Set'}
                 {tab === 'overlay' && 'Overlay Editor'}
                 {tab === 'leads' && 'Leads'}
               </button>
@@ -483,6 +484,12 @@ export default function AdminPage() {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </motion.div>
+              )}
+
+              {activeTab === 'add' && (
+                <motion.div key="add" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <AddSetForm token={sessionStorage.getItem('admin_token') || ''} onSuccess={() => loadDashboardData()} />
                 </motion.div>
               )}
 
@@ -672,5 +679,144 @@ export default function AdminPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+/* ═══ Add Set Form ═══ */
+
+function AddSetForm({ token, onSuccess }: { token: string; onSuccess: () => void }) {
+  const [setId, setSetId] = useState('');
+  const [category, setCategory] = useState('Piano');
+  const [notesText, setNotesText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ success?: boolean; message: string; preview?: { q: string; a: string }[] } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setResult(null);
+
+    try {
+      const res = await fetch('/api/admin/add-set', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ set_id: setId, category, notes_text: notesText }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setResult({
+          success: true,
+          message: `Added ${data.questions_added} questions to "${data.set_id}"${data.sheet_synced ? ' (synced to Google Sheets)' : ''}`,
+          preview: data.preview,
+        });
+        setSetId('');
+        setNotesText('');
+        onSuccess();
+      } else {
+        setResult({ success: false, message: data.error || 'Failed to add set' });
+      }
+    } catch (err) {
+      setResult({ success: false, message: err instanceof Error ? err.message : 'Request failed' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      <div>
+        <h3 className="text-xl font-bold text-white mb-1">Add Quiz Set</h3>
+        <p className="text-slate-400 text-sm">Paste from Apple Notes. First answer is always the correct one.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Set ID</label>
+          <input
+            type="text"
+            value={setId}
+            onChange={(e) => setSetId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+            placeholder="piano-063"
+            required
+            className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+          />
+          <p className="text-[11px] text-slate-600 mt-1">Lowercase letters, numbers, hyphens only</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-amber-500"
+          >
+            <option value="Piano">Piano</option>
+            <option value="Bass">Bass</option>
+            <option value="Whistle">Whistle</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-1">
+          Questions (Apple Notes format)
+        </label>
+        <textarea
+          value={notesText}
+          onChange={(e) => setNotesText(e.target.value)}
+          rows={14}
+          required
+          placeholder={`How many beats are there in each cycle?\n15\t14\t17\t8\n———————————————————————\nWhich three chord degrees are used?\nI, vi and V\tiii, IV and V\tii, IV and V\ti, iv and v\n———————————————————————`}
+          className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono text-sm leading-relaxed"
+        />
+        <p className="text-[11px] text-slate-600 mt-1">
+          Question line ends with &quot;?&quot; &middot; Answers on next line separated by tabs or double-spaces &middot; First answer = correct &middot; Separate questions with ———
+        </p>
+      </div>
+
+      <button
+        type="submit"
+        disabled={submitting || !setId || !notesText}
+        className="flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg font-semibold transition"
+      >
+        {submitting ? (
+          <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+        ) : (
+          <Plus className="w-5 h-5" />
+        )}
+        {submitting ? 'Adding...' : 'Add to Neon + Google Sheets'}
+      </button>
+
+      {result && (
+        <div className={`flex items-start gap-3 p-4 rounded-lg border ${
+          result.success
+            ? 'bg-emerald-500/10 border-emerald-500/30'
+            : 'bg-red-500/10 border-red-500/30'
+        }`}>
+          {result.success ? (
+            <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          )}
+          <div>
+            <p className={`text-sm font-medium ${result.success ? 'text-emerald-300' : 'text-red-300'}`}>
+              {result.message}
+            </p>
+            {result.preview && (
+              <div className="mt-2 space-y-1">
+                {result.preview.map((p, i) => (
+                  <p key={i} className="text-xs text-slate-400">
+                    <span className="text-slate-500">Q{i + 1}:</span> {p.q} <span className="text-emerald-500">→ {p.a}</span>
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </form>
   );
 }
