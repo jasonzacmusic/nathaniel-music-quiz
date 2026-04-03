@@ -20,15 +20,15 @@ const inter = Inter({
 });
 
 const siteUrl = "https://quiz.nathanielschool.com";
-const siteTitle = "Nathaniel School of Music — Music Quiz";
+const siteTitle = "Sonic Studio — Ear Training & Music Theory | Nathaniel School";
 const siteDescription =
-  "Your one-stop music quiz — ear training, music theory, staff notation, and sound-based exercises. 400+ questions. Free.";
+  "Train your ear with real video lessons, music theory across 4 traditions, staff notation, and interactive exercises. 2,000+ questions. Free.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteTitle,
-    template: "%s | Nathaniel School of Music",
+    template: "%s | Sonic Studio",
   },
   description: siteDescription,
   keywords: [
