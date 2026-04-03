@@ -39,6 +39,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
 
   useOverlay(setId);
   const [isMuted, setIsMuted] = useState(true);
+  const [volume, setVolume] = useState(0.8);
   const [showPostAnswer, setShowPostAnswer] = useState(false);
   const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [flashState, setFlashState] = useState<"none" | "correct" | "wrong">("none");
@@ -149,6 +150,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
           key={`video-${currentIndex}`}
           videoUrl={currentQuestion.video_url}
           isMuted={isMuted}
+          volume={volume}
         />
       </div>
 
@@ -174,7 +176,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
 
       {/* ═══ FLOATING YouTube + Patreon — prominent buttons on RIGHT side ═══ */}
       {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
-        <div className="absolute right-3 sm:right-4 top-[30%] sm:top-[35%] z-20 flex flex-col gap-3 pointer-events-auto">
+        <div className="absolute right-3 sm:right-4 top-14 z-20 flex flex-col gap-3 pointer-events-auto">
           {currentQuestion.youtube_url && (
             <motion.a
               initial={{ opacity: 0, x: 20 }}
@@ -272,30 +274,77 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             </div>
           </div>
 
-          {/* SPACER — pushes content to the BOTTOM HALF of the screen */}
-          <div className="flex-shrink-0 h-[50%] sm:h-[50%]" />
+          {/* SPACER — pushes content to the bottom of the screen */}
+          <div className="flex-1" />
 
-          {/* ═══ BOTTOM HALF: audio + question + 4 answers ═══ */}
+          {/* ═══ BOTTOM: volume + question + 4 answers ═══ */}
           <div className="flex-shrink-0 pointer-events-auto relative">
             <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-3 sm:px-5 sm:pb-4">
 
-              {/* AUDIO PLAY/MUTE TOGGLE */}
-              <div className="flex justify-center mb-2">
-                <motion.button
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileTap={{ scale: 0.93 }}
-                  onClick={() => setIsMuted((m) => !m)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 text-sm font-display font-600 backdrop-blur-xl ${
-                    isMuted
-                      ? "bg-amber-600/20 border-amber-500/40 text-amber-200"
-                      : "bg-emerald-600/20 border-emerald-500/40 text-emerald-200"
-                  }`}
-                >
-                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  {isMuted ? "Tap to hear" : "Playing"}
-                </motion.button>
-              </div>
+              {/* VOLUME CONTROL */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-center gap-3 mb-2"
+              >
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => {
+                      if (isMuted) {
+                        setIsMuted(false);
+                      } else {
+                        setIsMuted(true);
+                      }
+                    }}
+                    className="flex-shrink-0"
+                    aria-label={isMuted ? "Unmute" : "Mute"}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <Volume2 className="w-4 h-4 text-emerald-400" />
+                    )}
+                  </motion.button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={isMuted ? 0 : Math.round(volume * 100)}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val > 0 && isMuted) setIsMuted(false);
+                      if (val === 0) setIsMuted(true);
+                      setVolume(val / 100);
+                    }}
+                    className="video-vol-slider w-24 sm:w-32 h-1.5 appearance-none bg-white/10 rounded-full cursor-pointer"
+                    aria-label="Volume"
+                  />
+                  <span className="text-[10px] text-white/40 font-mono w-7 text-right tabular-nums">
+                    {isMuted ? "OFF" : `${Math.round(volume * 100)}%`}
+                  </span>
+                </div>
+                <style jsx>{`
+                  .video-vol-slider::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    background: #f59e0b;
+                    border: 2px solid rgba(255,255,255,0.15);
+                    box-shadow: 0 0 6px rgba(245,158,11,0.3);
+                    cursor: pointer;
+                  }
+                  .video-vol-slider::-moz-range-thumb {
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    background: #f59e0b;
+                    border: 2px solid rgba(255,255,255,0.15);
+                    cursor: pointer;
+                  }
+                `}</style>
+              </motion.div>
 
               {/* QUESTION — prominent dark card with amber accent, visually distinct from answers */}
               <AnimatePresence mode="wait">

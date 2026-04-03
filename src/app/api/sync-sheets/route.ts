@@ -217,6 +217,8 @@ export async function POST(request: NextRequest) {
     await sql`DELETE FROM questions WHERE quiz_type = ANY(${SAFE_SYNC_TYPES})`;
     await sql`DELETE FROM quiz_sets WHERE quiz_type = ANY(${SAFE_SYNC_TYPES})`;
 
+    const BATCH_SIZE = 50;
+
     // Collect unique set_ids
     const setMap = new Map<string, { category: string; count: number }>();
     for (const row of uniqueRowsFinal) {
@@ -226,41 +228,50 @@ export async function POST(request: NextRequest) {
       setMap.get(row.set_id)!.count++;
     }
 
-    // Insert quiz_sets (ON CONFLICT for shared set_ids across quiz types)
+    // Insert quiz_sets in batches (ON CONFLICT for shared set_ids across quiz types)
     const setEntries = Array.from(setMap.entries());
-    for (let i = 0; i < setEntries.length; i++) {
-      const [setId, meta] = setEntries[i];
-      const qt = uniqueRowsFinal.find(r => r.set_id === setId)?.quiz_type || "music_theory";
-      await sql`
-        INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
-        VALUES (${setId}, ${qt}, ${meta.category}, ${meta.count}, ${meta.category}, ${qt})
-        ON CONFLICT (set_id) DO UPDATE SET num_questions = EXCLUDED.num_questions
-      `;
+    for (let i = 0; i < setEntries.length; i += BATCH_SIZE) {
+      const batch = setEntries.slice(i, i + BATCH_SIZE);
+      const promises = batch.map(([setId, meta]) => {
+        const qt = uniqueRowsFinal.find(r => r.set_id === setId)?.quiz_type || "music_theory";
+        return sql`
+          INSERT INTO quiz_sets (set_id, quiz_mode, original_title, num_questions, category, quiz_type)
+          VALUES (${setId}, ${qt}, ${meta.category}, ${meta.count}, ${meta.category}, ${qt})
+          ON CONFLICT (set_id) DO UPDATE SET num_questions = EXCLUDED.num_questions
+        `;
+      });
+      await Promise.all(promises);
     }
 
-    // Insert questions
-    let inserted = 0;
-    for (const row of uniqueRowsFinal) {
-      await sql`
-        INSERT INTO questions (
-          set_id, question_number, question_text, correct_answer,
-          wrong_answer_1, wrong_answer_2, wrong_answer_3,
-          youtube_title, youtube_url, video_url,
-          category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data
-        ) VALUES (
-          ${row.set_id}, ${row.question_number}, ${row.question_text}, ${row.correct_answer},
-          ${row.wrong_answer_1}, ${row.wrong_answer_2}, ${row.wrong_answer_3},
-          ${row.youtube_title}, ${row.youtube_url}, ${row.video_url},
-          ${row.category}, ${row.patreon_url}, ${row.quiz_type}, ${row.difficulty},
-          ${row.explanation}, ${row.improvement_note}, ${row.notation_data}
-        )
-      `;
-      inserted++;
+    // Insert questions in concurrent batches
+    for (let i = 0; i < uniqueRowsFinal.length; i += BATCH_SIZE) {
+      const batch = uniqueRowsFinal.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((row) =>
+        sql`
+          INSERT INTO questions (
+            set_id, question_number, question_text, correct_answer,
+            wrong_answer_1, wrong_answer_2, wrong_answer_3,
+            youtube_title, youtube_url, video_url,
+            category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data
+          ) VALUES (
+            ${row.set_id}, ${row.question_number}, ${row.question_text}, ${row.correct_answer},
+            ${row.wrong_answer_1}, ${row.wrong_answer_2}, ${row.wrong_answer_3},
+            ${row.youtube_title}, ${row.youtube_url}, ${row.video_url},
+            ${row.category}, ${row.patreon_url}, ${row.quiz_type}, ${row.difficulty},
+            ${row.explanation}, ${row.improvement_note}, ${row.notation_data}
+          )
+        `
+      ));
     }
+
+    // Verify inserts actually persisted
+    const verifyResult = await sql`SELECT COUNT(*) as count FROM questions`;
+    const actualCount = parseInt((verifyResult[0] as { count: string }).count, 10);
 
     return NextResponse.json({
       success: true,
-      imported: inserted,
+      expected: uniqueRowsFinal.length,
+      imported: actualCount,
       sets: setMap.size,
       timestamp: new Date().toISOString(),
     });

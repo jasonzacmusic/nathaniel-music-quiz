@@ -7,6 +7,7 @@ import { AlertCircle } from "lucide-react";
 interface VideoPlayerProps {
   videoUrl: string;
   isMuted: boolean;
+  volume?: number; // 0-1
   onReady?: () => void;
   className?: string;
   children?: React.ReactNode;
@@ -15,6 +16,7 @@ interface VideoPlayerProps {
 export default function VideoPlayer({
   videoUrl,
   isMuted,
+  volume = 1,
   onReady,
   className = "",
   children,
@@ -30,6 +32,12 @@ export default function VideoPlayer({
     v.muted = isMuted;
     if (!isMuted && v.paused) v.play().catch(() => {});
   }, [isMuted]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.volume = Math.max(0, Math.min(1, volume));
+  }, [volume]);
 
   const handleCanPlay = useCallback(() => {
     setHasLoaded(true);

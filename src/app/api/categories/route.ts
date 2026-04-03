@@ -1,16 +1,10 @@
 import { NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import sql from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const connStr = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL!;
-    const sql = neon(connStr);
-
-    // Debug: check all quiz types
-    const types = await sql`SELECT quiz_type, COUNT(*) as count FROM questions GROUP BY quiz_type ORDER BY count DESC`;
-
     const categories = await sql`
       SELECT category, COUNT(*) as count
       FROM questions
@@ -22,7 +16,6 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: categories,
-      debug: { types, connStr: connStr.substring(0, 30) + "..." }
     });
   } catch (error) {
     console.error('Categories API error:', error);
