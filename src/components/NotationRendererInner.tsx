@@ -98,7 +98,37 @@ function parseAbcNote(token: string, clef: string): { key: string; accidental?: 
   return { key: `${noteName}/${octave}`, accidental };
 }
 
-function parseAbcBody(body: string, clef: string): VexNote[] {
+/**
+ * Convert ABC duration to VexFlow duration string.
+ * baseBeats = how many beats the base L: unit represents (e.g. L:1/4 = 1 beat, L:1 = 4 beats)
+ * durationMul = the ABC multiplier on the note (e.g. "2" doubles, "/2" halves)
+ */
+function abcDurationToVex(baseBeats: number, durationStr: string): string {
+  let mul = 1;
+  if (durationStr) {
+    if (durationStr.includes("/")) {
+      const parts = durationStr.split("/");
+      const num = parseInt(parts[0]) || 1;
+      const den = parseInt(parts[1]) || 2;
+      mul = num / den;
+    } else {
+      mul = parseInt(durationStr) || 1;
+    }
+  }
+  const totalBeats = baseBeats * mul;
+
+  // Map total beats to VexFlow duration
+  if (totalBeats >= 4) return "w";       // whole
+  if (totalBeats >= 3) return "hd";      // dotted half
+  if (totalBeats >= 2) return "h";       // half
+  if (totalBeats >= 1.5) return "qd";    // dotted quarter
+  if (totalBeats >= 1) return "q";       // quarter
+  if (totalBeats >= 0.5) return "8";     // eighth
+  if (totalBeats >= 0.25) return "16";   // sixteenth
+  return "q";
+}
+
+function parseAbcBody(body: string, clef: string, baseBeats: number): VexNote[] {
   const notes: VexNote[] = [];
   const s = body.replace(/\|/g, " ").replace(/\s+/g, " ").trim();
   let i = 0;
@@ -158,20 +188,23 @@ function parseAbcBody(body: string, clef: string): VexNote[] {
       while (i < s.length && "^_=".includes(s[i])) { tok += s[i]; i++; }
       if (i < s.length && /[A-Ga-g]/.test(s[i])) { tok += s[i]; i++; }
       while (i < s.length && (s[i] === "," || s[i] === "'")) { tok += s[i]; i++; }
-      while (i < s.length && /[0-9/]/.test(s[i])) i++; // skip duration
+      // Capture duration modifier (e.g. "2", "4", "/2")
+      let durStr = "";
+      while (i < s.length && /[0-9/]/.test(s[i])) { durStr += s[i]; i++; }
 
       if (tok) {
         const v = parseAbcNote(tok, clef);
         const acc = v.accidental ? [{ index: 0, type: v.accidental }] : undefined;
-        notes.push({ keys: [v.key], duration: "q", accidentals: acc });
+        const dur = abcDurationToVex(baseBeats, durStr);
+        notes.push({ keys: [v.key], duration: dur, accidentals: acc });
       }
       continue;
     }
     i++;
   }
 
-  // Single note/chord → whole note
-  if (notes.length === 1) notes[0].duration = "w";
+  // Single note/chord with no explicit duration → whole note
+  if (notes.length === 1 && notes[0].duration === "q") notes[0].duration = "w";
 
   return notes;
 }
@@ -182,6 +215,7 @@ function parseNotation(raw: string): ParsedNotation {
 
   let clef: "treble" | "bass" = "treble";
   let keySignature = "C";
+  let baseBeats = 1; // default: L:1/4 = 1 beat per unit
   const bodyLines: string[] = [];
 
   for (const line of lines) {
@@ -191,13 +225,24 @@ function parseNotation(raw: string): ParsedNotation {
       keySignature = parsed.key;
       continue;
     }
+    if (line.startsWith("L:")) {
+      // Parse base note length: L:1/4 = quarter (1 beat), L:1/8 = eighth (0.5), L:1 = whole (4 beats)
+      const lMatch = line.match(/L:\s*(\d+)\/?(\d*)/);
+      if (lMatch) {
+        const num = parseInt(lMatch[1]);
+        const den = lMatch[2] ? parseInt(lMatch[2]) : 1;
+        // Convert fraction to beats: 1/4 = 1 beat, 1/8 = 0.5, 1 = 4, 1/2 = 2, 1/16 = 0.25
+        baseBeats = (num / den) * 4;
+      }
+      continue;
+    }
     if (/^[A-Z]:/.test(line)) continue;
     if (line) bodyLines.push(line);
   }
 
   const body = bodyLines.join(" ").trim();
   const hasKeySignatureOnly = !body || body === "x" || body === "z";
-  const notes = hasKeySignatureOnly ? [] : parseAbcBody(body, clef);
+  const notes = hasKeySignatureOnly ? [] : parseAbcBody(body, clef, baseBeats);
 
   return { clef, keySignature, notes, hasKeySignatureOnly };
 }
