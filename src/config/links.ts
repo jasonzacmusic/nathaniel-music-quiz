@@ -1,7 +1,8 @@
 export const LINKS = {
   youtube: "https://www.youtube.com/nathanielschool",
   patreon: "https://www.patreon.com/jasonzac",
-  paypal: "https://paypal.me/nathanielschool",
+  paypal: "https://www.paypal.com/paypalme/jasonzac",
+  paypalEmail: "music@nathanielschool.com",
   whatsapp: "https://wa.me/917760456847",
   website: "https://nathanielschool.com",
   email: "music@nathanielschool.com",

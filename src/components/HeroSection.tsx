@@ -132,6 +132,7 @@ function CategoryRotator({ categories }: { categories: CategoryInfo[] }) {
 }
 
 export default function HeroSection({ stats, categories = [] }: { stats: HeroStats; categories?: CategoryInfo[] }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [displayStats, setDisplayStats] = useState({ questions: 0, categories: 0, sets: 0 });
 
   useEffect(() => {
@@ -232,9 +233,9 @@ export default function HeroSection({ stats, categories = [] }: { stats: HeroSta
           className="inline-flex items-stretch divide-x divide-amber-900/30 border border-amber-900/25 rounded-2xl bg-amber-900/[0.06] backdrop-blur-sm mb-14 overflow-hidden"
         >
           {[
-            { value: displayStats.questions, suffix: "+", label: "Questions" },
             { value: 4, suffix: "", label: "Quiz Modes" },
-            { value: null, suffix: "", label: "Global Traditions", text: "Global" },
+            { value: 4, suffix: "", label: "Traditions" },
+            { value: null, suffix: "", label: "Always Free", text: "Free" },
           ].map((stat, i) => (
             <div key={i} className="px-6 py-3.5 text-center min-w-[90px]">
               <div className="text-2xl md:text-3xl font-display font-700 text-white tabular-nums">

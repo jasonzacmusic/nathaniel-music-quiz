@@ -39,6 +39,7 @@ type AnswerState = "default" | "correct" | "wrong" | "reveal";
 export default function NotationPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
@@ -259,7 +260,7 @@ export default function NotationPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-display font-700 text-lg text-white mb-1">All Categories</h3>
-                      <p className="text-white/50 text-sm">{totalQuestions} questions across all topics</p>
+                      <p className="text-white/50 text-sm">Questions across all topics</p>
                     </div>
                     <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
                       {loadingQuestions ? (
@@ -292,7 +293,7 @@ export default function NotationPage() {
                             <Icon className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
                             <h3 className="font-display font-700 text-white/90">{cat.category}</h3>
                           </div>
-                          <span className="text-xs text-white/30 font-display">{cat.count}q</span>
+                          <svg className="w-4 h-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                         </div>
                         <p className="text-white/45 text-sm leading-relaxed">{style.desc}</p>
                       </motion.button>

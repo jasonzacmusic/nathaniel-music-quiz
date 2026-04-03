@@ -155,7 +155,7 @@ export default async function Home() {
               </svg>
               Start a Video Quiz
             </Link>
-            <p className="text-stone-600 text-xs mt-4">326 questions across {categories.length} topics</p>
+            <p className="text-stone-600 text-xs mt-4">Hundreds of questions across {categories.length} topics</p>
           </div>
         </div>
       </section>
@@ -199,7 +199,7 @@ export default async function Home() {
                         {set.set_id.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
                       </p>
                       <p className="text-[11px] text-stone-600">
-                        {set.num_questions} questions
+                        Video quiz
                       </p>
                     </div>
                   </Link>
@@ -242,7 +242,7 @@ export default async function Home() {
                   </div>
                   <div className="flex items-baseline gap-3 mb-2">
                     <h3 className="font-display font-700 text-2xl text-white">Music Theory</h3>
-                    <span className="text-xs text-amber-500/50 font-medium">963 questions</span>
+                    <span className="text-xs text-amber-500/50 font-medium">3 difficulty levels</span>
                   </div>
                   <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
                     Western classical harmony, jazz extensions, and contemporary theory. Three difficulty tiers from beginner to advanced.
@@ -267,7 +267,7 @@ export default async function Home() {
                   </div>
                   <div className="flex items-baseline gap-3 mb-2">
                     <h3 className="font-display font-700 text-2xl text-white">Indian Classical</h3>
-                    <span className="text-xs text-orange-500/50 font-medium">250 questions</span>
+                    <span className="text-xs text-orange-500/50 font-medium">Carnatic &amp; Hindustani</span>
                   </div>
                   <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
                     Carnatic ragas, melakarta system, tala patterns, compositions, and Hindustani traditions side by side.
@@ -320,7 +320,7 @@ export default async function Home() {
                   </div>
                   <div className="flex items-baseline gap-3 mb-2">
                     <h3 className="font-display font-700 text-2xl text-white">Staff Notation</h3>
-                    <span className="text-xs text-cyan-500/50 font-medium">388 questions</span>
+                    <span className="text-xs text-cyan-500/50 font-medium">VexFlow rendered</span>
                   </div>
                   <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
                     Professional VexFlow notation rendered live in your browser. Read notes, intervals, chords, scales, and key signatures.

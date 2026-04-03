@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Search, Eye, EyeOff, Lock, Settings, Users, Music, Plus, CheckCircle, AlertCircle } from 'lucide-react';
+import { LogOut, Search, Eye, EyeOff, Lock, Settings, Users, Music, Plus, Check, CheckCircle, AlertCircle } from 'lucide-react';
 import VideoPlayer from '@/components/VideoPlayer';
 import { getVideoUrl } from '@/lib/utils';
 
@@ -304,40 +304,87 @@ export default function AdminPage() {
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-electric-violet/20 rounded-lg">
-                  <Music className="w-6 h-6 text-electric-violet" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-electric-violet/20 rounded-lg">
+                  <Music className="w-5 h-5 text-electric-violet" />
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Total Sets</p>
-                  <p className="text-3xl font-bold text-white">{stats.total_sets}</p>
+                  <p className="text-slate-500 text-xs">Sets</p>
+                  <p className="text-2xl font-bold text-white">{stats.total_sets}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-deep-purple/20 rounded-lg">
-                  <Users className="w-6 h-6 text-deep-purple" />
+            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-amber-500/20 rounded-lg">
+                  <Settings className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Total Questions</p>
-                  <p className="text-3xl font-bold text-white">{stats.total_questions}</p>
+                  <p className="text-slate-500 text-xs">Questions</p>
+                  <p className="text-2xl font-bold text-white">{stats.total_questions}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-amber-500/20 rounded-lg">
-                  <Settings className="w-6 h-6 text-amber-500" />
+            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-cyan-500/20 rounded-lg">
+                  <Users className="w-5 h-5 text-cyan-500" />
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Categories</p>
-                  <p className="text-3xl font-bold text-white">{stats.categories_count}</p>
+                  <p className="text-slate-500 text-xs">Leads</p>
+                  <p className="text-2xl font-bold text-white">{leads.length}</p>
                 </div>
               </div>
             </div>
+            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-500/20 rounded-lg">
+                  <Check className="w-5 h-5 text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-slate-500 text-xs">Categories</p>
+                  <p className="text-2xl font-bold text-white">{stats.categories_count}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={async () => {
+                const token = sessionStorage.getItem('admin_token') || '';
+                const res = await fetch(`/api/sync-sheets?secret=${token}`);
+                const data = await res.json();
+                alert(data.success ? `Synced: ${data.imported} questions imported` : `Error: ${data.error}`);
+                loadDashboardData();
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg transition text-sm font-medium border border-emerald-500/20"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              Sync from Google Sheets
+            </button>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText('https://quiz.nathanielschool.com');
+                alert('Site URL copied!');
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 rounded-lg transition text-sm font-medium border border-violet-500/20"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+              Copy Site URL
+            </button>
+            <a
+              href="https://quiz.nathanielschool.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg transition text-sm font-medium border border-amber-500/20"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              View Live Site
+            </a>
           </div>
         </motion.div>
 

@@ -28,6 +28,7 @@ export default function SupportPage() {
     }
   }, []);
 
+  // PayPal.me with amount, or fallback to donation link
   const paypalUrl = `${LINKS.paypal}/${amount}USD`;
 
   return (

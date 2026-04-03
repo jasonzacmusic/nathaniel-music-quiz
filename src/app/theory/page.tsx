@@ -177,7 +177,7 @@ export default function TheoryPage() {
           </p>
           {hasQuestions && (
             <div className="mt-8 inline-flex items-center gap-4 text-sm text-stone-600">
-              <span>{stats.total_questions} questions</span>
+              <span>Multiple difficulty levels</span>
               <span className="w-1 h-1 rounded-full bg-amber-700/50" />
               <span>{stats.categories_count} topics</span>
             </div>
@@ -222,7 +222,7 @@ export default function TheoryPage() {
                         {d.label}
                       </span>
                       <p className="text-stone-500 text-sm leading-relaxed mb-3">{d.desc}</p>
-                      {count > 0 && <p className="text-[11px] text-stone-600">{count} questions</p>}
+                      {count > 0 && <p className="text-[11px] text-stone-600">Available</p>}
                     </motion.button>
                   );
                 })}

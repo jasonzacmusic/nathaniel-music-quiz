@@ -22,7 +22,7 @@ const inter = Inter({
 const siteUrl = "https://quiz.nathanielschool.com";
 const siteTitle = "Music Quiz — Ear Training, Theory & Notation | Nathaniel School of Music";
 const siteDescription =
-  "Free music quiz with 2,000+ questions. Video ear training, music theory, Indian classical, staff notation, and interactive piano exercises. Grow as a musician.";
+  "Free music quiz for ear training, music theory, Indian classical, staff notation, and interactive piano exercises. Video-based learning from Nathaniel School of Music.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
