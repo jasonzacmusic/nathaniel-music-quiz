@@ -32,7 +32,7 @@ function abcKeyToVex(kLine: string): { clef: "treble" | "bass"; key: string } {
   const clef: "treble" | "bass" = lower.includes("bass") ? "bass" : "treble";
 
   // Extract key from K: line — e.g. "K:F", "K:^C", "K:^Gmin", "K:Amin", "K:C clef=treble"
-  let keyPart = kLine.replace(/^K:\s*/, "").replace(/clef=\w+/i, "").trim();
+  const keyPart = kLine.replace(/^K:\s*/, "").replace(/clef=\w+/i, "").trim();
   if (!keyPart || keyPart === "C") return { clef, key: "C" };
 
   // Handle ABC sharp/flat prefix
@@ -207,7 +207,6 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         const Voice = Vex.Voice || VexModule.Voice;
         const Formatter = Vex.Formatter || VexModule.Formatter;
         const Accidental = Vex.Accidental || VexModule.Accidental;
-        const KeySignature = Vex.KeySignature || VexModule.KeySignature;
         const GhostNote = Vex.GhostNote || VexModule.GhostNote;
 
         const parsed = parseNotation(notation);

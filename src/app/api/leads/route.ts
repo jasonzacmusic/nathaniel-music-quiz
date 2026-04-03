@@ -6,9 +6,11 @@ import { appendToSheet } from '@/lib/google-sheets';
 import { buildConfirmationEmail } from '@/lib/emails/confirmation';
 import { buildInternalNotificationEmail } from '@/lib/emails/internal-notification';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Send confirmation email via Resend
     try {
       const { html, text } = buildConfirmationEmail(name.trim(), phone ? phone.trim() : undefined);
-      const emailResult = await resend.emails.send({
+      const emailResult = await getResend().emails.send({
         from: 'Nathaniel School of Music <music@notifications.nathanielschool.com>',
         to: email.trim(),
         subject: 'Thank you for reaching out — Nathaniel School of Music',
@@ -102,7 +104,7 @@ export async function POST(request: NextRequest) {
         instrument: instrument ? instrument.trim() : undefined,
         message: message ? message.trim() : undefined,
       });
-      const internalResult = await resend.emails.send({
+      const internalResult = await getResend().emails.send({
         from: 'Nathaniel School of Music <music@notifications.nathanielschool.com>',
         to: 'music@nathanielschool.com',
         subject: `New Form Submission — ${name.trim()}`,
