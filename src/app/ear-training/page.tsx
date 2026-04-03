@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { usePiano } from "@/components/PianoPlayer";
 import RhythmTrainer from "@/components/RhythmTrainer";
-import VolumeControl from "@/components/VolumeControl";
+
 
 /* ---------- Music theory data ---------- */
 
@@ -451,9 +451,7 @@ export default function EarTrainingPage() {
               <span className="text-sm font-medium">Home</span>
             </Link>
 
-            <div className="flex items-center gap-3">
-              <VolumeControl compact />
-            </div>
+            <div className="flex items-center gap-3" />
           </div>
         </div>
 
