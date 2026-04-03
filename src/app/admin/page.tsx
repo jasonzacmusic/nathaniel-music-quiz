@@ -408,12 +408,27 @@ export default function AdminPage() {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <button
-                                onClick={() => handleLoadQuestions(set)}
-                                className="px-4 py-2 bg-electric-violet/20 hover:bg-electric-violet/30 text-electric-violet rounded-lg transition text-sm font-medium"
-                              >
-                                View Questions
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleLoadQuestions(set)}
+                                  className="px-4 py-2 bg-electric-violet/20 hover:bg-electric-violet/30 text-electric-violet rounded-lg transition text-sm font-medium"
+                                >
+                                  View Questions
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    const url = `https://quiz.nathanielschool.com/play/${set.set_id}`;
+                                    navigator.clipboard.writeText(url).then(() => {
+                                      const btn = document.getElementById(`copy-${set.set_id}`);
+                                      if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy Link"; }, 2000); }
+                                    });
+                                  }}
+                                  id={`copy-${set.set_id}`}
+                                  className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg transition text-sm font-medium"
+                                >
+                                  Copy Link
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}

@@ -240,7 +240,7 @@ export default function ResultsPage() {
             className="flex justify-center gap-2 mb-2"
           >
             <a
-              href={`https://twitter.com/intent/tweet?text=I+scored+${percentage}%25+on+the+Nathaniel+Music+Quiz+Can+you+beat+me%3F&url=https://quiz.nathanielschool.com`}
+              href={`https://twitter.com/intent/tweet?text=I+scored+${percentage}%25+on+the+Nathaniel+Music+Quiz+Can+you+beat+me%3F&url=${encodeURIComponent(results.setId !== "random" && results.setId !== "challenge" ? `https://quiz.nathanielschool.com/play/${results.setId}` : "https://quiz.nathanielschool.com")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white hover:border-white/20 text-xs font-medium transition-all"
@@ -249,7 +249,7 @@ export default function ResultsPage() {
               Share Score
             </a>
             <a
-              href={`https://wa.me/?text=I+scored+${percentage}%25+on+the+Nathaniel+Music+Quiz+Try+it+here%3A+https://quiz.nathanielschool.com`}
+              href={`https://wa.me/?text=I+scored+${percentage}%25+on+the+Nathaniel+Music+Quiz+Try+it+here%3A+${results.setId !== "random" && results.setId !== "challenge" ? `https://quiz.nathanielschool.com/play/${results.setId}` : "https://quiz.nathanielschool.com"}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-slate-400 hover:text-green-400 hover:border-green-500/20 text-xs font-medium transition-all"

@@ -75,15 +75,8 @@ export interface QuizStats {
 export async function getAllSets(): Promise<QuizSet[]> {
   const result = await sql`
     SELECT
-      set_id,
-      quiz_mode,
-      original_title,
-      num_questions,
-      category,
-      upload_date,
-      status,
-      apple_notes_title,
-      created_at
+      set_id, quiz_mode, original_title, num_questions, category,
+      upload_date, status, apple_notes_title, quiz_type, created_at
     FROM quiz_sets
     ORDER BY set_id ASC
   `;
@@ -96,19 +89,41 @@ export async function getAllSets(): Promise<QuizSet[]> {
 export async function getSetById(setId: string): Promise<QuizSet | null> {
   const result = await sql`
     SELECT
-      set_id,
-      quiz_mode,
-      original_title,
-      num_questions,
-      category,
-      upload_date,
-      status,
-      apple_notes_title,
-      created_at
+      set_id, quiz_mode, original_title, num_questions, category,
+      upload_date, status, apple_notes_title, quiz_type, created_at
     FROM quiz_sets
     WHERE set_id = ${setId}
   `;
   return result.length > 0 ? (result[0] as QuizSet) : null;
+}
+
+/**
+ * Get recent quiz sets for a given quiz_type, ordered by newest first
+ */
+export async function getRecentSets(quizType: string, limit: number = 12): Promise<QuizSet[]> {
+  const result = await sql`
+    SELECT
+      set_id, quiz_mode, original_title, num_questions, category,
+      upload_date, status, apple_notes_title, quiz_type, created_at
+    FROM quiz_sets
+    WHERE quiz_type = ${quizType} AND num_questions >= 3
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `;
+  return result as QuizSet[];
+}
+
+/**
+ * Get question previews for a set (text only, no answers — for landing pages)
+ */
+export async function getQuestionPreviews(setId: string): Promise<{ question_text: string; youtube_title: string | null }[]> {
+  const result = await sql`
+    SELECT question_text, youtube_title
+    FROM questions
+    WHERE set_id = ${setId}
+    ORDER BY question_number ASC
+  `;
+  return result as { question_text: string; youtube_title: string | null }[];
 }
 
 /**

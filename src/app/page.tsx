@@ -1,4 +1,4 @@
-import { getCategories, getQuizStats } from "@/lib/queries";
+import { getCategories, getQuizStats, getRecentSets } from "@/lib/queries";
 import HeroSection from "@/components/HeroSection";
 import { LINKS } from "@/config/links";
 import Link from "next/link";
@@ -8,10 +8,16 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   let categories: { category: string; count: number }[] = [];
   let quizStats = { total_questions: 0, total_sets: 0, categories_count: 0 };
+  let recentSets: { set_id: string; category: string; num_questions: number }[] = [];
   try {
-    const [cats, stats] = await Promise.all([getCategories(), getQuizStats()]);
+    const [cats, stats, sets] = await Promise.all([
+      getCategories(),
+      getQuizStats(),
+      getRecentSets("ear_training", 8),
+    ]);
     categories = cats;
     quizStats = stats;
+    recentSets = sets;
   } catch {
     // DB unavailable — render with empty state
   }
@@ -153,6 +159,56 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          SECTION 1B — "Latest Quiz Sets" — Browsable set cards
+          ══════════════════════════════════════════════════════════════ */}
+      {recentSets.length > 0 && (
+        <section className="py-16 sm:py-20 px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-amber-500/50 mb-2">
+                  Jump In
+                </p>
+                <h2 className="font-display font-700 text-2xl sm:text-3xl text-white">
+                  Latest Quiz Sets
+                </h2>
+              </div>
+              <Link href="/challenge" className="text-xs text-stone-500 hover:text-amber-400 transition-colors font-medium hidden sm:block">
+                Build your own
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {recentSets.map((set) => {
+                const colors: Record<string, { border: string; accent: string; icon: string }> = {
+                  piano: { border: "border-amber-800/30 hover:border-amber-600/50", accent: "text-amber-400", icon: "🎹" },
+                  bass: { border: "border-violet-800/30 hover:border-violet-600/50", accent: "text-violet-400", icon: "🎸" },
+                  whistle: { border: "border-cyan-800/30 hover:border-cyan-600/50", accent: "text-cyan-400", icon: "🎵" },
+                };
+                const c = colors[set.category.toLowerCase()] || colors.piano;
+                return (
+                  <Link key={set.set_id} href={`/play/${set.set_id}`} className="group block">
+                    <div className={`rounded-xl border ${c.border} bg-white/[0.02] hover:bg-white/[0.05] p-4 transition-all duration-200 h-full`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{c.icon}</span>
+                        <span className={`text-xs font-display font-600 ${c.accent}`}>{set.category}</span>
+                      </div>
+                      <p className="font-display font-700 text-sm text-white mb-1">
+                        {set.set_id.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                      </p>
+                      <p className="text-[11px] text-stone-600">
+                        {set.num_questions} questions
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           SECTION 2 — "Train Your Ear" — Four Pillars
