@@ -174,43 +174,6 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
         )}
       </AnimatePresence>
 
-      {/* ═══ FLOATING YouTube + Patreon — prominent buttons on RIGHT side ═══ */}
-      {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
-        <div className="absolute right-3 sm:right-4 top-14 z-20 flex flex-col gap-3 pointer-events-auto">
-          {currentQuestion.youtube_url && (
-            <motion.a
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-              href={currentQuestion.youtube_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600/40 border-2 border-red-500/50 text-white hover:bg-red-600/60 hover:border-red-400/70 hover:scale-105 transition-all text-sm font-display font-700 backdrop-blur-md shadow-lg shadow-red-900/30"
-            >
-              <Play className="w-5 h-5 fill-white" />
-              <span className="hidden sm:inline truncate max-w-[120px]">{currentQuestion.youtube_title || "Watch Lesson"}</span>
-              <span className="sm:hidden">YouTube</span>
-            </motion.a>
-          )}
-          {currentQuestion.patreon_url && (
-            <motion.a
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.7, duration: 0.4 }}
-              href={currentQuestion.patreon_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600/40 border-2 border-orange-500/50 text-white hover:bg-orange-600/60 hover:border-orange-400/70 hover:scale-105 transition-all text-sm font-display font-700 backdrop-blur-md shadow-lg shadow-orange-900/30"
-            >
-              <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
-              </svg>
-              Patreon
-            </motion.a>
-          )}
-        </div>
-      )}
-
       {/* UI LAYER */}
       <div
         ref={scrollRef}
@@ -274,12 +237,12 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
             </div>
           </div>
 
-          {/* SPACER — pushes content to the bottom of the screen */}
-          <div className="flex-1" />
+          {/* SPACER — top half stays clear for the video face */}
+          <div className="flex-shrink-0 h-[40%] sm:h-[42%]" />
 
-          {/* ═══ BOTTOM: volume + question + 4 answers ═══ */}
-          <div className="flex-shrink-0 pointer-events-auto relative">
-            <div className="relative z-10 w-full max-w-2xl mx-auto px-3 pb-3 sm:px-5 sm:pb-4">
+          {/* ═══ BOTTOM HALF: centered content ═══ */}
+          <div className="flex-1 flex flex-col justify-center pointer-events-auto relative">
+            <div className="relative z-10 w-full max-w-2xl mx-auto px-3 sm:px-5">
 
               {/* VOLUME CONTROL */}
               <motion.div
@@ -386,7 +349,7 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                 )}
               </AnimatePresence>
 
-              {/* POST-ANSWER: result + Next (scrolls into view) */}
+              {/* POST-ANSWER: result + links + Next (scrolls into view) */}
               <AnimatePresence>
                 {showPostAnswer && (
                   <motion.div
@@ -427,6 +390,56 @@ export default function QuizPlayerClient({ questions, setId }: QuizPlayerClientP
                       <div className="rounded-lg p-2.5 border border-violet-800/20 bg-black/60 backdrop-blur-md">
                         <p className="text-[10px] text-violet-400/60 uppercase tracking-wider font-medium mb-1">Study Tip</p>
                         <p className="text-xs text-stone-300 leading-relaxed">{currentQuestion.improvement_note}</p>
+                      </div>
+                    )}
+
+                    {/* ═══ YouTube + Patreon — prominent full-width cards ═══ */}
+                    {(currentQuestion.youtube_url || currentQuestion.patreon_url) && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {currentQuestion.youtube_url && (
+                          <motion.a
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                            href={currentQuestion.youtube_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-red-600/25 border-2 border-red-500/40 hover:bg-red-600/40 hover:border-red-400/60 hover:scale-[1.02] transition-all backdrop-blur-md group"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-red-600/40 flex items-center justify-center flex-shrink-0 group-hover:bg-red-600/60 transition-colors">
+                              <Play className="w-5 h-5 text-white fill-white" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[10px] text-red-300/60 uppercase tracking-wider font-medium leading-none mb-1">Watch the Lesson</p>
+                              <p className="text-sm font-display font-700 text-white truncate leading-tight">
+                                {currentQuestion.youtube_title || "Learn this on YouTube"}
+                              </p>
+                            </div>
+                          </motion.a>
+                        )}
+                        {currentQuestion.patreon_url && (
+                          <motion.a
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 }}
+                            href={currentQuestion.patreon_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-orange-600/25 border-2 border-orange-500/40 hover:bg-orange-600/40 hover:border-orange-400/60 hover:scale-[1.02] transition-all backdrop-blur-md group"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-orange-600/40 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-600/60 transition-colors">
+                              <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003" />
+                              </svg>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[10px] text-orange-300/60 uppercase tracking-wider font-medium leading-none mb-1">Support & Unlock More</p>
+                              <p className="text-sm font-display font-700 text-white truncate leading-tight">
+                                Get full access on Patreon
+                              </p>
+                            </div>
+                          </motion.a>
+                        )}
                       </div>
                     )}
 

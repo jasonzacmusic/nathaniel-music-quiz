@@ -451,28 +451,8 @@ export default function EarTrainingPage() {
               <span className="text-sm font-medium">Home</span>
             </Link>
 
-            {/* Volume + Piano status */}
             <div className="flex items-center gap-3">
               <VolumeControl compact />
-              {isLoading && (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/[0.05]">
-                  <Loader2 className="w-3 h-3 animate-spin text-amber-400" />
-                  <span className="text-[10px] text-amber-400 font-medium uppercase tracking-[0.12em]">
-                    Loading...
-                  </span>
-                </div>
-              )}
-              {isLoaded && (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/[0.05]">
-                  <span className="flex h-1.5 w-1.5 relative">
-                    <span className="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                  </span>
-                  <span className="text-[10px] text-emerald-400 font-medium uppercase tracking-[0.12em]">
-                    Ready
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>

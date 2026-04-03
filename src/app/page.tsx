@@ -157,110 +157,122 @@ export default async function Home() {
       {/* ══════════════════════════════════════════════════════════════
           SECTION 2 — "Train Your Ear" — Four Pillars
           ══════════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-amber-500/50 mb-4">
+      <section className="py-24 sm:py-32 px-6 lg:px-8 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_20%,rgba(124,58,237,0.05),transparent)] pointer-events-none" />
+        <div className="max-w-6xl mx-auto relative">
+          <div className="text-center mb-16">
+            <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-violet-400/60 mb-4">
               Beyond Video
             </p>
-            <h2 className="font-display font-700 text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1]">
+            <h2 className="font-display font-700 text-4xl sm:text-5xl md:text-6xl text-white leading-[1.08] mb-5">
               Train Your Ear
             </h2>
+            <p className="text-stone-400 text-lg max-w-xl mx-auto leading-relaxed">
+              Four ways to sharpen your musicianship. Theory, tradition, sound, and sight.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Top row — two large cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             {/* Music Theory */}
             <Link href="/theory" className="group block">
-              <div
-                className="rounded-2xl border border-amber-800/25 p-6 hover:border-amber-700/40 transition-all duration-300 h-full"
-                style={{ background: "linear-gradient(135deg, rgba(180,83,9,0.06) 0%, rgba(120,53,15,0.03) 100%)" }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                  <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <h3 className="font-display font-700 text-lg text-white mb-2">Music Theory</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  963 questions across Western classical, jazz, and contemporary theory. Three difficulty levels.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-amber-500/60 group-hover:text-amber-400 transition-colors text-xs font-medium">
-                  Start quiz
-                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              <div className="relative rounded-2xl border border-amber-700/30 hover:border-amber-500/50 p-8 sm:p-10 transition-all duration-300 h-full overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(180,83,9,0.10) 0%, rgba(120,53,15,0.03) 100%)" }}>
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "rgba(180,83,9,0.12)" }} />
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <h3 className="font-display font-700 text-2xl text-white">Music Theory</h3>
+                    <span className="text-xs text-amber-500/50 font-medium">963 questions</span>
+                  </div>
+                  <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
+                    Western classical harmony, jazz extensions, and contemporary theory. Three difficulty tiers from beginner to advanced.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-amber-400/70 group-hover:text-amber-400 transition-colors text-sm font-display font-600">
+                    Start quiz
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </div>
                 </div>
               </div>
             </Link>
 
             {/* Indian Classical */}
             <Link href="/theory?era=75" className="group block">
-              <div
-                className="rounded-2xl border border-orange-800/25 p-6 hover:border-orange-700/40 transition-all duration-300 h-full"
-                style={{ background: "linear-gradient(135deg, rgba(234,88,12,0.06) 0%, rgba(194,65,12,0.03) 100%)" }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                  <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z" />
-                  </svg>
-                </div>
-                <h3 className="font-display font-700 text-lg text-white mb-2">Indian Classical</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  250 questions on Carnatic ragas, tala, compositions, and Hindustani traditions.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-orange-500/60 group-hover:text-orange-400 transition-colors text-xs font-medium">
-                  Start quiz
-                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              <div className="relative rounded-2xl border border-orange-700/30 hover:border-orange-500/50 p-8 sm:p-10 transition-all duration-300 h-full overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(234,88,12,0.10) 0%, rgba(194,65,12,0.03) 100%)" }}>
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "rgba(234,88,12,0.12)" }} />
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z" />
+                    </svg>
+                  </div>
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <h3 className="font-display font-700 text-2xl text-white">Indian Classical</h3>
+                    <span className="text-xs text-orange-500/50 font-medium">250 questions</span>
+                  </div>
+                  <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
+                    Carnatic ragas, melakarta system, tala patterns, compositions, and Hindustani traditions side by side.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-orange-400/70 group-hover:text-orange-400 transition-colors text-sm font-display font-600">
+                    Start quiz
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </div>
                 </div>
               </div>
             </Link>
+          </div>
 
+          {/* Bottom row — two large cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Ear Training */}
             <Link href="/ear-training" className="group block">
-              <div
-                className="rounded-2xl border border-violet-800/25 p-6 hover:border-violet-700/40 transition-all duration-300 h-full"
-                style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(76,29,149,0.03) 100%)" }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                  <svg className="w-6 h-6 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-                  </svg>
-                </div>
-                <h3 className="font-display font-700 text-lg text-white mb-2">Ear Training</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  Interactive exercises with Salamander Grand Piano. Intervals, chords, scales, rhythm, progressions.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-violet-500/60 group-hover:text-violet-400 transition-colors text-xs font-medium">
-                  Train your ear
-                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              <div className="relative rounded-2xl border border-violet-700/30 hover:border-violet-500/50 p-8 sm:p-10 transition-all duration-300 h-full overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.10) 0%, rgba(76,29,149,0.03) 100%)" }}>
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "rgba(124,58,237,0.12)" }} />
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                    </svg>
+                  </div>
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <h3 className="font-display font-700 text-2xl text-white">Ear Training</h3>
+                    <span className="text-xs text-violet-500/50 font-medium">Interactive</span>
+                  </div>
+                  <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
+                    Hear real Salamander Grand Piano samples. Identify intervals, chords, scales, rhythm patterns, and progressions by ear.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-violet-400/70 group-hover:text-violet-400 transition-colors text-sm font-display font-600">
+                    Train your ear
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </div>
                 </div>
               </div>
             </Link>
 
             {/* Staff Notation */}
             <Link href="/notation" className="group block">
-              <div
-                className="rounded-2xl border border-cyan-800/25 p-6 hover:border-cyan-700/40 transition-all duration-300 h-full"
-                style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.06) 0%, rgba(14,116,144,0.03) 100%)" }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                  <svg className="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
-                  </svg>
-                </div>
-                <h3 className="font-display font-700 text-lg text-white mb-2">Staff Notation</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  Read notes, chords, key signatures, and scales directly from professional notation.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-cyan-500/60 group-hover:text-cyan-400 transition-colors text-xs font-medium">
-                  Try it
-                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              <div className="relative rounded-2xl border border-cyan-700/30 hover:border-cyan-500/50 p-8 sm:p-10 transition-all duration-300 h-full overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.10) 0%, rgba(14,116,144,0.03) 100%)" }}>
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "rgba(6,182,212,0.12)" }} />
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <svg className="w-7 h-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+                    </svg>
+                  </div>
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <h3 className="font-display font-700 text-2xl text-white">Staff Notation</h3>
+                    <span className="text-xs text-cyan-500/50 font-medium">388 questions</span>
+                  </div>
+                  <p className="text-stone-400 text-sm leading-relaxed mb-5 max-w-sm">
+                    Professional VexFlow notation rendered live in your browser. Read notes, intervals, chords, scales, and key signatures.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-cyan-400/70 group-hover:text-cyan-400 transition-colors text-sm font-display font-600">
+                    Try it
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </div>
                 </div>
               </div>
             </Link>
