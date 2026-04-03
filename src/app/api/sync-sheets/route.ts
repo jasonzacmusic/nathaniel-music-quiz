@@ -112,7 +112,11 @@ function parseCSV(text: string): Record<string, string>[] {
 
 function normalizeRow(row: Record<string, string>): QuestionRow | null {
   const setId = row.set_id?.trim();
-  const questionText = row.question_text?.trim();
+  // Strip parenthetical hints from staff notation questions (e.g. "(Notes: [CEG])", "(G above staff)")
+  let questionText = row.question_text?.trim();
+  if (questionText && questionText.includes("(")) {
+    questionText = questionText.replace(/\s*\(.*$/, "").trim();
+  }
   const correctAnswer = row.correct_answer?.trim();
   // Video quiz sheet uses "quiz_mode" as category (e.g. "piano", "bass")
   const category = row.category?.trim() || row.quiz_mode?.trim();
@@ -131,14 +135,22 @@ function normalizeRow(row: Record<string, string>): QuestionRow | null {
     ? category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
     : category;
 
+  // Deduplicate answers: remove wrong answers that match correct or each other
+  let w1 = row.wrong_answer_1?.trim() || "";
+  let w2 = row.wrong_answer_2?.trim() || "";
+  let w3 = row.wrong_answer_3?.trim() || "";
+  if (w1 === correctAnswer) w1 = "";
+  if (w2 === correctAnswer || w2 === w1) w2 = "";
+  if (w3 === correctAnswer || w3 === w1 || w3 === w2) w3 = "";
+
   return {
     set_id: setId,
     question_number: parseInt(row.question_number, 10) || 0,
     question_text: questionText,
     correct_answer: correctAnswer,
-    wrong_answer_1: row.wrong_answer_1?.trim() || "",
-    wrong_answer_2: row.wrong_answer_2?.trim() || "",
-    wrong_answer_3: row.wrong_answer_3?.trim() || "",
+    wrong_answer_1: w1,
+    wrong_answer_2: w2,
+    wrong_answer_3: w3,
     category: displayCategory,
     quiz_type: isVideoQuiz ? "ear_training" : (row.quiz_type?.trim() || "music_theory"),
     difficulty: row.difficulty?.trim() || "beginner",
