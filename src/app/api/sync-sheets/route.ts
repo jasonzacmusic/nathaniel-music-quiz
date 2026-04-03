@@ -7,8 +7,8 @@ const SHEET_GIDS = [
   { gid: "741041831", name: "Theory Quiz v1" },
   { gid: "113832903", name: "Theory Quiz v2" },
   { gid: "1865314571", name: "Indian Music Theory" },
-  { gid: "1861222925", name: "Staff Notation Quiz" },
-  { gid: "1929581885", name: "Ear Training Quiz" },
+  { gid: "1929581885", name: "Staff Notation Quiz" },
+  { gid: "1861222925", name: "Ear Training Quiz" },
 ];
 
 // Shared secret to authorize sync requests (set in env)
