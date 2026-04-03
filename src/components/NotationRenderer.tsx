@@ -184,19 +184,22 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
       if (parsed.notes.length === 0) return;
 
       const renderer = new Renderer(el, Renderer.Backends.SVG);
-      // Use a narrower staff for fewer notes to prevent stretched ledger lines
       const noteCount = parsed.notes.length;
-      const staveWidth = noteCount <= 2
-        ? Math.min(width - 20, 180)
-        : Math.min(width - 20, Math.max(200, noteCount * 70 + 80));
-      const height = 160;
-      renderer.resize(width, height);
+      // Compact stave: just wide enough for clef + notes, no excess
+      const clefSpace = 45;
+      const noteSpace = noteCount <= 1 ? 50 : noteCount * 45;
+      const staveWidth = clefSpace + noteSpace + 20;
+      const height = 150;
+      const totalWidth = Math.max(width, staveWidth + 20);
+      renderer.resize(totalWidth, height);
 
       const context = renderer.getContext();
       context.setFont("Arial", 10);
-      context.scale(1.2, 1.2);
+      // Center the staff horizontally
+      const offsetX = Math.max(0, (totalWidth - staveWidth - 10) / 2);
+      context.scale(1.15, 1.15);
 
-      const stave = new Stave(10, 20, staveWidth);
+      const stave = new Stave(offsetX / 1.15 + 5, 20, staveWidth);
       stave.addClef(parsed.clef);
       stave.setContext(context).draw();
 
@@ -206,8 +209,8 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
           duration: n.duration,
           clef: parsed.clef,
         });
-        // Thinner ledger lines for a cleaner look
-        note.setLedgerLineStyle({ strokeStyle: '#555', lineWidth: 1.5 });
+        // Short, realistic ledger lines
+        note.setLedgerLineStyle({ strokeStyle: '#444', lineWidth: 1.2 });
         if (n.accidentals) {
           for (const acc of n.accidentals) {
             note.addModifier(new Accidental(acc.type), acc.index);
@@ -225,10 +228,8 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
       voice.setStrict(false);
       voice.addTickables(vexNotes);
 
-      // Tighter format width based on note count to avoid stretched single notes
-      const formatWidth = noteCount <= 2
-        ? Math.max(80, staveWidth - 80)
-        : staveWidth - 60;
+      // Tight formatting so notes sit close to the clef
+      const formatWidth = Math.max(40, noteSpace);
       new Formatter().joinVoices([voice]).format([voice], formatWidth);
       voice.draw(context, stave);
     } catch (e) {
@@ -246,7 +247,7 @@ export default function NotationRenderer({ notation, width = 320 }: NotationRend
     <div
       ref={containerRef}
       className="rounded-xl overflow-hidden bg-white"
-      style={{ minHeight: 160, minWidth: width }}
+      style={{ minHeight: 150, minWidth: width }}
     />
   );
 }

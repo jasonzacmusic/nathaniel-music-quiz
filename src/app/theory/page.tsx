@@ -44,18 +44,41 @@ function getTraditionWeights(sliderValue: number) {
   return weights;
 }
 
-/** Build category query params from tradition weights */
-function getWeightedCategories(sliderValue: number): string {
+/** Build category query params from tradition weights, with proportional counts */
+function getWeightedCategoryParams(sliderValue: number, totalCount: number): { categories: string; counts: string } {
   const weights = getTraditionWeights(sliderValue);
-  const cats: string[] = [];
-  for (const [tradition, w] of Object.entries(weights)) {
-    if (w > 0.05) {
-      const tradCats = TRADITION_CATEGORIES[tradition] || [];
-      cats.push(...tradCats);
+  const activeTraditions = Object.entries(weights).filter(([, w]) => w > 0.05);
+
+  // Distribute question count proportionally
+  const allCats: string[] = [];
+  const allCounts: number[] = [];
+  let assigned = 0;
+
+  for (let i = 0; i < activeTraditions.length; i++) {
+    const [tradition, w] = activeTraditions[i];
+    const tradCats = TRADITION_CATEGORIES[tradition] || [];
+    // Last tradition gets remainder to ensure exact total
+    const count = i === activeTraditions.length - 1
+      ? totalCount - assigned
+      : Math.round(w * totalCount);
+    assigned += count;
+    if (count > 0 && tradCats.length > 0) {
+      allCats.push(...tradCats);
+      // Each category from this tradition gets the same proportional count
+      tradCats.forEach(() => allCounts.push(count));
     }
   }
-  // Deduplicate
-  return Array.from(new Set(cats)).join(",");
+
+  // Deduplicate categories, keeping the max count for shared ones
+  const catMap = new Map<string, number>();
+  for (let i = 0; i < allCats.length; i++) {
+    catMap.set(allCats[i], Math.max(catMap.get(allCats[i]) || 0, allCounts[i]));
+  }
+
+  return {
+    categories: Array.from(catMap.keys()).join(","),
+    counts: Array.from(catMap.values()).join(","),
+  };
 }
 
 /* ── Config ── */
@@ -125,8 +148,9 @@ export default function TheoryPage() {
     if (cat) {
       params.set("category", cat);
     } else {
-      // Use tradition slider categories
-      const tradCats = getWeightedCategories(sliderValue);
+      // Pass slider value so the quiz page can do proportional selection
+      params.set("slider", String(sliderValue));
+      const { categories: tradCats } = getWeightedCategoryParams(sliderValue, count);
       if (tradCats) params.set("categories", tradCats);
     }
     return `/theory/quiz?${params}`;
