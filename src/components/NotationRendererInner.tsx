@@ -132,7 +132,22 @@ function parseAbcBody(body: string, clef: string): VexNote[] {
       // Skip duration numbers after chord
       while (i < s.length && /[0-9/]/.test(s[i])) i++;
       if (keys.length > 0) {
-        notes.push({ keys, duration: "w", accidentals: accs.length > 0 ? accs : undefined });
+        // Sort chord notes from lowest to highest pitch (VexFlow requires this)
+        const noteOrder = "CDEFGAB";
+        const indexed = keys.map((k, idx) => {
+          const [noteName, octStr] = k.split("/");
+          const oct = parseInt(octStr);
+          const pitch = oct * 7 + noteOrder.indexOf(noteName);
+          const acc = accs.find(a => a.index === idx);
+          return { key: k, pitch, accType: acc?.type };
+        });
+        indexed.sort((a, b) => a.pitch - b.pitch);
+        const sortedKeys = indexed.map(n => n.key);
+        const sortedAccs: { index: number; type: string }[] = [];
+        indexed.forEach((n, newIdx) => {
+          if (n.accType) sortedAccs.push({ index: newIdx, type: n.accType });
+        });
+        notes.push({ keys: sortedKeys, duration: "w", accidentals: sortedAccs.length > 0 ? sortedAccs : undefined });
       }
       continue;
     }
