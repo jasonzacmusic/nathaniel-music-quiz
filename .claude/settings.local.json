@@ -110,7 +110,30 @@
       "Bash(git pull:*)",
       "Bash(git stash:*)",
       "Bash(git rebase:*)",
-      "Bash(GIT_EDITOR=true git rebase:*)"
+      "Bash(GIT_EDITOR=true git rebase:*)",
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
+      "Bash(grep -v '^$')",
+      "Bash(ADMIN_PASSWORD=nathaniel2025 npm run dev)",
+      "Bash(export ADMIN_PASSWORD=nathaniel2025)",
+      "Read(//tmp/**)",
+      "Bash(jobs -l)",
+      "Bash(fuser -k -9 5000/tcp)",
+      "Bash(fuser -k -9 5001/tcp)",
+      "Bash(ADMIN_PASSWORD=nathaniel2025 npx next dev -p 5001 -H 0.0.0.0)",
+      "Bash(pkill -9 -f \"next dev\")",
+      "Bash(pkill -9 -f node)",
+      "Bash(ADMIN_PASSWORD=nathaniel2025 npx next dev -p 5002 -H 0.0.0.0)",
+      "Bash(fuser -k -9 5002/tcp)",
+      "Bash(grep -r \"green\\\\|red\" /home/runner/workspace/src/components/*.tsx)",
+      "Bash(convert:*)",
+      "Bash(sqlite3:*)",
+      "Bash(git reset:*)",
+      "Bash(npm ls:*)",
+      "Bash(fuser -k 3000/tcp)",
+      "Bash(ADMIN_PASSWORD=nathaniel2025 npx next dev -p 3000 -H 0.0.0.0)",
+      "Bash(ADMIN_PASSWORD=nathaniel2025 curl:*)",
+      "Bash(fuser -k 3001/tcp)",
+      "Bash(ADMIN_PASSWORD=nathaniel2025 npx next dev -p 3001 -H 0.0.0.0)"
     ]
   }
 }
