@@ -112,16 +112,31 @@ function parseCSV(text: string): Record<string, string>[] {
 
 function normalizeRow(row: Record<string, string>): QuestionRow | null {
   const setId = row.set_id?.trim();
-  // Strip parenthetical hints from staff notation questions (e.g. "(Notes: [CEG])", "(G above staff)")
+  // Strip only answer-revealing hints from notation questions:
+  // "(Notes: [CEG])", "(G above staff)", "(A-sharp fourth line)", "(Pattern: ABCDEF#G#A)"
+  // but keep descriptive context like "(2 pairs of 2)" for rhythm questions
   let questionText = row.question_text?.trim();
   if (questionText && questionText.includes("(")) {
-    questionText = questionText.replace(/\s*\(.*$/, "").trim();
+    // Only strip if the parenthetical contains note names, ABC notation, or staff positions
+    const parenMatch = questionText.match(/\s*\((.+)$/);
+    if (parenMatch) {
+      const hint = parenMatch[1];
+      const isAnswerHint = /Notes:|Pattern:|clef|line|ledger|staff|sharp|flat|above|below|middle|first|second|third|fourth|fifth/i.test(hint)
+        || /^[A-G][#♭b]?\s/.test(hint); // starts with a note name
+      if (isAnswerHint) {
+        questionText = questionText.replace(/\s*\(.*$/, "").trim();
+      }
+    }
   }
   const correctAnswer = row.correct_answer?.trim();
   // Video quiz sheet uses "quiz_mode" as category (e.g. "piano", "bass")
   const category = row.category?.trim() || row.quiz_mode?.trim();
 
   if (!setId || !questionText || !correctAnswer || !category) return null;
+
+  // Skip staff notation rhythm questions — renderer doesn't support ties/triplets/rests
+  const quizType = row.quiz_type?.trim();
+  if (quizType === "staff_notation" && category === "Rhythm") return null;
 
   const emptyToNull = (v: string | undefined) =>
     !v || v.trim() === "" ? null : v.trim();
@@ -192,10 +207,12 @@ export async function POST(request: NextRequest) {
       console.log(`${sheet.name}: ${records.length} rows parsed`);
     }
 
-    // Deduplicate by question_text (prefer later sheets / v2)
+    // Deduplicate: use question_text + correct_answer + notation_data as key
+    // so that staff notation questions with the same text but different content are kept
     const seen = new Map<string, QuestionRow>();
     for (const row of allRows) {
-      seen.set(row.question_text, row);
+      const key = `${row.question_text}|${row.correct_answer}|${row.notation_data || ""}`;
+      seen.set(key, row);
     }
     const uniqueRows = Array.from(seen.values());
 

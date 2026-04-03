@@ -214,38 +214,48 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         // Calculate dimensions
         const noteCount = parsed.notes.length;
         const hasKeySig = parsed.keySignature !== "C";
-        const keySigSpace = hasKeySig ? 45 : 0;
-        const isChord = noteCount === 1 && parsed.notes[0].keys.length > 1;
+        const isChord = noteCount === 1 && parsed.notes[0]?.keys.length > 1;
         const hasAccidentals = parsed.notes.some(n => n.accidentals && n.accidentals.length > 0);
         const accidentalSpace = hasAccidentals ? 20 : 0;
         const clefSpace = 50;
+
+        // Key sig space depends on number of sharps/flats
+        const keySigAccidentals: Record<string, number> = {
+          "C": 0, "Am": 0,
+          "G": 1, "Em": 1, "F": 1, "Dm": 1,
+          "D": 2, "Bm": 2, "Bb": 2, "Gm": 2,
+          "A": 3, "F#m": 3, "Eb": 3, "Cm": 3,
+          "E": 4, "C#m": 4, "Ab": 4, "Fm": 4,
+          "B": 5, "G#m": 5, "Db": 5, "Bbm": 5,
+          "F#": 6, "D#m": 6, "Gb": 6, "Ebm": 6,
+          "C#": 7,
+        };
+        const numKeySigMarks = keySigAccidentals[parsed.keySignature] || 0;
+        const keySigSpace = hasKeySig ? 15 + numKeySigMarks * 8 : 0;
+
         let staveWidth: number;
 
         if (parsed.hasKeySignatureOnly) {
-          // Key signature only — compact
-          staveWidth = clefSpace + keySigSpace + 40;
+          // Key signature only — tight: just clef + key sig + small margin
+          staveWidth = clefSpace + keySigSpace + 15;
         } else if (isChord) {
-          // Single chord — needs room for accidentals but not too wide
-          staveWidth = clefSpace + keySigSpace + accidentalSpace + 70;
+          staveWidth = clefSpace + keySigSpace + accidentalSpace + 65;
         } else if (noteCount <= 1) {
-          // Single note
-          staveWidth = clefSpace + keySigSpace + accidentalSpace + 55;
+          staveWidth = clefSpace + keySigSpace + accidentalSpace + 50;
         } else if (noteCount <= 4) {
-          // Short sequence (intervals displayed as sequence)
           staveWidth = clefSpace + keySigSpace + noteCount * 50 + accidentalSpace;
         } else {
-          // Scales — give generous width so notes breathe
+          // Scales — generous width
           staveWidth = clefSpace + keySigSpace + noteCount * 35 + 40;
         }
 
         // Allow scales to use full available width
         const maxWidth = noteCount > 4 ? width - 10 : width - 20;
         staveWidth = Math.min(staveWidth, maxWidth);
-        // Scales: use at least 80% of available width
         if (noteCount > 5) staveWidth = Math.max(staveWidth, Math.min(maxWidth, 300));
 
         const svgHeight = 180;
-        const svgWidth = Math.max(staveWidth + 30, 180);
+        const svgWidth = Math.max(staveWidth + 30, 160);
 
         const renderer = new Renderer(el, Renderer.Backends.SVG);
         renderer.resize(svgWidth, svgHeight);
