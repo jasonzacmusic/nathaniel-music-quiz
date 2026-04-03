@@ -484,7 +484,7 @@ export async function getNotationQuestions(
         youtube_title, youtube_url, video_url, category, patreon_url,
         quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
       FROM questions
-      WHERE quiz_type = 'staff_notation' AND difficulty = ${difficulty} AND category = ${category}
+      WHERE quiz_type = 'staff_notation' AND category != 'Rhythm' AND difficulty = ${difficulty} AND category = ${category}
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -495,7 +495,7 @@ export async function getNotationQuestions(
         youtube_title, youtube_url, video_url, category, patreon_url,
         quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
       FROM questions
-      WHERE quiz_type = 'staff_notation' AND difficulty = ${difficulty}
+      WHERE quiz_type = 'staff_notation' AND category != 'Rhythm' AND difficulty = ${difficulty}
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -506,7 +506,7 @@ export async function getNotationQuestions(
         youtube_title, youtube_url, video_url, category, patreon_url,
         quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
       FROM questions
-      WHERE quiz_type = 'staff_notation' AND category = ${category}
+      WHERE quiz_type = 'staff_notation' AND category != 'Rhythm' AND category = ${category}
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -517,7 +517,7 @@ export async function getNotationQuestions(
         youtube_title, youtube_url, video_url, category, patreon_url,
         quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
       FROM questions
-      WHERE quiz_type = 'staff_notation'
+      WHERE quiz_type = 'staff_notation' AND category != 'Rhythm'
       ORDER BY RANDOM()
       LIMIT ${count}
     `;
@@ -538,8 +538,8 @@ export async function getNotationQuestions(
  * Get notation quiz stats
  */
 export async function getNotationStats(): Promise<{ total_questions: number; categories_count: number }> {
-  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type = 'staff_notation'`;
-  const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type = 'staff_notation' AND category IS NOT NULL AND category != ''`;
+  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type = 'staff_notation' AND category != 'Rhythm'`;
+  const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type = 'staff_notation' AND category != 'Rhythm' AND category IS NOT NULL AND category != ''`;
   return {
     total_questions: (questionsResult[0] as { count: number }).count,
     categories_count: (categoriesResult[0] as { count: number }).count,
@@ -553,7 +553,7 @@ export async function getNotationCategories(): Promise<Category[]> {
   const result = await sql`
     SELECT category, COUNT(*) as count
     FROM questions
-    WHERE quiz_type = 'staff_notation' AND category IS NOT NULL AND category != ''
+    WHERE quiz_type = 'staff_notation' AND category != 'Rhythm' AND category IS NOT NULL AND category != ''
     GROUP BY category ORDER BY count DESC
   `;
   return result as unknown as Category[];
