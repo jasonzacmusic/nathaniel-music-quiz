@@ -119,9 +119,9 @@ function abcDurationToVex(baseBeats: number, durationStr: string): string {
 
   // Map total beats to VexFlow duration
   if (totalBeats >= 4) return "w";       // whole
-  if (totalBeats >= 3) return "hd";      // dotted half
+  if (totalBeats >= 3) return "h";       // dotted half → use half (dots need extra handling)
   if (totalBeats >= 2) return "h";       // half
-  if (totalBeats >= 1.5) return "qd";    // dotted quarter
+  if (totalBeats >= 1.5) return "q";     // dotted quarter → use quarter
   if (totalBeats >= 1) return "q";       // quarter
   if (totalBeats >= 0.5) return "8";     // eighth
   if (totalBeats >= 0.25) return "16";   // sixteenth
@@ -268,6 +268,7 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         const Formatter = Vex.Formatter || VexModule.Formatter;
         const Accidental = Vex.Accidental || VexModule.Accidental;
         const GhostNote = Vex.GhostNote || VexModule.GhostNote;
+        const Beam = Vex.Beam || VexModule.Beam;
 
         const parsed = parseNotation(notation);
 
@@ -400,6 +401,24 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
 
         new Formatter().joinVoices([voice]).format([voice], formatWidth);
         voice.draw(context, stave);
+
+        // Auto-beam eighth notes and sixteenths for professional appearance
+        if (Beam && noteCount > 1) {
+          try {
+            const beamableNotes = vexNotes.filter(n => {
+              const dur = n.getDuration();
+              return dur === "8" || dur === "16";
+            });
+            if (beamableNotes.length >= 2) {
+              const beams = Beam.generateBeams(vexNotes, { groups: undefined });
+              beams.forEach((beam: { setContext: (ctx: unknown) => { draw: () => void } }) => {
+                beam.setContext(context).draw();
+              });
+            }
+          } catch {
+            // Beaming is optional — don't crash if it fails
+          }
+        }
 
         // Post-render SVG quality enhancements
         const svg = el.querySelector("svg");
