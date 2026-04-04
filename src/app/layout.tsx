@@ -80,6 +80,39 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Nathaniel School of Music",
+              url: "https://quiz.nathanielschool.com",
+              logo: `${siteUrl}/opengraph-image`,
+              description: siteDescription,
+              sameAs: [
+                "https://www.youtube.com/@jasonzac",
+                "https://www.instagram.com/nathanielschool",
+                "https://www.patreon.com/jasonzac",
+              ],
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Nathaniel Music Quiz",
+              url: siteUrl,
+              description: siteDescription,
+              publisher: { "@type": "Organization", name: "Nathaniel School of Music" },
+            }),
+          }}
+        />
+      </head>
       <body
         className="font-body antialiased bg-[#0a0a08] text-stone-100 flex flex-col min-h-screen"
       >
