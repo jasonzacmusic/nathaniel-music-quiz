@@ -55,6 +55,8 @@ interface TheoryQuizPageProps {
     category?: string;
     categories?: string;
     slider?: string;
+    pathId?: string;
+    step?: string;
   };
 }
 
@@ -128,5 +130,17 @@ export default async function TheoryQuizPage({ searchParams }: TheoryQuizPagePro
     category || "Music Theory",
   ].filter(Boolean).join(" — ");
 
-  return <TextQuizPlayer questions={questions} title={title} />;
+  const pathId = searchParams.pathId || undefined;
+  const stepIndex = searchParams.step !== undefined ? parseInt(searchParams.step) : undefined;
+
+  return (
+    <TextQuizPlayer
+      questions={questions}
+      title={title}
+      difficulty={difficulty}
+      quizCategory={category}
+      pathId={pathId}
+      stepIndex={stepIndex !== undefined && !isNaN(stepIndex) ? stepIndex : undefined}
+    />
+  );
 }

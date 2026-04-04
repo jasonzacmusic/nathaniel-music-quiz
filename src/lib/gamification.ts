@@ -60,6 +60,20 @@ export const ACHIEVEMENTS: Achievement[] = [
 
 /* ═══ Player Stats ═══ */
 
+export interface TheorySession {
+  date: string;      // YYYY-MM-DD
+  category: string;  // primary category or "mixed"
+  difficulty: string; // "beginner" | "intermediate" | "advanced" | "mixed"
+  score: number;
+  total: number;
+}
+
+export interface PathProgress {
+  pathId: string;
+  completedSteps: number[];
+  lastPlayed: string; // YYYY-MM-DD
+}
+
 export interface PlayerStats {
   xp: number;
   totalCorrect: number;
@@ -76,6 +90,8 @@ export interface PlayerStats {
   lastPlayDate: string; // YYYY-MM-DD
   achievements: string[]; // unlocked achievement IDs
   joinDate: string;
+  theoryHistory: TheorySession[];
+  pathProgress: PathProgress[];
 }
 
 function defaultStats(): PlayerStats {
@@ -95,6 +111,8 @@ function defaultStats(): PlayerStats {
     lastPlayDate: "",
     achievements: [],
     joinDate: new Date().toISOString().slice(0, 10),
+    theoryHistory: [],
+    pathProgress: [],
   };
 }
 
@@ -185,4 +203,94 @@ export function recordQuizResult(
 
   saveStats(stats);
   return { stats, xpGained: xp.totalXP, newAchievements };
+}
+
+/* ═══ Theory Progress Tracking ═══ */
+
+export function recordTheoryResult(
+  score: number,
+  total: number,
+  category: string,
+  difficulty: string
+) {
+  const stats = loadStats();
+  stats.theoryHistory.push({
+    date: new Date().toISOString().slice(0, 10),
+    category: category || "mixed",
+    difficulty: difficulty || "mixed",
+    score,
+    total,
+  });
+  // Keep last 50 sessions
+  if (stats.theoryHistory.length > 50) {
+    stats.theoryHistory = stats.theoryHistory.slice(-50);
+  }
+  saveStats(stats);
+}
+
+export function getTheoryProgress(stats: PlayerStats) {
+  const history = stats.theoryHistory || [];
+  if (history.length === 0) return null;
+
+  const totalCorrect = history.reduce((s, h) => s + h.score, 0);
+  const totalAnswered = history.reduce((s, h) => s + h.total, 0);
+  const overallAccuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+  // Recent trend: last 5 vs previous 5
+  let recentTrend: "up" | "down" | "stable" = "stable";
+  if (history.length >= 6) {
+    const recent5 = history.slice(-5);
+    const prev5 = history.slice(-10, -5);
+    if (prev5.length > 0) {
+      const recentAcc = recent5.reduce((s, h) => s + h.score, 0) / recent5.reduce((s, h) => s + h.total, 0);
+      const prevAcc = prev5.reduce((s, h) => s + h.score, 0) / prev5.reduce((s, h) => s + h.total, 0);
+      if (recentAcc > prevAcc + 0.05) recentTrend = "up";
+      else if (recentAcc < prevAcc - 0.05) recentTrend = "down";
+    }
+  }
+
+  // Weakest categories
+  const catStats: Record<string, { correct: number; total: number }> = {};
+  for (const h of history) {
+    if (!catStats[h.category]) catStats[h.category] = { correct: 0, total: 0 };
+    catStats[h.category].correct += h.score;
+    catStats[h.category].total += h.total;
+  }
+  const weakestCategories = Object.entries(catStats)
+    .filter(([, s]) => s.total >= 3) // need at least 3 questions to judge
+    .map(([cat, s]) => ({ category: cat, accuracy: Math.round((s.correct / s.total) * 100) }))
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, 3);
+
+  // Sessions this week
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  const weekStartStr = weekStart.toISOString().slice(0, 10);
+  const sessionsThisWeek = history.filter(h => h.date >= weekStartStr).length;
+
+  const suggestedFocus = weakestCategories.length > 0 ? weakestCategories[0].category : null;
+
+  return { overallAccuracy, recentTrend, weakestCategories, sessionsThisWeek, suggestedFocus };
+}
+
+/* ═══ Learning Path Progress ═══ */
+
+export function completePathStep(pathId: string, stepIndex: number) {
+  const stats = loadStats();
+  let progress = stats.pathProgress.find(p => p.pathId === pathId);
+  if (!progress) {
+    progress = { pathId, completedSteps: [], lastPlayed: "" };
+    stats.pathProgress.push(progress);
+  }
+  if (!progress.completedSteps.includes(stepIndex)) {
+    progress.completedSteps.push(stepIndex);
+  }
+  progress.lastPlayed = new Date().toISOString().slice(0, 10);
+  saveStats(stats);
+}
+
+export function getPathProgress(pathId: string): PathProgress | null {
+  const stats = loadStats();
+  return stats.pathProgress.find(p => p.pathId === pathId) || null;
 }

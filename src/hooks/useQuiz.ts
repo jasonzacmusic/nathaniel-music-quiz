@@ -7,6 +7,16 @@ export interface UseQuizProps {
   questions: QuestionWithShuffledAnswers[];
 }
 
+export interface QuestionResult {
+  questionId: number;
+  questionText: string;
+  userAnswer: string;
+  correctAnswer: string;
+  wasCorrect: boolean;
+  explanation: string | null;
+  category: string;
+}
+
 export interface UseQuizReturn {
   currentQuestion: QuestionWithShuffledAnswers | null;
   currentIndex: number;
@@ -20,6 +30,7 @@ export interface UseQuizReturn {
   shuffledAnswers: string[];
   timeElapsed: number;
   questionTimes: number[];
+  questionResults: QuestionResult[];
   isComplete: boolean;
   handleAnswer: (answer: string) => void;
   nextQuestion: () => void;
@@ -38,6 +49,7 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [questionTimes, setQuestionTimes] = useState<number[]>([]);
+  const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
 
   const currentQuestion = questions[currentIndex] || null;
   const totalQuestions = questions.length;
@@ -76,6 +88,15 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
       setIsCorrect(correct);
       setAnswered(true);
       setQuestionTimes((prev) => [...prev, timeTaken]);
+      setQuestionResults((prev) => [...prev, {
+        questionId: currentQuestion.id,
+        questionText: currentQuestion.question_text,
+        userAnswer: answer,
+        correctAnswer: currentQuestion.correct_answer,
+        wasCorrect: correct,
+        explanation: currentQuestion.explanation || null,
+        category: currentQuestion.category,
+      }]);
 
       if (correct) {
         setScore((prev) => prev + 1);
@@ -111,6 +132,7 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
     setIsCorrect(null);
     setTimeElapsed(0);
     setQuestionTimes([]);
+    setQuestionResults([]);
     setQuestionStartTime(Date.now());
   }, []);
 
@@ -127,6 +149,7 @@ export function useQuiz({ questions }: UseQuizProps): UseQuizReturn {
     shuffledAnswers,
     timeElapsed,
     questionTimes,
+    questionResults,
     isComplete,
     handleAnswer,
     nextQuestion,

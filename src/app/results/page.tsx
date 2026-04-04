@@ -6,8 +6,18 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, RotateCw, Zap, Share2, Heart } from "lucide-react";
 import { getScoreTier, formatTime } from "@/lib/utils";
-import { recordQuizResult, getLevel, type Achievement } from "@/lib/gamification";
+import { recordQuizResult, recordTheoryResult, completePathStep, getLevel, type Achievement } from "@/lib/gamification";
 import Confetti from "@/components/Confetti";
+
+interface QuestionResult {
+  questionId: number;
+  questionText: string;
+  userAnswer: string;
+  correctAnswer: string;
+  wasCorrect: boolean;
+  explanation: string | null;
+  category: string;
+}
 
 interface QuizResults {
   score: number;
@@ -16,6 +26,11 @@ interface QuizResults {
   setId: string;
   bestStreak?: number;
   questionTimes?: number[];
+  questionResults?: QuestionResult[];
+  difficulty?: string | null;
+  quizCategory?: string | null;
+  pathId?: string | null;
+  stepIndex?: number | null;
 }
 
 const tierData = (percentage: number) => {
@@ -56,6 +71,7 @@ export default function ResultsPage() {
   const [playerLevel, setPlayerLevel] = useState<ReturnType<typeof getLevel> | null>(null);
   const [showAchievement, setShowAchievement] = useState<Achievement | null>(null);
   const [dailyStreak, setDailyStreak] = useState(0);
+  const [showReview, setShowReview] = useState(false);
   const gamificationDone = useRef(false);
 
   useEffect(() => {
@@ -98,6 +114,25 @@ export default function ResultsPage() {
         : "music_theory";
 
     const result = recordQuizResult(results.score, results.total, results.bestStreak || 0, quizType);
+
+    // Record theory-specific progress
+    if (quizType === "music_theory") {
+      recordTheoryResult(
+        results.score,
+        results.total,
+        results.quizCategory || "mixed",
+        results.difficulty || "mixed"
+      );
+    }
+
+    // Complete learning path step if applicable
+    if (results.pathId && results.stepIndex !== null && results.stepIndex !== undefined) {
+      const passThreshold = results.total > 0 && (results.score / results.total) >= 0.6;
+      if (passThreshold) {
+        completePathStep(results.pathId, results.stepIndex);
+      }
+    }
+
     setXpGained(result.xpGained);
     setNewAchievements(result.newAchievements);
     setPlayerLevel(getLevel(result.stats.xp));
@@ -317,6 +352,62 @@ export default function ResultsPage() {
               </div>
             ))}
           </motion.div>
+
+          {/* ═══ Review Mistakes ═══ */}
+          {results.questionResults && results.questionResults.filter(q => !q.wasCorrect).length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-6">
+              <button
+                onClick={() => setShowReview(!showReview)}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-rose-500/20 bg-rose-500/[0.06] hover:bg-rose-500/[0.1] transition-all"
+              >
+                <span className="font-display font-700 text-sm text-rose-300">
+                  Review {results.questionResults.filter(q => !q.wasCorrect).length} Mistake{results.questionResults.filter(q => !q.wasCorrect).length !== 1 ? "s" : ""}
+                </span>
+                <motion.span animate={{ rotate: showReview ? 180 : 0 }} className="text-rose-400 text-lg">
+                  &#x25BE;
+                </motion.span>
+              </button>
+              <AnimatePresence>
+                {showReview && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 space-y-3">
+                      {results.questionResults.filter(q => !q.wasCorrect).map((q, i) => (
+                        <div key={q.questionId || i} className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-600 uppercase bg-white/[0.05] text-stone-500 border border-white/10">
+                              {q.category}
+                            </span>
+                          </div>
+                          <p className="text-white/80 text-sm font-medium mb-3">{q.questionText}</p>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-rose-400 text-xs font-600 w-16 shrink-0">Your answer</span>
+                              <span className="text-rose-300/80 line-through">{q.userAnswer}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-emerald-400 text-xs font-600 w-16 shrink-0">Correct</span>
+                              <span className="text-emerald-300">{q.correctAnswer}</span>
+                            </div>
+                          </div>
+                          {q.explanation && (
+                            <p className="mt-3 text-xs text-amber-300/70 bg-amber-500/[0.06] border border-amber-500/10 rounded-lg px-3 py-2">
+                              {q.explanation}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
 
           {/* ═══ Share ═══ */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}

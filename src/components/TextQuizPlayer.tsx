@@ -9,10 +9,15 @@ import { useQuiz } from "@/hooks/useQuiz";
 import { formatTime } from "@/lib/utils";
 import AnswerButton from "./AnswerButton";
 import Confetti from "./Confetti";
+import NotationRenderer from "./NotationRenderer";
 
 interface TextQuizPlayerProps {
   questions: QuestionWithShuffledAnswers[];
   title?: string;
+  difficulty?: string;
+  quizCategory?: string;
+  pathId?: string;
+  stepIndex?: number;
 }
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -21,7 +26,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   advanced: "bg-red-500/15 text-red-400 border-red-500/30",
 };
 
-export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps) {
+export default function TextQuizPlayer({ questions, title, difficulty, quizCategory, pathId, stepIndex }: TextQuizPlayerProps) {
   const router = useRouter();
   const {
     currentQuestion,
@@ -35,6 +40,7 @@ export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps
     isCorrect,
     timeElapsed,
     questionTimes,
+    questionResults,
     handleAnswer,
     nextQuestion,
   } = useQuiz({ questions });
@@ -72,7 +78,11 @@ export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps
 
   const handleNextQuestion = useCallback(() => {
     if (isLastQuestion && answered) {
-      const resultData = { score, total: totalQuestions, timeElapsed, setId: title || "theory", bestStreak, questionTimes };
+      const resultData = {
+        score, total: totalQuestions, timeElapsed, setId: title || "theory", bestStreak, questionTimes,
+        questionResults, difficulty: difficulty || null, quizCategory: quizCategory || null,
+        pathId: pathId || null, stepIndex: stepIndex ?? null,
+      };
       sessionStorage.setItem("quizResults", JSON.stringify(resultData));
       router.push("/results");
     } else {
@@ -220,6 +230,11 @@ export default function TextQuizPlayer({ questions, title }: TextQuizPlayerProps
               <BookOpen className="w-5 h-5 text-amber-600/60 flex-shrink-0 mt-1" />
               <p className="text-[10px] text-amber-600/60 uppercase tracking-[0.15em] font-medium">Question {currentIndex + 1}</p>
             </div>
+            {currentQuestion.notation_data && (
+              <div className="mb-4 flex justify-center">
+                <NotationRenderer notation={currentQuestion.notation_data} width={320} />
+              </div>
+            )}
             <h2 className="font-display font-700 text-2xl sm:text-3xl md:text-4xl text-amber-50 leading-snug">
               {currentQuestion.question_text}
             </h2>

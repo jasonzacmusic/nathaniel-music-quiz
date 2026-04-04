@@ -398,13 +398,13 @@ export async function getTheoryQuestions(
   if (category) {
     if (difficulty) {
       result = await sql`
-        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
         FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty = ${difficulty} AND category = ${category}
         ORDER BY RANDOM() LIMIT ${count}
       `;
     } else {
       result = await sql`
-        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
         FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND category = ${category}
         ORDER BY RANDOM() LIMIT ${count}
       `;
@@ -412,26 +412,26 @@ export async function getTheoryQuestions(
   } else if (categoryList && categoryList.length > 0) {
     if (difficulty) {
       result = await sql`
-        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
         FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty = ${difficulty} AND category = ANY(${categoryList})
         ORDER BY RANDOM() LIMIT ${count}
       `;
     } else {
       result = await sql`
-        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+        SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
         FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND category = ANY(${categoryList})
         ORDER BY RANDOM() LIMIT ${count}
       `;
     }
   } else if (difficulty) {
     result = await sql`
-      SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+      SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
       FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical') AND difficulty = ${difficulty}
       ORDER BY RANDOM() LIMIT ${count}
     `;
   } else {
     result = await sql`
-      SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, created_at
+      SELECT id, set_id, question_number, question_text, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, youtube_title, youtube_url, video_url, category, patreon_url, quiz_type, difficulty, explanation, improvement_note, notation_data, created_at
       FROM questions WHERE quiz_type IN ('music_theory', 'indian_classical')
       ORDER BY RANDOM() LIMIT ${count}
     `;
