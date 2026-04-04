@@ -496,28 +496,53 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
             : availableWidth - 10;
 
         new Formatter().joinVoices([voice]).format([voice], formatWidth);
-        voice.draw(context, stave);
 
-        // Auto-beam eighth notes and sixteenths for professional appearance
+        // Create beams BEFORE drawing so VexFlow suppresses flags on beamed notes
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let beams: any[] = [];
         if (Beam && noteCount > 1) {
           try {
-            const beamableNotes = vexNotes.filter((n, idx) => {
+            const hasBeamable = vexNotes.some((n, idx) => {
               const dur = n.getDuration();
-              const isBeamable = dur === "8" || dur === "16";
-              // Don't beam rests
-              return isBeamable && !parsed.notes[idx].isRest;
+              return (dur === "8" || dur === "16") && !parsed.notes[idx].isRest;
             });
-            if (beamableNotes.length >= 2) {
-              const beams = Beam.generateBeams(vexNotes, { groups: undefined });
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              beams.forEach((beam: any) => {
-                beam.setContext(context).draw();
+            if (hasBeamable) {
+              const Fraction = Vex.Fraction || VexModule.Fraction;
+              // Beat-based beam grouping per standard music notation rules
+              let groups: InstanceType<typeof Fraction>[] | undefined;
+              if (Fraction) {
+                const ts = parsed.timeSignature || "4/4";
+                if (ts === "6/8" || ts === "9/8" || ts === "12/8") {
+                  // Compound meter: beam in groups of 3 eighth notes
+                  groups = [new Fraction(3, 8)];
+                } else if (ts === "3/4") {
+                  // Simple triple: beam per beat (1 quarter = 2 eighths)
+                  groups = [new Fraction(2, 8)];
+                } else if (ts === "2/4") {
+                  // Simple duple: beam per beat
+                  groups = [new Fraction(2, 8)];
+                } else {
+                  // 4/4 default: beam per beat (groups of 2 eighths / 4 sixteenths)
+                  groups = [new Fraction(2, 8)];
+                }
+              }
+              beams = Beam.generateBeams(vexNotes, {
+                groups,
+                maintainStemDirections: true,
               });
             }
           } catch {
             // Beaming is optional — don't crash if it fails
           }
         }
+
+        voice.draw(context, stave);
+
+        // Draw beams after voice (beams render on top of stems)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beams.forEach((beam: any) => {
+          try { beam.setContext(context).draw(); } catch { /* skip */ }
+        });
 
         // Render ties
         if (StaveTie) {
