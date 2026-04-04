@@ -78,30 +78,38 @@ export default async function Home() {
       />
 
       {/* ══════════════════════════════════════════════════════════════
-          SECTION 1 — "Watch. Listen. Answer." — Video Quizzes (THE STAR)
+          SECTION 1 — VIDEO QUIZZES — THE HIGHLIGHT
           ══════════════════════════════════════════════════════════════ */}
       <section id="categories" className="py-24 sm:py-32 px-6 lg:px-8 relative">
-        {/* Subtle glow behind section */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(180,83,9,0.06),transparent)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(180,83,9,0.08),transparent)] pointer-events-none" />
 
         <div className="max-w-6xl mx-auto relative">
-          {/* Section header */}
-          <div className="text-center mb-16">
-            <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-amber-500/60 mb-4">
-              The Original
-            </p>
-            <h2 className="font-display font-700 text-4xl sm:text-5xl md:text-6xl text-white leading-[1.08] mb-6">
-              Video-Based Ear Training
+          {/* Header + immediate CTA */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-amber-500/25 bg-amber-500/[0.08] mb-6">
+              <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+              <span className="text-amber-300 text-xs font-display font-700 uppercase tracking-wider">Watch. Listen. Answer.</span>
+            </div>
+            <h2 className="font-display font-700 text-4xl sm:text-5xl md:text-6xl text-white leading-[1.08] mb-5">
+              Video-Based<br className="sm:hidden" /> Ear Training
             </h2>
-            <p className="text-stone-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-300">
-              Watch clips from real music lessons. Hear modes, chord degrees, time signatures, jazz extensions
-              — live on the instrument. No MIDI, no synths.{" "}
-              <span className="text-stone-300 font-500">Real musicianship.</span>
+            <p className="text-stone-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8">
+              Real music lessons. Real instruments. No MIDI, no synths.{" "}
+              <span className="text-stone-200 font-500">Jason Zac teaching live on camera.</span>
             </p>
+            <Link
+              href="/challenge"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-display font-700 text-base text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 transition-all hover:scale-[1.02]"
+              style={{ boxShadow: "0 0 40px rgba(180,83,9,0.35), 0 4px 20px rgba(0,0,0,0.3)" }}
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+              Start a Video Quiz
+            </Link>
+            <p className="text-stone-600 text-xs mt-3">{quizStats.total_questions} questions across {categories.length} topics — 100% free</p>
           </div>
 
-          {/* Instrument category cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+          {/* Instrument category cards — bold, visual */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
             {instrumentCategories.map((cat) => (
               <Link
                 key={cat.name}
@@ -109,32 +117,31 @@ export default async function Home() {
                 className="group block"
               >
                 <div
-                  className={`relative rounded-2xl border ${cat.border} p-7 sm:p-8 transition-all duration-300 h-full overflow-hidden`}
+                  className={`relative rounded-2xl border-2 ${cat.border} p-7 sm:p-8 transition-all duration-300 h-full overflow-hidden hover:scale-[1.02]`}
                   style={{ background: `linear-gradient(135deg, ${cat.bg} 0%, transparent 100%)` }}
                 >
-                  {/* Hover glow */}
-                  <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{ background: cat.bg }}
                   />
 
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
-                      {cat.icon}
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="w-14 h-14 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center group-hover:scale-110 transition-transform">
+                        {cat.icon}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-display font-700 text-3xl text-white">{cat.count}</div>
+                        <div className="text-[10px] text-stone-500 uppercase tracking-wider">questions</div>
+                      </div>
                     </div>
 
-                    <div className="flex items-baseline gap-3 mb-2">
-                      <h3 className="font-display font-700 text-2xl text-white">{cat.name}</h3>
-                      <span className="text-sm text-stone-500 font-medium">{cat.count} questions</span>
-                    </div>
+                    <h3 className="font-display font-700 text-2xl text-white mb-2">{cat.name}</h3>
+                    <p className="text-stone-500 text-sm leading-relaxed mb-5">{cat.topics}</p>
 
-                    <p className="text-stone-500 text-sm leading-relaxed mb-5">
-                      {cat.topics}
-                    </p>
-
-                    <div className="flex items-center gap-1.5 text-amber-500/60 group-hover:text-amber-400 transition-colors text-xs font-medium">
-                      Start quiz
-                      <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <div className="flex items-center gap-2 text-sm font-display font-700 group-hover:gap-3 transition-all">
+                      <span className={`bg-gradient-to-r ${cat.gradient} bg-clip-text text-transparent`}>Play now</span>
+                      <svg className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
                   </div>
@@ -143,72 +150,54 @@ export default async function Home() {
             ))}
           </div>
 
-          {/* Prominent CTA */}
-          <div className="text-center">
-            <Link
-              href="/challenge"
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-display font-700 text-base text-white bg-amber-700 hover:bg-amber-600 transition-colors"
-              style={{ boxShadow: "0 0 30px rgba(180,83,9,0.3), 0 4px 20px rgba(0,0,0,0.3)" }}
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              Start a Video Quiz
-            </Link>
-            <p className="text-stone-600 text-xs mt-4">Hundreds of questions across {categories.length} topics</p>
-          </div>
+          {/* Latest Quiz Sets — better presentation */}
+          {recentSets.length > 0 && (
+            <div>
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h3 className="font-display font-700 text-xl sm:text-2xl text-white">Latest Video Quiz Sets</h3>
+                  <p className="text-stone-600 text-sm mt-1">Fresh content added regularly — jump into any set</p>
+                </div>
+                <Link href="/challenge" className="hidden sm:flex items-center gap-1.5 text-xs text-amber-500/60 hover:text-amber-400 transition-colors font-display font-600">
+                  Build your own
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {recentSets.map((set) => {
+                  const colors: Record<string, { border: string; accent: string; icon: string; glow: string }> = {
+                    piano: { border: "border-amber-800/25 hover:border-amber-500/50", accent: "text-amber-400", icon: "🎹", glow: "group-hover:shadow-amber-900/20" },
+                    bass: { border: "border-violet-800/25 hover:border-violet-500/50", accent: "text-violet-400", icon: "🎸", glow: "group-hover:shadow-violet-900/20" },
+                    whistle: { border: "border-cyan-800/25 hover:border-cyan-500/50", accent: "text-cyan-400", icon: "🎵", glow: "group-hover:shadow-cyan-900/20" },
+                  };
+                  const c = colors[set.category.toLowerCase()] || colors.piano;
+                  const title = set.set_id.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+                  return (
+                    <Link key={set.set_id} href={`/play/${set.set_id}`} className="group block">
+                      <div className={`rounded-xl border ${c.border} bg-white/[0.02] hover:bg-white/[0.06] p-4 transition-all duration-200 h-full group-hover:shadow-lg ${c.glow} hover:scale-[1.03]`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{c.icon}</span>
+                            <span className={`text-[10px] font-display font-700 uppercase tracking-wider ${c.accent}`}>{set.category}</span>
+                          </div>
+                          <svg className="w-4 h-4 text-white/10 group-hover:text-white/30 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        </div>
+                        <p className="font-display font-700 text-sm text-white/90 mb-1.5 leading-snug">{title}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-stone-500">{set.num_questions} questions</span>
+                          <span className="w-1 h-1 rounded-full bg-stone-700" />
+                          <span className="text-[10px] text-stone-500">Video</span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          SECTION 1B — "Latest Quiz Sets" — Browsable set cards
-          ══════════════════════════════════════════════════════════════ */}
-      {recentSets.length > 0 && (
-        <section className="py-16 sm:py-20 px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-amber-500/50 mb-2">
-                  Jump In
-                </p>
-                <h2 className="font-display font-700 text-2xl sm:text-3xl text-white">
-                  Latest Quiz Sets
-                </h2>
-              </div>
-              <Link href="/challenge" className="text-xs text-stone-500 hover:text-amber-400 transition-colors font-medium hidden sm:block">
-                Build your own
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {recentSets.map((set) => {
-                const colors: Record<string, { border: string; accent: string; icon: string }> = {
-                  piano: { border: "border-amber-800/30 hover:border-amber-600/50", accent: "text-amber-400", icon: "🎹" },
-                  bass: { border: "border-violet-800/30 hover:border-violet-600/50", accent: "text-violet-400", icon: "🎸" },
-                  whistle: { border: "border-cyan-800/30 hover:border-cyan-600/50", accent: "text-cyan-400", icon: "🎵" },
-                };
-                const c = colors[set.category.toLowerCase()] || colors.piano;
-                return (
-                  <Link key={set.set_id} href={`/play/${set.set_id}`} className="group block">
-                    <div className={`rounded-xl border ${c.border} bg-white/[0.02] hover:bg-white/[0.05] p-4 transition-all duration-200 h-full`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg">{c.icon}</span>
-                        <span className={`text-xs font-display font-600 ${c.accent}`}>{set.category}</span>
-                      </div>
-                      <p className="font-display font-700 text-sm text-white mb-1">
-                        {set.set_id.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
-                      </p>
-                      <p className="text-[11px] text-stone-600">
-                        Video quiz
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ══════════════════════════════════════════════════════════════
           SECTION 2 — "Train Your Ear" — Four Pillars
