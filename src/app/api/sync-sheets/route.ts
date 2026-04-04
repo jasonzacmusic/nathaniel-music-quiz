@@ -134,10 +134,6 @@ function normalizeRow(row: Record<string, string>): QuestionRow | null {
 
   if (!setId || !questionText || !correctAnswer || !category) return null;
 
-  // Skip staff notation rhythm questions — renderer doesn't support ties/triplets/rests
-  const quizType = row.quiz_type?.trim();
-  if (quizType === "staff_notation" && category === "Rhythm") return null;
-
   const emptyToNull = (v: string | undefined) =>
     !v || v.trim() === "" ? null : v.trim();
 

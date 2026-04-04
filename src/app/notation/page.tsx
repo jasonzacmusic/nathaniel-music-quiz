@@ -44,6 +44,7 @@ export default function NotationPage() {
   const [loading, setLoading] = useState(true);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
 
   const [questions, setQuestions] = useState<NotationQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -99,6 +100,7 @@ export default function NotationPage() {
     try {
       const params = new URLSearchParams({ count: "20" });
       if (category) params.set("category", category);
+      if (selectedDifficulty) params.set("difficulty", selectedDifficulty);
       const res = await fetch(`/api/notation?${params}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -109,7 +111,7 @@ export default function NotationPage() {
     } finally {
       setLoadingQuestions(false);
     }
-  }, []);
+  }, [selectedDifficulty]);
 
   const handleAnswer = useCallback((answer: string) => {
     if (selectedAnswer || !currentQuestion) return;
@@ -236,6 +238,38 @@ export default function NotationPage() {
 
           {!loading && !error && !quizStarted ? (
             <>
+              {/* Difficulty Selector */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="mb-8"
+              >
+                <h2 className="font-display font-700 text-xl text-white/80 mb-4 text-center">
+                  Skill Level
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl mx-auto">
+                  {[
+                    { value: null, label: "All Levels", desc: "Mixed difficulty", color: "from-white/10 to-white/5", border: "border-white/20", activeBorder: "border-white/50" },
+                    { value: "beginner", label: "Beginner", desc: "Fundamentals", color: "from-emerald-500/20 to-green-500/10", border: "border-emerald-500/20", activeBorder: "border-emerald-400/60" },
+                    { value: "intermediate", label: "Intermediate", desc: "Building skills", color: "from-amber-500/20 to-yellow-500/10", border: "border-amber-500/20", activeBorder: "border-amber-400/60" },
+                    { value: "advanced", label: "Advanced", desc: "Mastery", color: "from-rose-500/20 to-purple-500/10", border: "border-rose-500/20", activeBorder: "border-rose-400/60" },
+                  ].map((diff) => {
+                    const isActive = selectedDifficulty === diff.value;
+                    return (
+                      <button
+                        key={diff.label}
+                        onClick={() => setSelectedDifficulty(diff.value)}
+                        className={`p-3 rounded-xl bg-gradient-to-br ${diff.color} border ${isActive ? diff.activeBorder + " ring-1 ring-white/10" : diff.border} backdrop-blur-sm text-center transition-all hover:scale-[1.03]`}
+                      >
+                        <h3 className={`font-display font-700 text-sm ${isActive ? "text-white" : "text-white/70"}`}>{diff.label}</h3>
+                        <p className="text-white/40 text-xs mt-0.5">{diff.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
               {/* Category Cards */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -359,11 +393,20 @@ export default function NotationPage() {
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.35 }}
                 >
-                  {/* Category badge */}
-                  <div className="mb-4">
+                  {/* Category + difficulty badges */}
+                  <div className="mb-4 flex items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/50 text-xs font-medium">
                       {currentQuestion.category}
                     </span>
+                    {currentQuestion.difficulty && (
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                        currentQuestion.difficulty === "beginner" ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400/70" :
+                        currentQuestion.difficulty === "intermediate" ? "bg-amber-500/10 border border-amber-500/20 text-amber-400/70" :
+                        "bg-rose-500/10 border border-rose-500/20 text-rose-400/70"
+                      }`}>
+                        {currentQuestion.difficulty.charAt(0).toUpperCase() + currentQuestion.difficulty.slice(1)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Notation display */}

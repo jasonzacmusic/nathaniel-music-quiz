@@ -18,11 +18,16 @@ interface VexNote {
   keys: string[];
   duration: string;
   accidentals?: { index: number; type: string }[];
+  isRest?: boolean;
+  dots?: number;
+  tieToNext?: boolean;
+  tupletGroup?: number;
 }
 
 interface ParsedNotation {
   clef: "treble" | "bass";
   keySignature: string;
+  timeSignature?: string;
   notes: VexNote[];
   hasKeySignatureOnly: boolean;
 }
@@ -99,11 +104,11 @@ function parseAbcNote(token: string, clef: string): { key: string; accidental?: 
 }
 
 /**
- * Convert ABC duration to VexFlow duration string.
+ * Convert ABC duration to VexFlow duration string + dot count.
  * baseBeats = how many beats the base L: unit represents (e.g. L:1/4 = 1 beat, L:1 = 4 beats)
  * durationMul = the ABC multiplier on the note (e.g. "2" doubles, "/2" halves)
  */
-function abcDurationToVex(baseBeats: number, durationStr: string): string {
+function abcDurationToVex(baseBeats: number, durationStr: string): { duration: string; dots: number } {
   let mul = 1;
   if (durationStr) {
     if (durationStr.includes("/")) {
@@ -117,26 +122,59 @@ function abcDurationToVex(baseBeats: number, durationStr: string): string {
   }
   const totalBeats = baseBeats * mul;
 
-  // Map total beats to VexFlow duration
-  if (totalBeats >= 4) return "w";       // whole
-  if (totalBeats >= 3) return "h";       // dotted half → use half (dots need extra handling)
-  if (totalBeats >= 2) return "h";       // half
-  if (totalBeats >= 1.5) return "q";     // dotted quarter → use quarter
-  if (totalBeats >= 1) return "q";       // quarter
-  if (totalBeats >= 0.5) return "8";     // eighth
-  if (totalBeats >= 0.25) return "16";   // sixteenth
-  return "q";
+  // Check for dotted values first (1.5x a standard value)
+  // Dotted whole = 6, dotted half = 3, dotted quarter = 1.5, dotted eighth = 0.75, dotted sixteenth = 0.375
+  if (Math.abs(totalBeats - 6) < 0.01) return { duration: "w", dots: 1 };
+  if (Math.abs(totalBeats - 3) < 0.01) return { duration: "h", dots: 1 };
+  if (Math.abs(totalBeats - 1.5) < 0.01) return { duration: "q", dots: 1 };
+  if (Math.abs(totalBeats - 0.75) < 0.01) return { duration: "8", dots: 1 };
+  if (Math.abs(totalBeats - 0.375) < 0.01) return { duration: "16", dots: 1 };
+
+  // Standard values
+  if (totalBeats >= 4) return { duration: "w", dots: 0 };
+  if (totalBeats >= 2) return { duration: "h", dots: 0 };
+  if (totalBeats >= 1) return { duration: "q", dots: 0 };
+  if (totalBeats >= 0.5) return { duration: "8", dots: 0 };
+  if (totalBeats >= 0.25) return { duration: "16", dots: 0 };
+  return { duration: "q", dots: 0 };
 }
 
 function parseAbcBody(body: string, clef: string, baseBeats: number): VexNote[] {
   const notes: VexNote[] = [];
   const s = body.replace(/\|/g, " ").replace(/\s+/g, " ").trim();
   let i = 0;
+  let tupletGroupId = 0;
+  let tupletRemaining = 0;
+  let currentTupletGroup = -1;
 
   while (i < s.length) {
     if (s[i] === " ") { i++; continue; }
-    if (s[i] === "x" || s[i] === "z") { i++; continue; } // invisible/rest
-    if (s[i] === "(" && s[i + 1] >= "0" && s[i + 1] <= "9") { i += 2; continue; }
+    if (s[i] === "x") { i++; continue; } // invisible rest — skip
+
+    // Tuplet marker: (3, (5, (7 etc.
+    if (s[i] === "(" && i + 1 < s.length && s[i + 1] >= "2" && s[i + 1] <= "9") {
+      tupletRemaining = parseInt(s[i + 1]);
+      currentTupletGroup = tupletGroupId++;
+      i += 2;
+      continue;
+    }
+
+    // Rest: z with optional duration
+    if (s[i] === "z") {
+      i++;
+      let durStr = "";
+      while (i < s.length && /[0-9/]/.test(s[i])) { durStr += s[i]; i++; }
+      const { duration, dots } = abcDurationToVex(baseBeats, durStr);
+      const restKey = clef === "bass" ? "D/3" : "B/4";
+      const note: VexNote = { keys: [restKey], duration: duration + "r", isRest: true };
+      if (dots > 0) note.dots = dots;
+      if (tupletRemaining > 0) {
+        note.tupletGroup = currentTupletGroup;
+        tupletRemaining--;
+      }
+      notes.push(note);
+      continue;
+    }
 
     // Chord: [notes]
     if (s[i] === "[") {
@@ -160,7 +198,8 @@ function parseAbcBody(body: string, clef: string, baseBeats: number): VexNote[] 
       }
       if (s[i] === "]") i++;
       // Skip duration numbers after chord
-      while (i < s.length && /[0-9/]/.test(s[i])) i++;
+      let durStr = "";
+      while (i < s.length && /[0-9/]/.test(s[i])) { durStr += s[i]; i++; }
       if (keys.length > 0) {
         // Sort chord notes from lowest to highest pitch (VexFlow requires this)
         const noteOrder = "CDEFGAB";
@@ -177,7 +216,15 @@ function parseAbcBody(body: string, clef: string, baseBeats: number): VexNote[] 
         indexed.forEach((n, newIdx) => {
           if (n.accType) sortedAccs.push({ index: newIdx, type: n.accType });
         });
-        notes.push({ keys: sortedKeys, duration: "w", accidentals: sortedAccs.length > 0 ? sortedAccs : undefined });
+
+        const { duration, dots } = durStr ? abcDurationToVex(baseBeats, durStr) : { duration: "w", dots: 0 };
+        const chordNote: VexNote = {
+          keys: sortedKeys,
+          duration,
+          accidentals: sortedAccs.length > 0 ? sortedAccs : undefined,
+        };
+        if (dots > 0) chordNote.dots = dots;
+        notes.push(chordNote);
       }
       continue;
     }
@@ -188,15 +235,29 @@ function parseAbcBody(body: string, clef: string, baseBeats: number): VexNote[] 
       while (i < s.length && "^_=".includes(s[i])) { tok += s[i]; i++; }
       if (i < s.length && /[A-Ga-g]/.test(s[i])) { tok += s[i]; i++; }
       while (i < s.length && (s[i] === "," || s[i] === "'")) { tok += s[i]; i++; }
-      // Capture duration modifier (e.g. "2", "4", "/2")
+      // Capture duration modifier (e.g. "2", "4", "/2", "3/2")
       let durStr = "";
       while (i < s.length && /[0-9/]/.test(s[i])) { durStr += s[i]; i++; }
+
+      // Check for tie marker
+      let tieToNext = false;
+      if (i < s.length && s[i] === "-") {
+        tieToNext = true;
+        i++;
+      }
 
       if (tok) {
         const v = parseAbcNote(tok, clef);
         const acc = v.accidental ? [{ index: 0, type: v.accidental }] : undefined;
-        const dur = abcDurationToVex(baseBeats, durStr);
-        notes.push({ keys: [v.key], duration: dur, accidentals: acc });
+        const { duration, dots } = abcDurationToVex(baseBeats, durStr);
+        const note: VexNote = { keys: [v.key], duration, accidentals: acc };
+        if (dots > 0) note.dots = dots;
+        if (tieToNext) note.tieToNext = true;
+        if (tupletRemaining > 0) {
+          note.tupletGroup = currentTupletGroup;
+          tupletRemaining--;
+        }
+        notes.push(note);
       }
       continue;
     }
@@ -215,6 +276,7 @@ function parseNotation(raw: string): ParsedNotation {
 
   let clef: "treble" | "bass" = "treble";
   let keySignature = "C";
+  let timeSignature: string | undefined;
   let baseBeats = 1; // default: L:1/4 = 1 beat per unit
   const bodyLines: string[] = [];
 
@@ -236,6 +298,16 @@ function parseNotation(raw: string): ParsedNotation {
       }
       continue;
     }
+    if (line.startsWith("M:")) {
+      const mMatch = line.match(/M:\s*(.+)/);
+      if (mMatch) {
+        const ts = mMatch[1].trim();
+        if (ts !== "4/4" && ts !== "none") {
+          timeSignature = ts;
+        }
+      }
+      continue;
+    }
     if (/^[A-Z]:/.test(line)) continue;
     if (line) bodyLines.push(line);
   }
@@ -244,7 +316,11 @@ function parseNotation(raw: string): ParsedNotation {
   const hasKeySignatureOnly = !body || body === "x" || body === "z";
   const notes = hasKeySignatureOnly ? [] : parseAbcBody(body, clef, baseBeats);
 
-  return { clef, keySignature, notes, hasKeySignatureOnly };
+  // Show time signature for rhythm-style questions (multiple notes or contains rests)
+  const hasRests = notes.some(n => n.isRest);
+  const showTimeSig = timeSignature && (notes.length > 1 || hasRests);
+
+  return { clef, keySignature, timeSignature: showTimeSig ? timeSignature : undefined, notes, hasKeySignatureOnly };
 }
 
 /* ═══ VexFlow Renderer ═══ */
@@ -269,6 +345,9 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         const Accidental = Vex.Accidental || VexModule.Accidental;
         const GhostNote = Vex.GhostNote || VexModule.GhostNote;
         const Beam = Vex.Beam || VexModule.Beam;
+        const Dot = Vex.Dot || VexModule.Dot;
+        const StaveTie = Vex.StaveTie || VexModule.StaveTie;
+        const Tuplet = Vex.Tuplet || VexModule.Tuplet;
 
         const parsed = parseNotation(notation);
 
@@ -279,6 +358,7 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         const hasAccidentals = parsed.notes.some(n => n.accidentals && n.accidentals.length > 0);
         const accidentalSpace = hasAccidentals ? 20 : 0;
         const clefSpace = 50;
+        const timeSigSpace = parsed.timeSignature ? 30 : 0;
 
         // Key sig space depends on number of sharps/flats
         const keySigAccidentals: Record<string, number> = {
@@ -298,19 +378,19 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
 
         if (parsed.hasKeySignatureOnly) {
           // Key signature only — tight: just clef + key sig + small margin
-          staveWidth = clefSpace + keySigSpace + 15;
+          staveWidth = clefSpace + keySigSpace + timeSigSpace + 15;
         } else if (isChord) {
-          staveWidth = clefSpace + keySigSpace + accidentalSpace + 65;
+          staveWidth = clefSpace + keySigSpace + timeSigSpace + accidentalSpace + 65;
         } else if (noteCount <= 1) {
-          staveWidth = clefSpace + keySigSpace + accidentalSpace + 50;
+          staveWidth = clefSpace + keySigSpace + timeSigSpace + accidentalSpace + 50;
         } else if (noteCount <= 4) {
-          staveWidth = clefSpace + keySigSpace + noteCount * 50 + accidentalSpace;
+          staveWidth = clefSpace + keySigSpace + timeSigSpace + noteCount * 50 + accidentalSpace;
         } else {
-          // Scales — generous width
-          staveWidth = clefSpace + keySigSpace + noteCount * 35 + 40;
+          // Scales and rhythm patterns — generous width
+          staveWidth = clefSpace + keySigSpace + timeSigSpace + noteCount * 35 + 40;
         }
 
-        // Allow scales to use full available width
+        // Allow scales/rhythm to use full available width
         const maxWidth = noteCount > 4 ? width - 10 : width - 20;
         staveWidth = Math.min(staveWidth, maxWidth);
         if (noteCount > 5) staveWidth = Math.max(staveWidth, Math.min(maxWidth, 300));
@@ -334,6 +414,10 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
 
         if (hasKeySig) {
           stave.addKeySignature(parsed.keySignature);
+        }
+
+        if (parsed.timeSignature) {
+          stave.addTimeSignature(parsed.timeSignature);
         }
 
         // Professional stave styling
@@ -379,20 +463,32 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
             }
           }
 
+          // Add dots
+          if (n.dots && n.dots > 0 && Dot) {
+            for (let d = 0; d < n.dots; d++) {
+              Dot.buildAndAttach([note], { all: true });
+            }
+          }
+
           return note;
         });
 
-        // Calculate beats
+        // Calculate beats — account for dots (add 50% per dot)
         const durationBeats: Record<string, number> = { w: 4, h: 2, q: 1, "8": 0.5, "16": 0.25 };
-        const totalBeats = vexNotes.reduce((sum, n) => sum + (durationBeats[n.getDuration()] || 1), 0);
+        const totalBeats = parsed.notes.reduce((sum, n) => {
+          const baseDur = n.duration.replace("r", ""); // strip rest suffix
+          let beats = durationBeats[baseDur] || 1;
+          if (n.dots) beats *= 1.5;
+          return sum + beats;
+        }, 0);
         const numBeats = Math.max(4, Math.ceil(totalBeats));
 
         const voice = new Voice({ numBeats, beatValue: 4 });
         voice.setStrict(false);
         voice.addTickables(vexNotes);
 
-        // Format width: tight for single notes, spacious for scales
-        const availableWidth = staveWidth - clefSpace - keySigSpace;
+        // Format width: tight for single notes, spacious for scales/rhythm
+        const availableWidth = staveWidth - clefSpace - keySigSpace - timeSigSpace;
         const formatWidth = noteCount <= 1
           ? Math.max(40, availableWidth * 0.6)
           : noteCount <= 4
@@ -405,19 +501,64 @@ export default function NotationRendererInner({ notation, width = 320 }: Notatio
         // Auto-beam eighth notes and sixteenths for professional appearance
         if (Beam && noteCount > 1) {
           try {
-            const beamableNotes = vexNotes.filter(n => {
+            const beamableNotes = vexNotes.filter((n, idx) => {
               const dur = n.getDuration();
-              return dur === "8" || dur === "16";
+              const isBeamable = dur === "8" || dur === "16";
+              // Don't beam rests
+              return isBeamable && !parsed.notes[idx].isRest;
             });
             if (beamableNotes.length >= 2) {
               const beams = Beam.generateBeams(vexNotes, { groups: undefined });
-              beams.forEach((beam: { setContext: (ctx: unknown) => { draw: () => void } }) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              beams.forEach((beam: any) => {
                 beam.setContext(context).draw();
               });
             }
           } catch {
             // Beaming is optional — don't crash if it fails
           }
+        }
+
+        // Render ties
+        if (StaveTie) {
+          for (let idx = 0; idx < parsed.notes.length - 1; idx++) {
+            if (parsed.notes[idx].tieToNext) {
+              try {
+                const tie = new StaveTie({
+                  firstNote: vexNotes[idx],
+                  lastNote: vexNotes[idx + 1],
+                  firstIndexes: [0],
+                  lastIndexes: [0],
+                });
+                tie.setContext(context).draw();
+              } catch {
+                // Tie rendering is optional
+              }
+            }
+          }
+        }
+
+        // Render tuplets
+        if (Tuplet) {
+          const tupletGroups = new Map<number, typeof vexNotes>();
+          parsed.notes.forEach((n, idx) => {
+            if (n.tupletGroup !== undefined) {
+              if (!tupletGroups.has(n.tupletGroup)) tupletGroups.set(n.tupletGroup, []);
+              tupletGroups.get(n.tupletGroup)!.push(vexNotes[idx]);
+            }
+          });
+          tupletGroups.forEach((group) => {
+            try {
+              const tuplet = new Tuplet(group, {
+                numNotes: group.length,
+                notesOccupied: 2,
+                bracketed: true,
+              });
+              tuplet.setContext(context).draw();
+            } catch {
+              // Tuplet rendering is optional
+            }
+          });
         }
 
         // Post-render SVG quality enhancements

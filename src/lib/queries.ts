@@ -538,7 +538,7 @@ export async function getNotationQuestions(
  * Get notation quiz stats
  */
 export async function getNotationStats(): Promise<{ total_questions: number; categories_count: number }> {
-  const questionsResult = await sql`SELECT COUNT(*) as count FROM questions WHERE quiz_type = 'staff_notation'`;
+  const questionsResult = await sql`SELECT COUNT(id) as count FROM questions WHERE quiz_type = 'staff_notation'`;
   const categoriesResult = await sql`SELECT COUNT(DISTINCT category) as count FROM questions WHERE quiz_type = 'staff_notation' AND category IS NOT NULL AND category != ''`;
   return {
     total_questions: (questionsResult[0] as { count: number }).count,
@@ -551,7 +551,7 @@ export async function getNotationStats(): Promise<{ total_questions: number; cat
  */
 export async function getNotationCategories(): Promise<Category[]> {
   const result = await sql`
-    SELECT category, COUNT(*) as count
+    SELECT category, COUNT(id) as count
     FROM questions
     WHERE quiz_type = 'staff_notation' AND category IS NOT NULL AND category != ''
     GROUP BY category ORDER BY count DESC
