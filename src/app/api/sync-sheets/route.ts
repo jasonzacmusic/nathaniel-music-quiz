@@ -3,7 +3,7 @@ import sql from "@/lib/db";
 
 const SPREADSHEET_ID = "1QpCaISHeccQga17igp3ekDz-nJUFwsgSOi2wwXQLyJ8";
 const SHEET_GIDS = [
-  { gid: "0", name: "Video Ear Training" },
+  { gid: "1466473607", name: "Verified Database" }, // Audited video ear training (replaces GID 0)
   { gid: "741041831", name: "Theory Quiz v1" },
   { gid: "113832903", name: "Theory Quiz v2" },
   { gid: "1865314571", name: "Indian Music Theory" },
@@ -111,6 +111,10 @@ function parseCSV(text: string): Record<string, string>[] {
 }
 
 function normalizeRow(row: Record<string, string>): QuestionRow | null {
+  // Skip rows flagged as WRONG_VIDEO in the Verified Database
+  const flags = row["⚠️ FLAGS"]?.trim() || row["FLAGS"]?.trim() || "";
+  if (flags === "WRONG_VIDEO") return null;
+
   const setId = row.set_id?.trim();
   // Strip only answer-revealing hints from notation questions:
   // "(Notes: [CEG])", "(G above staff)", "(A-sharp fourth line)", "(Pattern: ABCDEF#G#A)"
