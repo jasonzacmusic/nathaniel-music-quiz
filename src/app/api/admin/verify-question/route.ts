@@ -73,37 +73,50 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Remove any existing rows that match the incoming set_id(s)
-    const incomingSetIds = new Set(rows.map((r) => r.set_id));
-    const filteredRows = existingRows.filter(
-      (row) => row[0] && !incomingSetIds.has(row[0])
-    );
+    // 2. Build a lookup from incoming rows keyed by set_id + question_number
+    const incomingMap = new Map<string, string[]>();
+    for (const r of rows) {
+      const key = `${r.set_id}|${r.question_number}`;
+      incomingMap.set(key, [
+        r.set_id,
+        r.question_number,
+        r.quiz_mode,
+        r.question_text,
+        r.correct_answer,
+        r.wrong_answer_1 || "",
+        r.wrong_answer_2 || "",
+        r.wrong_answer_3 || "",
+        r.youtube_title || "",
+        r.youtube_url || "",
+        r.video_url,
+        r.flags || "",
+        r.patreon_url || "",
+      ]);
+    }
 
-    // 3. Build new rows from the incoming data
-    const newRows = rows.map((r) => [
-      r.set_id,
-      r.question_number,
-      r.quiz_mode,
-      r.question_text,
-      r.correct_answer,
-      r.wrong_answer_1 || "",
-      r.wrong_answer_2 || "",
-      r.wrong_answer_3 || "",
-      r.youtube_title || "",
-      r.youtube_url || "",
-      r.video_url,
-      r.flags || "",
-      r.patreon_url || "",
-    ]);
+    // 3. Replace matching rows in-place (col A = set_id, col B = question_number)
+    let replacedCount = 0;
+    const allRows = existingRows.map((row) => {
+      const key = `${(row[0] || "").trim()}|${(row[1] || "").trim()}`;
+      if (incomingMap.has(key)) {
+        replacedCount++;
+        const updated = incomingMap.get(key)!;
+        incomingMap.delete(key);
+        return updated;
+      }
+      return row;
+    });
 
-    // 4. Combine: existing (without this set) + new rows
-    const allRows = [...filteredRows, ...newRows];
+    // Append any incoming rows that didn't match an existing row
+    for (const newRow of incomingMap.values()) {
+      allRows.push(newRow);
+    }
 
-    // 5. Clear everything below the header
+    // 4. Clear everything below the header
     const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(VERIFIED_SHEET + "!A2:M10000")}:clear`;
     await fetch(clearUrl, { method: "POST", headers });
 
-    // 6. Write all rows back (if any)
+    // 5. Write all rows back in the same order
     if (allRows.length > 0) {
       const writeUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(VERIFIED_SHEET + "!A2")}?valueInputOption=USER_ENTERED`;
       const writeResp = await fetch(writeUrl, {
@@ -121,9 +134,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const incomingSetIds = new Set(rows.map((r) => r.set_id));
     return NextResponse.json({
       success: true,
-      rows_written: newRows.length,
+      rows_replaced: replacedCount,
+      rows_appended: rows.length - replacedCount,
       total_rows: allRows.length,
       replaced_set_ids: Array.from(incomingSetIds),
     });
